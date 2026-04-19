@@ -178,6 +178,11 @@ export const MENU_ITEMS: MenuItem[] = [
         routerLink: "/educational-programs",
       },
       {
+        label: "Admission",
+        translationKey: "admission",
+        routerLink: "/admission",
+      },
+      {
         label: "Honor List",
         translationKey: "honorList",
         routerLink: "/honor-list",

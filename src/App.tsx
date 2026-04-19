@@ -13,6 +13,7 @@ import Undergraduate from "./pages/Accademics/homepage/Undergraduate";
 import FormationOfCollegeCouncil from "./pages/Accademics/homepage/FormationOfCollegeCouncil";
 import Postgraduate from "./pages/Accademics/homepage/Postgraduate";
 import EducationalPrograms from "./pages/Accademics/homepage/EducationalPrograms";
+import Admission from "./pages/Accademics/homepage/Admission";
 import Registeration from "./pages/Accademics/homepage/Registeration";
 import Schedules from "./pages/Accademics/homepage/Schedules";
 import Calendar from "./pages/Accademics/homepage/Calendar";
@@ -106,6 +107,7 @@ function AppContent() {
                 path="/educational-programs"
                 element={<EducationalPrograms />}
               />
+              <Route path="/admission" element={<Admission />} />
               <Route path="/undergraduate" element={<Undergraduate />} />
               <Route
                 path="/formation-of-college-council"

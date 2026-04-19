@@ -34,6 +34,10 @@ const TABLES = {
   events: getTable("VITE_SUPABASE_EVENTS_TABLE", "events"),
   news: getTable("VITE_SUPABASE_NEWS_TABLE", "news"),
   studyPlans: getTable("VITE_SUPABASE_STUDY_PLANS_TABLE", "study_plans"),
+  admissionSections: getTable(
+    "VITE_SUPABASE_ADMISSION_SECTIONS_TABLE",
+    "admission_sections",
+  ),
   schedules: getTable("VITE_SUPABASE_SCHEDULES_TABLE", "schedules"),
   calendars: getTable("VITE_SUPABASE_CALENDARS_TABLE", "calendars"),
   heroSlides: getTable("VITE_SUPABASE_GALLERY_TABLE", "photo_gallery"),
@@ -112,6 +116,17 @@ export type ScheduleItem = {
   fileUrl: string;
   category: string;
   title?: string;
+};
+
+export type AdmissionSectionKey =
+  | "how-to-apply"
+  | "required-documents"
+  | "external-transfer-requirements";
+
+export type AdmissionSectionItem = {
+  sectionKey: AdmissionSectionKey;
+  steps: string[];
+  updatedAt: string;
 };
 
 export type CalendarItem = {
@@ -1157,6 +1172,53 @@ export async function getSchedulesList(): Promise<ScheduleItem[]> {
       title: pickString(row.title) || undefined,
     };
   });
+}
+
+const normalizeSteps = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+export async function getAdmissionSectionByKey(
+  sectionKey: AdmissionSectionKey,
+): Promise<AdmissionSectionItem | null> {
+  if (!TABLES.admissionSections) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from(TABLES.admissionSections)
+    .select("*")
+    .eq("section_key", sectionKey);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const first = data?.[0];
+  if (!first) {
+    return null;
+  }
+
+  const row = unwrapRow(first) as Record<string, unknown>;
+
+  return {
+    sectionKey,
+    steps: normalizeSteps(row.steps),
+    updatedAt: pickString(row.updated_at, row.updatedAt) || "",
+  };
 }
 
 export async function getCalendarsList(): Promise<CalendarItem[]> {
