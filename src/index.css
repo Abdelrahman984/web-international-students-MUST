@@ -1,0 +1,45 @@
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
+
+@layer base {
+  body {
+    @apply bg-white dark:bg-navy-900 text-navy-900 dark:text-white font-sans antialiased;
+  }
+}
+
+@layer components {
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full;
+  }
+  .card {
+    @apply bg-white dark:bg-navy-800 rounded-xl border border-gray-100 dark:border-navy-700 overflow-hidden transition-all duration-200;
+  }
+  .card-hover {
+  }
+  .btn-primary {
+    @apply bg-navy-500 text-white px-4 py-2 rounded-lg font-medium transition-colors hover:bg-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2;
+  }
+  .dark .btn-primary {
+      @apply bg-secondary hover:bg-navy-600 ring-offset-navy-900;
+    }
+  .btn-secondary {
+      @apply bg-gray-100 dark:bg-navy-800 text-navy-600 dark:text-white px-4 py-2 rounded-lg font-medium transition-colors hover:bg-gray-200 dark:hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-navy-500 focus:ring-offset-2 border border-gray-200 dark:border-navy-700;
+    }
+    .dark .btn-secondary {
+      @apply bg-navy-800 text-white border-navy-700 hover:bg-navy-700 ring-offset-navy-900;
+    }
+  .btn-accent {
+      @apply bg-secondary text-white px-4 py-2 rounded-lg font-medium transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:ring-offset-2;
+    }
+  .dark .btn-accent {
+      @apply bg-secondary hover:bg-green-600 ring-offset-navy-900;
+    }
+}
+
