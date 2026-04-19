@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 
 interface LinksBarProps {
   className?: string;
@@ -12,45 +12,47 @@ type MenuItem = {
 };
 
 export const STATIC_MENU_ITEMS: MenuItem[] = [
-  { label: 'Home', to: '/' },
+  { label: "Home", to: "/" },
   {
-    label: 'Academics',
-    to: '/academics',
+    label: "Academics",
+    to: "/academics",
     children: [
-      { label: 'Academic Staff', to: '/academics' },
-      { label: 'Undergraduate Programs', to: '/undergraduate' },
-      { label: 'Postgraduate Programs', to: '/postgraduate' },
-      { label: 'Honor List', to: '/honor-list' },
-      { label: 'Academic Advising', to: '/academic-advising' },
-      { label: 'Registeration', to: '/Registeration' },
-      { label: 'Schedules', to: '/schedules' },
-      { label: 'Calendar', to: '/calendar' },
-      { label: 'E-Learning', to: '/e-learning' },
-      { label: 'How To Apply', to: '/how-to-apply' },
+      { label: "Academic Staff", to: "/academics" },
+      { label: "Educational Programs", to: "/educational-programs" },
+      { label: "Honor List", to: "/honor-list" },
+      { label: "Academic Advising", to: "/academic-advising" },
+      { label: "Registeration", to: "/Registeration" },
+      { label: "Schedules", to: "/schedules" },
+      { label: "Calendar", to: "/calendar" },
+      { label: "E-Learning", to: "/e-learning" },
+      { label: "How To Apply", to: "/how-to-apply" },
     ],
   },
-  { label: 'Advising', to: '/advising' },
+  { label: "Advising", to: "/advising" },
   {
-    label: 'Activities',
-    to: '/activities',
+    label: "Activities",
+    to: "/activities",
     children: [
-      { label: 'Cultural', to: '/cultural' },
-      { label: 'Sports', to: '/sports' },
-      { label: 'Art', to: '/art' },
-      { label: 'Student Clubs', to: '/student-clubs' },
+      { label: "Cultural", to: "/cultural" },
+      { label: "Sports", to: "/sports" },
+      { label: "Art", to: "/art" },
+      { label: "Student Clubs", to: "/student-clubs" },
     ],
   },
-  { label: 'Facilities', to: '/facilities' },
-  { label: 'News', to: '/news' },
-  { label: 'Events', to: '/events' },
-  { label: 'Contact Us', to: '/contact-us' },
+  { label: "Facilities", to: "/facilities" },
+  { label: "News", to: "/news" },
+  { label: "Events", to: "/events" },
+  { label: "Contact Us", to: "/contact-us" },
 ];
 
-export function LinksBar({ className = '' }: LinksBarProps) {
+export function LinksBar({ className = "" }: LinksBarProps) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   return (
-    <div className={`flex items-center gap-6 ${className}`} onMouseLeave={() => setOpenMenu(null)}>
+    <div
+      className={`flex items-center gap-6 ${className}`}
+      onMouseLeave={() => setOpenMenu(null)}
+    >
       {STATIC_MENU_ITEMS.map((item) => {
         const hasDropdown = !!item.children?.length;
         const isOpen = openMenu === item.label;
@@ -65,7 +67,7 @@ export function LinksBar({ className = '' }: LinksBarProps) {
               to={item.to}
               className={({ isActive }) =>
                 `text-white text-base font-bold transition-colors duration-300 px-3 py-2 no-underline ${
-                  isActive ? 'text-green-400' : 'hover:text-green-400'
+                  isActive ? "text-green-400" : "hover:text-green-400"
                 }`
               }
             >
