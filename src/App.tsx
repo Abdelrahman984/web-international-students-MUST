@@ -49,6 +49,7 @@ import { RequestsProvider } from "./contexts/RequestsContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ChatStoreProvider } from "./context/ChatContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Links from "./pages/links";
 
 export type PageType =
   | "academics"
@@ -130,6 +131,7 @@ function AppContent() {
               <Route path="/student-clubs" element={<ActivitiesPage />} />
               <Route path="/news" element={<News />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/links" element={<Links />} />
               {/* ------------------------------------- */}
 
               <Route path="/questionnaires" element={<Questionnaires />} />

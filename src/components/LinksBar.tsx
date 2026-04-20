@@ -60,6 +60,7 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
   },
   { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
+  { label: "Links", to: "/links" },
   { label: "Contact Us", to: "/contact-us" },
 ];
 
