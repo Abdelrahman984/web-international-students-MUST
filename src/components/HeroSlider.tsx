@@ -308,26 +308,38 @@ export function HeroSlider() {
   }, [currentIndex, slides.length]);
 
   useEffect(() => {
-    recalculateHeroNavBounds();
+    if (isLoading) {
+      return;
+    }
+
+    // Defer one frame so measurements run after layout settles.
+    const frameId = window.requestAnimationFrame(() => {
+      recalculateHeroNavBounds();
+    });
 
     const track = heroNavTrackRef.current;
-    let resizeObserver: ResizeObserver | null = null;
+    const viewport = heroNavViewportRef.current;
+    const resizeObserver = new ResizeObserver(() => {
+      recalculateHeroNavBounds();
+    });
 
     if (track) {
-      resizeObserver = new ResizeObserver(() => {
-        recalculateHeroNavBounds();
-      });
       resizeObserver.observe(track);
+    }
+
+    if (viewport) {
+      resizeObserver.observe(viewport);
     }
 
     const handleResize = () => recalculateHeroNavBounds();
     window.addEventListener("resize", handleResize);
 
     return () => {
-      if (resizeObserver) resizeObserver.disconnect();
+      window.cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
     };
-  }, [visibleHeroNavTree.length]);
+  }, [isLoading, visibleHeroNavTree.length, slides.length]);
 
   useEffect(() => {
     if (!isAutoPlay || slides.length <= 1) return;
