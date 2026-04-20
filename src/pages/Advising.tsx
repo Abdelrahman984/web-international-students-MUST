@@ -1,103 +1,137 @@
-import { useEffect, useState } from 'react';
-import { LinkResourceCard } from '../components/LinkResourceCard';
-import { PdfResourceCard } from '../components/PdfResourceCard';
-import { PlaygroundVideo } from '../components/PlaygroundVideo';
-import { getAdvisorResources, type AdvisorResourceItem } from '../services/cmsApi';
+import { useSearchParams } from "react-router-dom";
+import { GoogleDriveLinkCard } from "../components/GoogleDriveLinkCard";
 
-function isVideoResource(resource: AdvisorResourceItem): boolean {
-  if (resource.resourceType === 'video') {
-    return true;
-  }
+type AdvisingTab = "resources" | "announcements";
 
-  const url = resource.resourceUrl.toLowerCase();
-  return (
-    url.includes('youtube.com') ||
-    url.includes('youtu.be') ||
-    url.includes('vimeo.com') ||
-    url.endsWith('.mp4') ||
-    url.endsWith('.webm') ||
-    url.endsWith('.ogg')
-  );
-}
+type AnnouncementItem = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  imageUrl: string;
+  imageAlt: string;
+};
+
+const ADVISING_RESOURCE_CARDS = [
+  {
+    title: "Academic advising",
+    description:
+      "Open the academic advising guide and related support materials.",
+    to: "/academic-advising",
+  },
+  {
+    title: "Registration",
+    description: "Go to the registration guides and Banner registration help.",
+    to: "/registeration",
+  },
+  {
+    title: "Schedules",
+    description:
+      "Check current lecture schedules and exam timetable documents.",
+    to: "/schedules",
+  },
+];
+
+const ANNOUNCEMENTS: AnnouncementItem[] = [
+  {
+    id: "announcement-1",
+    title: "Advising office hours updated",
+    description:
+      "The advising desk has new weekly office hours to help students with registration and study plans.",
+    date: "20 Apr 2026",
+    imageUrl: "/must.jpg",
+    imageAlt: "Campus announcement banner",
+  },
+  {
+    id: "announcement-2",
+    title: "Registration support sessions",
+    description:
+      "Book a support slot before registration opens to review your courses and avoid conflicts.",
+    date: "18 Apr 2026",
+    imageUrl: "/Image.png",
+    imageAlt: "Student support announcement graphic",
+  },
+  {
+    id: "announcement-3",
+    title: "Schedule review reminder",
+    description:
+      "Students should review the latest schedules before the start of each semester to confirm sections.",
+    date: "15 Apr 2026",
+    imageUrl: "/must.jpg",
+    imageAlt: "University announcement image",
+  },
+];
 
 export default function AdvisingPage() {
-  const [resources, setResources] = useState<AdvisorResourceItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [status, setStatus] = useState('');
+  const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const rows = await getAdvisorResources();
-        setResources(rows);
-        setStatus(rows.length ? '' : 'No advisor resources available yet.');
-      } catch (error) {
-        console.error('Error fetching advisor resources:', error);
-        setStatus('Network error: Could not connect to Supabase.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void fetchResources();
-  }, []);
-
-  const videoResources = resources.filter((resource) => isVideoResource(resource));
-  const fileOrLinkResources = resources.filter((resource) => !isVideoResource(resource));
+  const activeTab: AdvisingTab =
+    searchParams.get("tab") === "announcements" ? "announcements" : "resources";
 
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
-        <h1 className="mb-8 text-4xl font-bold text-slate-900 dark:text-slate-100">Advising Resources</h1>
-
-        {isLoading ? (
-          <div className="animate-pulse text-emerald-600 dark:text-emerald-400">Loading advisor resources from Supabase...</div>
-        ) : status ? (
-          <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-emerald-700 dark:border-slate-700 dark:text-emerald-400">
-            {status}
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+              Advising
+            </h1>
           </div>
+        </div>
+
+        {activeTab === "resources" ? (
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40 sm:p-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {ADVISING_RESOURCE_CARDS.map((card) => (
+                <GoogleDriveLinkCard
+                  key={card.title}
+                  title={card.title}
+                  description={card.description}
+                  to={card.to}
+                />
+              ))}
+            </div>
+          </section>
         ) : (
-          <>
-            {videoResources.length > 0 && (
-              <div className="mb-8 grid grid-cols-1 gap-6">
-                {videoResources.map((resource) => (
-                  <PlaygroundVideo
-                    key={resource.id}
-                    src={resource.resourceUrl}
-                    externalUrl={resource.resourceUrl}
-                    title={resource.title}
-                    description={resource.description || 'Click play to open this advising video resource.'}
-                    durationText={resource.duration}
-                    poster={resource.thumbnailUrl}
-                  />
-                ))}
-              </div>
-            )}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40 sm:p-8">
+            <div className="mb-8 flex flex-col gap-2">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                Announcement
+              </h2>
+              <p className="text-slate-600 dark:text-slate-300">
+                Static campus updates for advising-related notices.
+              </p>
+            </div>
 
-            {fileOrLinkResources.length > 0 && (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {fileOrLinkResources.map((resource) => {
-                  if (resource.resourceType === 'link') {
-                    return (
-                      <LinkResourceCard
-                        key={resource.id}
-                        title={resource.title}
-                        href={resource.resourceUrl}
-                      />
-                    );
-                  }
-
-                  return (
-                    <PdfResourceCard
-                      key={resource.id}
-                      title={resource.title}
-                      url={resource.resourceUrl}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {ANNOUNCEMENTS.map((item) => (
+                <article
+                  key={item.id}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/60"
+                >
+                  <div className="relative h-56 overflow-hidden bg-slate-200 dark:bg-slate-800">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.imageAlt}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                  );
-                })}
-              </div>
-            )}
-          </>
+                    <div className="absolute left-4 top-4 rounded-full bg-emerald-600 px-4 py-1 text-sm font-semibold text-white shadow-lg">
+                      {item.date}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 p-6">
+                    <h3 className="text-2xl font-semibold text-slate-900 transition-colors group-hover:text-emerald-600 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                      {item.title}
+                    </h3>
+                    <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                      {item.description}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { GoogleDriveCategoryCard } from "../../../components/GoogleDriveCategoryCard";
 import { getSchedulesList, type ScheduleItem } from "../../../services/cmsApi";
 
@@ -82,6 +83,13 @@ export default function Schedules() {
   return (
     <section className="w-full min-h-screen bg-slate-50 py-20 px-6 pt-32 lg:px-24 dark:bg-[#0b132b]">
       <div className="max-w-7xl mx-auto">
+        <Link
+          to="/advising?tab=resources"
+          className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline shadow-sm transition-colors hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
+        >
+          <span aria-hidden="true">←</span>
+          Back to Advising Resources
+        </Link>
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="text-slate-900 text-4xl lg:text-5xl font-bold mb-6 dark:text-white">
             Academic Schedules
