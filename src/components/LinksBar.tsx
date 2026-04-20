@@ -47,7 +47,17 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
       { label: "Student Clubs", to: "/student-clubs" },
     ],
   },
-  { label: "Facilities", to: "/facilities" },
+  {
+    label: "Facilities",
+    to: "/facilities",
+    children: [
+      { label: "MUST Facilities", to: "/facilities?tab=mustFacilities" },
+      {
+        label: "International Handbook",
+        to: "/facilities?tab=internationalHandbook",
+      },
+    ],
+  },
   { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
   { label: "Contact Us", to: "/contact-us" },

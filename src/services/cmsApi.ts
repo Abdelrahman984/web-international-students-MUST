@@ -45,6 +45,14 @@ const TABLES = {
     "VITE_SUPABASE_STUDENT_HONOR_LIST_TABLE",
     "student_honor_list_documents",
   ),
+  facilitiesSections: getTable(
+    "VITE_SUPABASE_FACILITIES_SECTIONS_TABLE",
+    "facilities_sections",
+  ),
+  internationalHandbookDocuments: getTable(
+    "VITE_SUPABASE_INTERNATIONAL_HANDBOOK_TABLE",
+    "international_handbook_documents",
+  ),
   // Intentionally no default to avoid 404s when this table is not provisioned yet.
   heroMenus: getTable("VITE_SUPABASE_HERO_MENU_TABLE", ""),
 } as const;
@@ -162,6 +170,20 @@ export type HonorListDocumentItem = {
   title: string;
   fileUrl: string;
   updatedAt: string;
+};
+
+export type FacilityDocumentItem = {
+  id: string;
+  title: string;
+  fileUrl: string;
+};
+
+export type MustFacilitySectionItem = {
+  id: string;
+  title: string;
+  contentHtml: string;
+  thumbnailUrl?: string;
+  galleryUrls: string[];
 };
 
 export type AcademicStaffItem = {
@@ -840,6 +862,92 @@ export async function getStudentResourcesByCategory(
       thumbnailUrl: thumbnailRaw ? getCmsMediaUrl(thumbnailRaw) : undefined,
     };
   });
+}
+
+const mapFacilityDocument = (
+  raw: unknown,
+  fallbackTitle: string,
+): FacilityDocumentItem | null => {
+  const row = unwrapRow(raw) as Record<string, unknown>;
+  const fileSource =
+    pickString(
+      row.file_url,
+      row.fileUrl,
+      row.file_path,
+      row.filePath,
+      row.resource_url,
+      row.resourceUrl,
+      row.document_url,
+      row.documentUrl,
+      row.url,
+      row.path,
+    ) || "";
+  const fileUrl = getFileUrl(fileSource);
+
+  if (!fileUrl || fileUrl === "#") {
+    return null;
+  }
+
+  return {
+    id: toId(row.id),
+    title: pickString(row.title, row.name, row.document_title) || fallbackTitle,
+    fileUrl,
+  };
+};
+
+export async function getMustFacilitiesSections(): Promise<
+  MustFacilitySectionItem[]
+> {
+  const { data, error } = await supabase
+    .from(TABLES.facilitiesSections)
+    .select("*")
+    .eq("section_type", "must-facilities")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map((raw) => {
+    const row = unwrapRow(raw) as Record<string, unknown>;
+    const thumbnailPath = pickString(row.thumbnail_path, row.thumbnailPath);
+    const galleryPaths = Array.isArray(row.gallery_paths)
+      ? row.gallery_paths
+      : Array.isArray(row.galleryPaths)
+        ? row.galleryPaths
+        : [];
+
+    return {
+      id: toId(row.id),
+      title: pickString(row.title, row.name) || "MUST Facilities",
+      contentHtml:
+        pickString(row.content_html, row.contentHtml, row.content) || "",
+      thumbnailUrl: thumbnailPath ? getCmsMediaUrl(thumbnailPath) : undefined,
+      galleryUrls: galleryPaths
+        .filter(
+          (value): value is string =>
+            typeof value === "string" && !!value.trim(),
+        )
+        .map((path) => getCmsMediaUrl(path)),
+    };
+  });
+}
+
+export async function getCurrentInternationalHandbookDocuments(): Promise<
+  FacilityDocumentItem[]
+> {
+  const { data, error } = await supabase
+    .from(TABLES.internationalHandbookDocuments)
+    .select("*")
+    .eq("key", "current");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || [])
+    .map((raw) => mapFacilityDocument(raw, "International Handbook"))
+    .filter((item): item is FacilityDocumentItem => item !== null);
 }
 
 export async function getHonorListDocuments(): Promise<
