@@ -89,7 +89,7 @@ function AppContent() {
       <MustHeader darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
       <HeroSlider />
-      <main className="flex-1 pt-24 md:pt-28 lg:pt-32">
+      <main className="flex-1">
         <AnimatePresence mode="wait" key={location.pathname}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}

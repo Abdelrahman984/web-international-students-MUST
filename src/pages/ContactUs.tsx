@@ -103,7 +103,7 @@ export function ContactUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#070d19]">
+    <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
         <header className="mb-10">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
