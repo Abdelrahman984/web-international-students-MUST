@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { getHeroSlides, type HeroNavTreeItem } from '../services/cmsApi';
-import { STATIC_MENU_ITEMS } from './LinksBar';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { getHeroSlides, type HeroNavTreeItem } from "../services/cmsApi";
+import { STATIC_MENU_ITEMS } from "./LinksBar";
+import { useAuth } from "../context/AuthContext";
 
 type SliderImage = {
   id: number | string;
@@ -12,60 +12,66 @@ type SliderImage = {
   title: string;
 };
 
-type HeroNavTarget = '_self' | '_blank';
-
 type LocalHeroNavTreeItem = HeroNavTreeItem;
 
-type MenuAccessRole = 'public' | 'visitor' | 'college-member';
+type MenuAccessRole = "public" | "visitor" | "college-member";
 
-const STATIC_HERO_NAV_TREE: LocalHeroNavTreeItem[] = STATIC_MENU_ITEMS.map((item) => ({
-  title: item.label,
-  url: item.to,
-  target: '_self',
-  accessRole: 'public',
-  children: (item.children || []).map((child) => ({
-    title: child.label,
-    url: child.to,
-    target: '_self',
-    accessRole: 'public',
-    children: [],
-  })),
-}));
+const STATIC_HERO_NAV_TREE: LocalHeroNavTreeItem[] = STATIC_MENU_ITEMS.map(
+  (item) => ({
+    title: item.label,
+    url: item.to,
+    target: "_self",
+    accessRole: "public",
+    children: (item.children || []).map((child) => ({
+      title: child.label,
+      url: child.to,
+      target: "_self",
+      accessRole: "public",
+      children: [],
+    })),
+  }),
+);
 
 const normalizeNavPath = (url: string) => {
   const trimmed = url.trim();
   if (!trimmed) {
-    return '/';
+    return "/";
   }
 
   if (/^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
 
-  if (trimmed === 'home' || trimmed === 'homepage') {
-    return '/';
+  if (trimmed === "home" || trimmed === "homepage") {
+    return "/";
   }
 
-  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 };
 
-const isMenuItemVisibleForRole = (accessRole: MenuAccessRole, userRole?: string | null): boolean => {
-  if (accessRole === 'public') {
+const isMenuItemVisibleForRole = (
+  accessRole: MenuAccessRole,
+  userRole?: string | null,
+): boolean => {
+  if (accessRole === "public") {
     return true;
   }
 
-  if (userRole === 'admin') {
+  if (userRole === "admin") {
     return true;
   }
 
-  if (accessRole === 'visitor') {
-    return userRole === 'visitor' || userRole === 'college-member';
+  if (accessRole === "visitor") {
+    return userRole === "visitor" || userRole === "college-member";
   }
 
-  return userRole === 'college-member';
+  return userRole === "college-member";
 };
 
-const filterVisibleHeroNavTree = (items: LocalHeroNavTreeItem[], userRole?: string | null): LocalHeroNavTreeItem[] => {
+const filterVisibleHeroNavTree = (
+  items: LocalHeroNavTreeItem[],
+  userRole?: string | null,
+): LocalHeroNavTreeItem[] => {
   return items
     .filter((item) => isMenuItemVisibleForRole(item.accessRole, userRole))
     .map((item) => ({
@@ -82,29 +88,41 @@ interface HeroNavMenuNodeProps {
   level?: number;
 }
 
-function HeroNavMenuNode({ item, path, activePath, onActivatePath, level = 0 }: HeroNavMenuNodeProps) {
+function HeroNavMenuNode({
+  item,
+  path,
+  activePath,
+  onActivatePath,
+  level = 0,
+}: HeroNavMenuNodeProps) {
   const hasChildren = item.children.length > 0;
   const isTopLevel = level === 0;
   const itemPath = [...path, `${item.title}:${item.url}`];
-  const isOpen = itemPath.every((segment, index) => activePath[index] === segment);
-  const labelClassName = `transition-colors duration-300 ${isOpen ? 'text-[#00AC5C]' : ''}`;
+  const isOpen = itemPath.every(
+    (segment, index) => activePath[index] === segment,
+  );
+  const labelClassName = `transition-colors duration-300 ${isOpen ? "text-[#00AC5C]" : ""}`;
 
   const itemClassName = isTopLevel
     ? `px-6 h-12 rounded-full bg-white/20 backdrop-blur-md text-white text-sm md:text-base font-bold inline-flex items-center justify-center gap-2 transition-all duration-300 ${
-        isOpen ? 'text-[#00AC5C] border-[#00AC5C]/60 bg-white/18 shadow-[0_12px_24px_rgba(0,0,0,0.25)]' : 'hover:text-[#00AC5C] hover:border-[#00AC5C]/55 hover:bg-white/20'
+        isOpen
+          ? "text-[#00AC5C] border-[#00AC5C]/60 bg-white/18 shadow-[0_12px_24px_rgba(0,0,0,0.25)]"
+          : "hover:text-[#00AC5C] hover:border-[#00AC5C]/55 hover:bg-white/20"
       }`
     : `w-full text-left px-4 py-2.5 rounded-xl border border-transparent bg-white/0 text-white font-bold transition-all duration-300 inline-flex items-center justify-between gap-2 ${
-        isOpen ? 'text-[#00AC5C] bg-white/15 border-white/20' : 'hover:text-[#00AC5C]'
+        isOpen
+          ? "text-[#00AC5C] bg-white/15 border-white/20"
+          : "hover:text-[#00AC5C]"
       }`;
 
-  const iconClassName = `h-4 w-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#00AC5C]' : 'rotate-0 text-current'}`;
+  const iconClassName = `h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#00AC5C]" : "rotate-0 text-current"}`;
 
   return (
     <li
-      className={`group relative ${isTopLevel ? 'shrink-0' : 'w-full'}`}
+      className={`group relative ${isTopLevel ? "shrink-0" : "w-full"}`}
       onMouseEnter={() => hasChildren && onActivatePath(itemPath)}
     >
-      {item.target === '_blank' ? (
+      {item.target === "_blank" ? (
         <a
           href={item.url}
           target="_blank"
@@ -112,23 +130,37 @@ function HeroNavMenuNode({ item, path, activePath, onActivatePath, level = 0 }: 
           className={itemClassName}
         >
           <span className={labelClassName}>{item.title}</span>
-          {hasChildren && <ChevronDown aria-hidden="true" strokeWidth={2.6} className={iconClassName} />}
+          {hasChildren && (
+            <ChevronDown
+              aria-hidden="true"
+              strokeWidth={2.6}
+              className={iconClassName}
+            />
+          )}
         </a>
       ) : (
         <Link to={item.url} className={itemClassName}>
           <span className={labelClassName}>{item.title}</span>
-          {hasChildren && <ChevronDown aria-hidden="true" strokeWidth={2.6} className={iconClassName} />}
+          {hasChildren && (
+            <ChevronDown
+              aria-hidden="true"
+              strokeWidth={2.6}
+              className={iconClassName}
+            />
+          )}
         </Link>
       )}
 
       {hasChildren && (
         <ul
           className={`px-4 py-2 flex flex-col min-w-[220px] bg-[#1f3769] border border-[#284884] rounded-xl shadow-xl z-30 transition-all duration-500 ease-out ${
-            isTopLevel ? 'absolute left-1/2 top-full mt-3 -translate-x-1/2' : 'absolute left-full top-0 ml-3'
+            isTopLevel
+              ? "absolute left-1/2 top-full mt-3 -translate-x-1/2"
+              : "absolute left-full top-0 ml-3"
           } ${
             isOpen
-              ? 'opacity-100 visible translate-y-0 scale-100 pointer-events-auto'
-              : 'opacity-0 invisible translate-y-2 scale-95 pointer-events-none'
+              ? "opacity-100 visible translate-y-0 scale-100 pointer-events-auto"
+              : "opacity-0 invisible translate-y-2 scale-95 pointer-events-none"
           }`}
         >
           {item.children.map((child) => (
@@ -166,7 +198,13 @@ export function HeroSlider() {
     const fetchSlides = async () => {
       try {
         const mappedSlides = await getHeroSlides();
-        setSlides(mappedSlides.map((slide) => ({ id: slide.id, src: slide.src, title: slide.title })));
+        setSlides(
+          mappedSlides.map((slide) => ({
+            id: slide.id,
+            src: slide.src,
+            title: slide.title,
+          })),
+        );
         setCurrentIndex(0);
       } catch {
         setSlides([]);
@@ -200,9 +238,12 @@ export function HeroSlider() {
 
   const normalizedHeroNavTree = heroNavTree.map((item) => ({
     ...item,
-    url: item.target === '_self' ? normalizeNavPath(item.url) : item.url,
+    url: item.target === "_self" ? normalizeNavPath(item.url) : item.url,
   }));
-  const visibleHeroNavTree = filterVisibleHeroNavTree(normalizedHeroNavTree, user?.role?.type ?? null);
+  const visibleHeroNavTree = filterVisibleHeroNavTree(
+    normalizedHeroNavTree,
+    user?.role?.type ?? null,
+  );
   const canScrollHeroNavLeft = heroNavOffset > 1;
   const canScrollHeroNavRight = heroNavOffset < heroNavMaxOffset - 1;
 
@@ -220,10 +261,11 @@ export function HeroSlider() {
     // Fallback manual sum to ensure robust calculation if flex scrollWidth under-reports
     let manualWidth = 0;
     for (let i = 0; i < track.children.length; i++) {
-        manualWidth += track.children[i].getBoundingClientRect().width;
+      manualWidth += track.children[i].getBoundingClientRect().width;
     }
     // add gap estimates
-    manualWidth += track.children.length > 1 ? (track.children.length - 1) * 20 : 0;
+    manualWidth +=
+      track.children.length > 1 ? (track.children.length - 1) * 20 : 0;
     manualWidth += 120; // safe buffer for padding
 
     contentWidth = Math.max(contentWidth, manualWidth);
@@ -233,7 +275,7 @@ export function HeroSlider() {
     setHeroNavOffset((previousOffset) => Math.min(previousOffset, maxOffset));
   };
 
-  const scrollHeroNav = (direction: 'left' | 'right') => {
+  const scrollHeroNav = (direction: "left" | "right") => {
     const viewport = heroNavViewportRef.current;
     if (!viewport) {
       return;
@@ -241,7 +283,8 @@ export function HeroSlider() {
 
     const step = Math.max(viewport.clientWidth * 0.72, 180);
     setHeroNavOffset((previousOffset) => {
-      const nextOffset = direction === 'left' ? previousOffset - step : previousOffset + step;
+      const nextOffset =
+        direction === "left" ? previousOffset - step : previousOffset + step;
       return Math.min(Math.max(nextOffset, 0), heroNavMaxOffset);
     });
   };
@@ -269,7 +312,7 @@ export function HeroSlider() {
 
     const track = heroNavTrackRef.current;
     let resizeObserver: ResizeObserver | null = null;
-    
+
     if (track) {
       resizeObserver = new ResizeObserver(() => {
         recalculateHeroNavBounds();
@@ -278,11 +321,11 @@ export function HeroSlider() {
     }
 
     const handleResize = () => recalculateHeroNavBounds();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       if (resizeObserver) resizeObserver.disconnect();
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [visibleHeroNavTree.length]);
 
@@ -324,15 +367,14 @@ export function HeroSlider() {
 
   if (isLoading) {
     return (
-      <div className="relative w-full h-[60vh] md:h-[86vh] overflow-hidden bg-gray-800">
+      <div className="relative w-full mt-20 md:mt-24 h-[60vh] md:h-[86vh] overflow-hidden bg-gray-800">
         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800" />
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-[60vh] md:h-[86vh] overflow-visible">
-
+    <div className="relative w-full mt-20 md:mt-24 h-[60vh] md:h-[86vh] overflow-visible">
       {/* IMAGE */}
       <div className="absolute inset-0 overflow-hidden z-0">
         {slides.map((slide, index) => (
@@ -340,10 +382,16 @@ export function HeroSlider() {
             key={slide.id}
             src={slide.src}
             alt={slide.title}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-fill"
             initial={false}
-            animate={{ opacity: index === currentIndex && (loadedImages[index] || index === currentIndex) ? 1 : 0 }}
-            transition={{ duration: 1.1, ease: 'easeInOut' }}
+            animate={{
+              opacity:
+                index === currentIndex &&
+                (loadedImages[index] || index === currentIndex)
+                  ? 1
+                  : 0,
+            }}
+            transition={{ duration: 1.1, ease: "easeInOut" }}
           />
         ))}
       </div>
@@ -392,7 +440,7 @@ export function HeroSlider() {
         <div className="w-full flex items-center justify-center gap-2 sm:gap-3">
           <button
             type="button"
-            onClick={() => scrollHeroNav('left')}
+            onClick={() => scrollHeroNav("left")}
             disabled={!canScrollHeroNavLeft}
             aria-label="Scroll menus left"
             className="h-10 w-10 md:h-11 md:w-11 rounded-full border border-white/30 bg-white/15 backdrop-blur-xl text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-white/30 hover:border-white/60 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -403,12 +451,15 @@ export function HeroSlider() {
           <div
             ref={heroNavViewportRef}
             className="w-[75vw] md:w-[65vw] lg:w-[60vw] max-w-4xl overflow-x-clip overflow-y-visible"
-            style={{ marginInline: 'max(16px, 2vw)' }}
+            style={{ marginInline: "max(16px, 2vw)" }}
           >
             <ul
               ref={heroNavTrackRef}
               className="flex min-w-[max-content] flex-nowrap justify-start gap-2 sm:gap-3 md:gap-4 px-2 py-2"
-              style={{ transform: `translateX(-${heroNavOffset}px)`, transition: 'transform 300ms ease' }}
+              style={{
+                transform: `translateX(-${heroNavOffset}px)`,
+                transition: "transform 300ms ease",
+              }}
               onMouseLeave={resetHeroNavPath}
             >
               {visibleHeroNavTree.map((item) => (
@@ -421,13 +472,16 @@ export function HeroSlider() {
                 />
               ))}
               {/* Spacer strictly for scroll bounding allowance */}
-              <li className="shrink-0 w-24 md:w-32 invisible h-px pointer-events-none" aria-hidden="true"></li>
+              <li
+                className="shrink-0 w-24 md:w-32 invisible h-px pointer-events-none"
+                aria-hidden="true"
+              ></li>
             </ul>
           </div>
 
           <button
             type="button"
-            onClick={() => scrollHeroNav('right')}
+            onClick={() => scrollHeroNav("right")}
             disabled={!canScrollHeroNavRight}
             aria-label="Scroll menus right"
             className="h-10 w-10 md:h-11 md:w-11 rounded-full border border-white/30 bg-white/15 backdrop-blur-xl text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-white/30 hover:border-white/60 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -444,14 +498,11 @@ export function HeroSlider() {
             key={slide.id}
             onClick={() => goToSlide(index)}
             className={`w-2.5 h-2.5 rounded-full transition ${
-              index === currentIndex
-                ? 'bg-[#00AC5C] scale-125'
-                : 'bg-white/60'
+              index === currentIndex ? "bg-[#00AC5C] scale-125" : "bg-white/60"
             }`}
           />
         ))}
       </div>
-
     </div>
   );
 }
