@@ -61,7 +61,14 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
   { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
   { label: "Links", to: "/links" },
-  { label: "Contact Us", to: "/contact-us" },
+  {
+    label: "Contact Us",
+    to: "/contact-us",
+    children: [
+      { label: "Contact Sector Head", to: "/contact-us?tab=support" },
+      { label: "Send Suggestion or Complaint", to: "/contact-us?tab=admissions" },
+    ],
+  },
 ];
 
 export function LinksBar({ className = "" }: LinksBarProps) {

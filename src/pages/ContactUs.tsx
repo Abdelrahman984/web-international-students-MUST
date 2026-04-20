@@ -1,3 +1,5 @@
+import { useSearchParams } from "react-router-dom";
+
 interface ContactCardProps {
   title: string;
   lines: string[];
@@ -76,8 +78,32 @@ function ContactForm({
 }
 
 export function ContactUs() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") ?? "support") as
+    | "support"
+    | "admissions";
+
+  const tabs: Array<{
+    key: "support" | "admissions";
+    label: string;
+    submitLabel: string;
+    showCategorySelect?: boolean;
+  }> = [
+    {
+      key: "support",
+      label: "Contact Sector Head",
+      submitLabel: "Send to Sector Head",
+    },
+    {
+      key: "admissions",
+      label: "Send Suggestion or Complaint",
+      submitLabel: "Submit Suggestion or Complaint",
+      showCategorySelect: true,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
+    <div className="min-h-screen bg-white dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
         <header className="mb-10">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
@@ -88,7 +114,7 @@ export function ContactUs() {
           </p>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <ContactCard
             title="Main Campus"
             lines={[
@@ -113,18 +139,38 @@ export function ContactUs() {
               "Sun - Thu: 9:00 AM - 5:00 PM",
             ]}
           />
-        </section>
+        </section> */}
 
-        <section className="mx-auto mt-8 w-full max-w-4xl space-y-4">
-          <ContactForm
-            title="Contact Sector Head"
-            submitLabel="Send to Sector Head"
-          />
-          <ContactForm
-            title="Send Suggestion or Complaint"
-            submitLabel="Submit Suggestion or Complaint"
-            showCategorySelect
-          />
+        <section className="mx-auto mt-8 w-full max-w-4xl">
+          {/* <div className="mb-4 flex items-center gap-2 rounded-xl bg-transparent p-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setSearchParams({ tab: t.key })}
+                className={`px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none ${
+                  activeTab === t.key
+                    ? "bg-emerald-600 text-white"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-white/5"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div> */}
+
+          <div>
+            {tabs.map(
+              (t) =>
+                activeTab === t.key && (
+                  <ContactForm
+                    key={t.key}
+                    title={t.label}
+                    submitLabel={t.submitLabel}
+                    showCategorySelect={t.showCategorySelect}
+                  />
+                ),
+            )}
+          </div>
         </section>
       </div>
     </div>
