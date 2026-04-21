@@ -315,10 +315,6 @@ export default function HomePage() {
         </section>
 
         <section className="mt-12">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Home Sections
-          </h2>
-
           {isLoadingSections ? (
             <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-slate-600 dark:border-slate-700 dark:bg-[#08132e] dark:text-slate-300">
               Loading home sections...
