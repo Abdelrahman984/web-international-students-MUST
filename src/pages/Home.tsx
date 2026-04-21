@@ -445,7 +445,7 @@ export default function HomePage() {
             <div className="mt-5 space-y-6">
               {homeSections.aboutSector && (
                 <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] sm:p-8">
-                  <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_260px]">
+                  <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
                         About The Sector
@@ -462,12 +462,12 @@ export default function HomePage() {
                       />
                     </div>
 
-                    <div className="mx-auto flex w-full max-w-[260px] flex-col items-center text-center">
+                    <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
                       {aboutSectorImage ? (
                         <img
                           src={aboutSectorImage}
                           alt="Sector speaker"
-                          className="h-52 w-52 rounded-2xl object-cover shadow-md"
+                          className="h-52 w-52 rounded-2xl object-fill shadow-md"
                         />
                       ) : (
                         <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
@@ -475,10 +475,10 @@ export default function HomePage() {
                         </div>
                       )}
                       <p className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">
-                        Sector Representative
+                        Asst. Lect. / Ayman S. Abdelaziz
                       </p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        International Students Sector
+                        Head of International Students Sector
                       </p>
                     </div>
                   </div>
