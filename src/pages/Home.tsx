@@ -90,15 +90,16 @@ const resolveMediaUrl = (path: string | null): string | null => {
     return null;
   }
 
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://") ||
-    path.startsWith("/")
-  ) {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
-  return path;
+  const storageBase = `${
+    supabaseUrl || "https://qynenmfrntuicbrxvhqv.supabase.co"
+  }/storage/v1/object/public/home-images`;
+  const normalizedPath = path.replace(/^\/+/, "");
+
+  return `${storageBase}/${normalizedPath}`;
 };
 
 const fetchHomeSectionRows = async <T,>(sectionKey: string): Promise<T[]> => {
