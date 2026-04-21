@@ -85,6 +85,115 @@ const normalizeContentText = (value: string | null): string => {
   return value.replace(/&nbsp;/gi, " ").trim();
 };
 
+const sanitizeHtmlContent = (value: string | null): string => {
+  if (!value) {
+    return "";
+  }
+
+  const normalizedHtml = value.replace(/&nbsp;/gi, " ");
+  let root: HTMLElement;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(normalizedHtml, "text/html");
+    root = doc.body ?? document.createElement("div");
+    if (!doc.body) {
+      root.innerHTML = normalizedHtml;
+    }
+  } catch {
+    root = document.createElement("div");
+    root.innerHTML = normalizedHtml;
+  }
+
+  const allowedTags = new Set([
+    "P",
+    "BR",
+    "STRONG",
+    "B",
+    "EM",
+    "I",
+    "U",
+    "UL",
+    "OL",
+    "LI",
+    "A",
+    "BLOCKQUOTE",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "SPAN",
+    "DIV",
+  ]);
+
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as HTMLElement;
+      const tagName = element.tagName;
+
+      if (tagName === "SCRIPT" || tagName === "STYLE") {
+        element.remove();
+        return;
+      }
+
+      if (!allowedTags.has(tagName)) {
+        const parent = element.parentNode;
+        if (!parent) {
+          return;
+        }
+
+        while (element.firstChild) {
+          parent.insertBefore(element.firstChild, element);
+        }
+        parent.removeChild(element);
+        return;
+      }
+
+      for (const attr of Array.from(element.attributes)) {
+        const attrName = attr.name.toLowerCase();
+
+        if (tagName === "A" && attrName === "href") {
+          const href = attr.value.trim();
+          const isAllowedHref =
+            href.startsWith("http://") ||
+            href.startsWith("https://") ||
+            href.startsWith("mailto:") ||
+            href.startsWith("tel:") ||
+            href.startsWith("#") ||
+            href.startsWith("/");
+
+          if (!isAllowedHref) {
+            element.removeAttribute(attr.name);
+          }
+          continue;
+        }
+
+        element.removeAttribute(attr.name);
+      }
+
+      if (tagName === "A") {
+        const href = element.getAttribute("href");
+        if (
+          href &&
+          (href.startsWith("http://") || href.startsWith("https://"))
+        ) {
+          element.setAttribute("target", "_blank");
+          element.setAttribute("rel", "noopener noreferrer");
+        }
+      }
+    }
+
+    for (const child of Array.from(node.childNodes)) {
+      walk(child);
+    }
+  };
+
+  walk(root);
+  return root.innerHTML.trim();
+};
+
 const resolveMediaUrl = (path: string | null): string | null => {
   if (!path) {
     return null;
@@ -171,6 +280,15 @@ export default function HomePage() {
 
   const aboutSectorImage = resolveMediaUrl(
     homeSections.aboutSector?.image_path || null,
+  );
+  const aboutSectorHtml = sanitizeHtmlContent(
+    homeSections.aboutSector?.content_text || null,
+  );
+  const missionHtml = sanitizeHtmlContent(
+    homeSections.mission?.content_text || null,
+  );
+  const visionHtml = sanitizeHtmlContent(
+    homeSections.vision?.content_text || null,
   );
   const sectorPlanFile = resolveMediaUrl(
     homeSections.sectorPlan?.file_path || null,
@@ -332,13 +450,16 @@ export default function HomePage() {
                       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
                         About The Sector
                       </p>
-                      <blockquote className="mt-4 border-l-4 border-emerald-500 pl-5 text-lg leading-8 text-slate-700 dark:text-slate-200">
-                        “
-                        {normalizeContentText(
-                          homeSections.aboutSector.content_text,
-                        )}
-                        ”
-                      </blockquote>
+                      <div
+                        className="prose mt-4 max-w-none border-l-4 border-emerald-500 pl-5 text-lg leading-8 text-slate-700 dark:prose-invert dark:text-slate-200"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            aboutSectorHtml ||
+                            normalizeContentText(
+                              homeSections.aboutSector.content_text,
+                            ),
+                        }}
+                      />
                     </div>
 
                     <div className="mx-auto flex w-full max-w-[260px] flex-col items-center text-center">
@@ -375,11 +496,16 @@ export default function HomePage() {
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                           Mission
                         </h3>
-                        <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
-                          {normalizeContentText(
-                            homeSections.mission.content_text,
-                          )}
-                        </p>
+                        <div
+                          className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              missionHtml ||
+                              normalizeContentText(
+                                homeSections.mission.content_text,
+                              ),
+                          }}
+                        />
                       </div>
                     </div>
                   </article>
@@ -395,11 +521,16 @@ export default function HomePage() {
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                           Vision
                         </h3>
-                        <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
-                          {normalizeContentText(
-                            homeSections.vision.content_text,
-                          )}
-                        </p>
+                        <div
+                          className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              visionHtml ||
+                              normalizeContentText(
+                                homeSections.vision.content_text,
+                              ),
+                          }}
+                        />
                       </div>
                     </div>
                   </article>
