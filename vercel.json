@@ -3,6 +3,10 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://dependable-excitement-4a92e1b77d.strapiapp.com/uploads/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
