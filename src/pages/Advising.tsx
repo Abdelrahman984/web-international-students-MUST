@@ -1,7 +1,13 @@
 import { useSearchParams } from "react-router-dom";
 import { GoogleDriveLinkCard } from "../components/GoogleDriveLinkCard";
+import { InternationalStudentsData } from "./InternationalStudentsData";
+import { Reports } from "./Reports";
 
-type AdvisingTab = "resources" | "announcements";
+type AdvisingTab =
+  | "resources"
+  | "announcements"
+  | "students-data"
+  | "statistical-reports";
 
 type AnnouncementItem = {
   id: string;
@@ -65,8 +71,15 @@ const ANNOUNCEMENTS: AnnouncementItem[] = [
 export default function AdvisingPage() {
   const [searchParams] = useSearchParams();
 
+  const tabParam = searchParams.get("tab");
   const activeTab: AdvisingTab =
-    searchParams.get("tab") === "announcements" ? "announcements" : "resources";
+    tabParam === "announcements"
+      ? "announcements"
+      : tabParam === "students-data"
+        ? "students-data"
+        : tabParam === "statistical-reports"
+          ? "statistical-reports"
+          : "resources";
 
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
@@ -79,7 +92,11 @@ export default function AdvisingPage() {
           </div>
         </div>
 
-        {activeTab === "resources" ? (
+        {activeTab === "students-data" ? (
+          <InternationalStudentsData />
+        ) : activeTab === "statistical-reports" ? (
+          <Reports userName="International Student Affairs" />
+        ) : activeTab === "resources" ? (
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40 sm:p-8">
             <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
               {ADVISING_RESOURCE_CARDS.map((card) => (

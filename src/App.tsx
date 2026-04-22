@@ -132,6 +132,7 @@ function AppContent() {
               <Route path="/news" element={<News />} />
               <Route path="/events" element={<Events />} />
               <Route path="/links" element={<Links />} />
+              {/* Query-strings are not matched in route `path` — advising tabs are handled inside AdvisingPage */}
               {/* ------------------------------------- */}
 
               <Route path="/questionnaires" element={<Questionnaires />} />

@@ -35,6 +35,8 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
     children: [
       { label: "Advising Resources", to: "/advising?tab=resources" },
       { label: "Announcement", to: "/advising?tab=announcements" },
+      { label: "Students Data", to: "/advising?tab=students-data" },
+      { label: "Statistical Reports", to: "/advising?tab=statistical-reports" },
     ],
   },
   {
@@ -66,7 +68,10 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
     to: "/contact-us",
     children: [
       { label: "Contact Sector Head", to: "/contact-us?tab=support" },
-      { label: "Send Suggestion or Complaint", to: "/contact-us?tab=admissions" },
+      {
+        label: "Send Suggestion or Complaint",
+        to: "/contact-us?tab=admissions",
+      },
     ],
   },
 ];
