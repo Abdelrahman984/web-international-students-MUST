@@ -45,7 +45,7 @@ export default function AcademicStaffProfileCard({
           <img
             src={imageUrl}
             alt={imageAlt || name}
-            className="h-24 w-24 rounded-lg object-cover border border-blue-400/30"
+            className="h-24 w-24 rounded-lg object-fit border border-blue-400/30"
           />
 
           <div className="flex flex-col justify-center">
