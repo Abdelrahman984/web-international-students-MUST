@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Building2,
   Download,
@@ -246,6 +246,27 @@ export default function HomePage() {
     useState<HomeSectionsState>(initialSectionsState);
   const [isLoadingSections, setIsLoadingSections] = useState(true);
   const [sectionsError, setSectionsError] = useState("");
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const aboutRef = useRef<HTMLElement | null>(null);
+  const aboutContentRef = useRef<HTMLDivElement | null>(null);
+  const [missionOpen, setMissionOpen] = useState(false);
+  const [visionOpen, setVisionOpen] = useState(false);
+
+  const aboutSectorImage = resolveMediaUrl(
+    homeSections.aboutSector?.image_path || null,
+  );
+  const aboutSectorHtml = sanitizeHtmlContent(
+    homeSections.aboutSector?.content_text || null,
+  );
+  const missionHtml = sanitizeHtmlContent(
+    homeSections.mission?.content_text || null,
+  );
+  const visionHtml = sanitizeHtmlContent(
+    homeSections.vision?.content_text || null,
+  );
+  const sectorPlanFile = resolveMediaUrl(
+    homeSections.sectorPlan?.file_path || null,
+  );
 
   useEffect(() => {
     const fetchHomeSections = async () => {
@@ -278,21 +299,66 @@ export default function HomePage() {
     void fetchHomeSections();
   }, []);
 
-  const aboutSectorImage = resolveMediaUrl(
-    homeSections.aboutSector?.image_path || null,
-  );
-  const aboutSectorHtml = sanitizeHtmlContent(
-    homeSections.aboutSector?.content_text || null,
-  );
-  const missionHtml = sanitizeHtmlContent(
-    homeSections.mission?.content_text || null,
-  );
-  const visionHtml = sanitizeHtmlContent(
-    homeSections.vision?.content_text || null,
-  );
-  const sectorPlanFile = resolveMediaUrl(
-    homeSections.sectorPlan?.file_path || null,
-  );
+  useEffect(() => {
+    const el = aboutRef.current;
+    if (!el) {
+      setAboutVisible(false);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setAboutVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.5 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [homeSections.aboutSector]);
+
+  useEffect(() => {
+    const container = aboutContentRef.current;
+    if (!container) return;
+
+    const paragraphs = Array.from(
+      container.querySelectorAll("p"),
+    ) as HTMLParagraphElement[];
+    if (!paragraphs.length) return;
+
+    const timers: number[] = [];
+
+    // Initialize hidden state for paragraphs so they animate in when aboutVisible is true
+    paragraphs.forEach((p) => {
+      p.style.transition = "opacity 550ms ease, transform 550ms ease";
+      p.style.opacity = "0";
+      p.style.transform = "translateY(12px)";
+      (p.style as any).willChange = "opacity, transform";
+    });
+
+    if (aboutVisible) {
+      paragraphs.forEach((p, i) => {
+        const t = window.setTimeout(() => {
+          p.style.opacity = "1";
+          p.style.transform = "translateY(0)";
+        }, i * 200);
+        timers.push(t);
+      });
+    } else {
+      // hide them again when leaving viewport so re-entry replays the animation
+      paragraphs.forEach((p, i) => {
+        const t = window.setTimeout(() => {
+          p.style.opacity = "0";
+          p.style.transform = "translateY(12px)";
+        }, i * 30);
+        timers.push(t);
+      });
+    }
+
+    return () => timers.forEach((t) => clearTimeout(t));
+  }, [aboutVisible, aboutSectorHtml]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-24 pt-32 dark:bg-[#070d19]">
@@ -444,13 +510,17 @@ export default function HomePage() {
           ) : (
             <div className="mt-5 space-y-6">
               {homeSections.aboutSector && (
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] sm:p-8">
+                <article
+                  ref={aboutRef}
+                  className={`rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] sm:p-8 transform transition-all duration-700 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+                >
                   <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
                         About The Sector
                       </p>
                       <div
+                        ref={aboutContentRef}
                         className="prose mt-4 max-w-none border-l-4 border-emerald-500 pl-5 text-lg leading-8 text-slate-700 dark:prose-invert dark:text-slate-200"
                         dangerouslySetInnerHTML={{
                           __html:
@@ -467,7 +537,7 @@ export default function HomePage() {
                         <img
                           src={aboutSectorImage}
                           alt="Sector speaker"
-                          className="h-52 w-52 rounded-2xl object-fill shadow-md"
+                          className="h-52 w-52 rounded-2xl object-fill shadow-md transition-transform duration-300 hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-52 w-52 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
@@ -485,17 +555,45 @@ export default function HomePage() {
                 </article>
               )}
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4">
                 {homeSections.mission && (
-                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e]">
-                    <div className="flex items-start gap-4">
-                      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-300">
-                        <Target className="h-5 w-5" />
-                      </span>
-                      <div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          Mission
-                        </h3>
+                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] transition-shadow duration-200 hover:shadow-lg">
+                    <details
+                      className="group"
+                      onToggle={(e) =>
+                        setMissionOpen(
+                          (e.currentTarget as HTMLDetailsElement).open,
+                        )
+                      }
+                    >
+                      <summary className="flex items-center gap-4 cursor-pointer list-none">
+                        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-300">
+                          <Target className="h-5 w-5" />
+                        </span>
+
+                        <div className="flex-1">
+                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            Mission
+                          </h3>
+                        </div>
+
+                        <svg
+                          className={`h-4 w-4 transition-transform duration-200 ${missionOpen ? "rotate-180" : ""}`}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </summary>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ${missionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+                      >
                         <div
                           className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
                           dangerouslySetInnerHTML={{
@@ -507,20 +605,48 @@ export default function HomePage() {
                           }}
                         />
                       </div>
-                    </div>
+                    </details>
                   </article>
                 )}
 
                 {homeSections.vision && (
-                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e]">
-                    <div className="flex items-start gap-4">
-                      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300">
-                        <Globe2 className="h-5 w-5" />
-                      </span>
-                      <div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          Vision
-                        </h3>
+                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] transition-shadow duration-200 hover:shadow-lg">
+                    <details
+                      className="group"
+                      onToggle={(e) =>
+                        setVisionOpen(
+                          (e.currentTarget as HTMLDetailsElement).open,
+                        )
+                      }
+                    >
+                      <summary className="flex items-center gap-4 cursor-pointer list-none">
+                        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300">
+                          <Globe2 className="h-5 w-5" />
+                        </span>
+
+                        <div className="flex-1">
+                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            Vision
+                          </h3>
+                        </div>
+
+                        <svg
+                          className={`h-4 w-4 transition-transform duration-200 ${visionOpen ? "rotate-180" : ""}`}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </summary>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ${visionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+                      >
                         <div
                           className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
                           dangerouslySetInnerHTML={{
@@ -532,7 +658,7 @@ export default function HomePage() {
                           }}
                         />
                       </div>
-                    </div>
+                    </details>
                   </article>
                 )}
               </div>
