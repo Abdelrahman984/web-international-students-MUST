@@ -545,7 +545,7 @@ export default function HomePage() {
                         {homeSections.sectorPlan.title || "Sector Plan"}
                       </h3>
                       <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                        Section key: sector-plan
+                        Sector Plan
                       </p>
                     </div>
 
