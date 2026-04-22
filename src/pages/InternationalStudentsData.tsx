@@ -6,6 +6,7 @@ import {
   MailIcon,
   MessageSquareIcon,
   PlusIcon,
+  SlidersHorizontalIcon,
   SearchIcon,
   UploadIcon,
 } from "lucide-react";
@@ -229,6 +230,59 @@ export function InternationalStudentsData({
   >(null);
   const chartRef = useRef<HTMLDivElement | null>(null);
 
+  // Filters state
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const [filterNationality, setFilterNationality] = useState<string>("all");
+  const [filterAdvisor, setFilterAdvisor] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterAgeMin, setFilterAgeMin] = useState<string>("");
+  const [filterAgeMax, setFilterAgeMax] = useState<string>("");
+  const [filterGpaMin, setFilterGpaMin] = useState<string>("");
+  const [filterGpaMax, setFilterGpaMax] = useState<string>("4");
+
+  // Temporary modal state (so Cancel doesn't immediately apply)
+  const [tempFilterNationality, setTempFilterNationality] =
+    useState<string>(filterNationality);
+  const [tempFilterAdvisor, setTempFilterAdvisor] =
+    useState<string>(filterAdvisor);
+  const [tempFilterStatus, setTempFilterStatus] =
+    useState<string>(filterStatus);
+  const [tempFilterAgeMin, setTempFilterAgeMin] =
+    useState<string>(filterAgeMin);
+  const [tempFilterAgeMax, setTempFilterAgeMax] =
+    useState<string>(filterAgeMax);
+  const [tempFilterGpaMin, setTempFilterGpaMin] =
+    useState<string>(filterGpaMin);
+  const [tempFilterGpaMax, setTempFilterGpaMax] =
+    useState<string>(filterGpaMax);
+  const [tempSelectedMajor, setTempSelectedMajor] =
+    useState<string>(selectedMajor);
+  const [tempSelectedLevel, setTempSelectedLevel] =
+    useState<string>(selectedLevel);
+
+  const nationalityOptions = useMemo(() => {
+    const set = new Set<string>();
+    students.forEach((s) => {
+      if (s.nationality) set.add(s.nationality);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [students]);
+
+  const advisorOptions = useMemo(() => {
+    const set = new Set<string>();
+    students.forEach((s) => {
+      if (s.advisor_name) set.add(s.advisor_name);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [students]);
+
+  const hasAge = useMemo(() => {
+    return students.some(
+      (s) => typeof (s as any).age === "number" || !!(s as any).age,
+    );
+  }, [students]);
+
   const levelOptions = useMemo(() => {
     const levels = new Set<string>();
     students.forEach((student) => {
@@ -265,7 +319,53 @@ export function InternationalStudentsData({
       const matchesLevel =
         selectedLevel === "all" || student.level === selectedLevel;
 
-      return matchesSearch && matchesMajor && matchesLevel;
+      // Filters
+      const matchesNationality =
+        filterNationality === "all" ||
+        (student.nationality ?? "").toLowerCase() ===
+          filterNationality.toLowerCase();
+
+      const matchesAdvisor =
+        filterAdvisor === "all" ||
+        (student.advisor_name ?? "").toLowerCase() ===
+          filterAdvisor.toLowerCase();
+
+      const matchesStatus =
+        filterStatus === "all" || student.status === filterStatus;
+
+      const gpaMin = filterGpaMin.trim() === "" ? null : Number(filterGpaMin);
+      const gpaMax = filterGpaMax.trim() === "" ? null : Number(filterGpaMax);
+      const matchesGpa =
+        (gpaMin == null && gpaMax == null) ||
+        (student.gpa != null &&
+          (gpaMin == null || student.gpa >= gpaMin) &&
+          (gpaMax == null || student.gpa <= gpaMax));
+
+      const ageMin = filterAgeMin.trim() === "" ? null : Number(filterAgeMin);
+      const ageMax = filterAgeMax.trim() === "" ? null : Number(filterAgeMax);
+      const studentAge =
+        typeof (student as any).age === "number"
+          ? (student as any).age
+          : typeof (student as any).age === "string"
+            ? Number((student as any).age)
+            : null;
+      const matchesAge =
+        !hasAge || (ageMin == null && ageMax == null)
+          ? true
+          : studentAge != null &&
+            (ageMin == null || studentAge >= ageMin) &&
+            (ageMax == null || studentAge <= ageMax);
+
+      return (
+        matchesSearch &&
+        matchesMajor &&
+        matchesLevel &&
+        matchesNationality &&
+        matchesAdvisor &&
+        matchesStatus &&
+        matchesGpa &&
+        matchesAge
+      );
     });
 
     filtered.sort((a, b) => {
@@ -296,6 +396,14 @@ export function InternationalStudentsData({
     sortBy,
     sortDirection,
     students,
+    filterNationality,
+    filterAdvisor,
+    filterStatus,
+    filterAgeMin,
+    filterAgeMax,
+    filterGpaMin,
+    filterGpaMax,
+    hasAge,
   ]);
 
   const gpaRangeData = useMemo(() => {
@@ -796,30 +904,25 @@ export function InternationalStudentsData({
             />
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 md:pb-0">
-            <select
-              value={selectedMajor}
-              onChange={(event) => setSelectedMajor(event.target.value)}
-              className="px-4 py-2 rounded-lg border border-must-border bg-must-surface text-sm focus:ring-2 focus:ring-must-green outline-none min-w-[140px]"
+            {/* Major & Level moved into the Filters panel */}
+            <Button
+              variant="outline"
+              icon={<SlidersHorizontalIcon className="w-4 h-4" />}
+              onClick={() => {
+                setTempFilterNationality(filterNationality);
+                setTempFilterAdvisor(filterAdvisor);
+                setTempFilterStatus(filterStatus);
+                setTempFilterAgeMin(filterAgeMin);
+                setTempFilterAgeMax(filterAgeMax);
+                setTempFilterGpaMin(filterGpaMin);
+                setTempFilterGpaMax(filterGpaMax);
+                setTempSelectedMajor(selectedMajor);
+                setTempSelectedLevel(selectedLevel);
+                setFiltersOpen(true);
+              }}
             >
-              <option value="all">All Majors</option>
-              {studentMajors.map((major) => (
-                <option key={major} value={major}>
-                  {major.toUpperCase()}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedLevel}
-              onChange={(event) => setSelectedLevel(event.target.value)}
-              className="px-4 py-2 rounded-lg border border-must-border bg-must-surface text-sm focus:ring-2 focus:ring-must-green outline-none min-w-[140px]"
-            >
-              <option value="all">All Levels</option>
-              {levelOptions.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
+              Filters
+            </Button>
             <div className="flex items-center gap-2 border border-must-border rounded-lg px-3 bg-must-surface min-w-[250px]">
               <ArrowUpDownIcon className="w-4 h-4 text-must-text-secondary" />
               <select
@@ -845,6 +948,236 @@ export function InternationalStudentsData({
           </div>
         </div>
       </Card>
+
+      {filtersOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setFiltersOpen(false)}
+          />
+          <div className="relative w-full max-w-2xl rounded-xl border border-must-border bg-white shadow-xl p-6 animate-in fade-in zoom-in-95 duration-200 mt-20">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-must-text-primary">
+                  Filters
+                </h3>
+                <p className="text-sm text-must-text-secondary mt-1">
+                  Narrow student results by selected criteria.
+                </p>
+              </div>
+              <div>
+                <button
+                  className="text-sm text-must-text-secondary"
+                  onClick={() => setFiltersOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Major
+                </label>
+                <select
+                  value={tempSelectedMajor}
+                  onChange={(e) => setTempSelectedMajor(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                >
+                  <option value="all">All</option>
+                  {studentMajors.map((major) => (
+                    <option key={major} value={major}>
+                      {major.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Level
+                </label>
+                <select
+                  value={tempSelectedLevel}
+                  onChange={(e) => setTempSelectedLevel(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                >
+                  <option value="all">All</option>
+                  {levelOptions.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Nationality
+                </label>
+                <select
+                  value={tempFilterNationality}
+                  onChange={(e) => setTempFilterNationality(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                >
+                  <option value="all">All</option>
+                  {nationalityOptions.map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Advisor
+                </label>
+                <select
+                  value={tempFilterAdvisor}
+                  onChange={(e) => setTempFilterAdvisor(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                >
+                  <option value="all">All</option>
+                  {advisorOptions.map((a) => (
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Age (min)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={120}
+                  value={tempFilterAgeMin}
+                  onChange={(e) => setTempFilterAgeMin(e.target.value)}
+                  disabled={!hasAge}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Age (max)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={120}
+                  value={tempFilterAgeMax}
+                  onChange={(e) => setTempFilterAgeMax(e.target.value)}
+                  disabled={!hasAge}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  GPA (min)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={4}
+                  step="0.01"
+                  value={tempFilterGpaMin}
+                  onChange={(e) => setTempFilterGpaMin(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  GPA (max)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={4}
+                  step="0.01"
+                  value={tempFilterGpaMax}
+                  onChange={(e) => setTempFilterGpaMax(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-must-text-primary mb-1">
+                  Status
+                </label>
+                <select
+                  value={tempFilterStatus}
+                  onChange={(e) => setTempFilterStatus(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
+                >
+                  <option value="all">All</option>
+                  {studentStatuses.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // reset both temp and applied filters (including major/level)
+                  setTempFilterNationality("all");
+                  setTempFilterAdvisor("all");
+                  setTempFilterStatus("all");
+                  setTempFilterAgeMin("");
+                  setTempFilterAgeMax("");
+                  setTempFilterGpaMin("");
+                  setTempFilterGpaMax("4");
+                  setTempSelectedMajor("all");
+                  setTempSelectedLevel("all");
+                  setFilterNationality("all");
+                  setFilterAdvisor("all");
+                  setFilterStatus("all");
+                  setFilterAgeMin("");
+                  setFilterAgeMax("");
+                  setFilterGpaMin("");
+                  setFilterGpaMax("4");
+                  setSelectedMajor("all");
+                  setSelectedLevel("all");
+                  setFiltersOpen(false);
+                }}
+              >
+                Reset
+              </Button>
+              <Button variant="outline" onClick={() => setFiltersOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setFilterNationality(tempFilterNationality);
+                  setFilterAdvisor(tempFilterAdvisor);
+                  setFilterStatus(tempFilterStatus);
+                  setFilterAgeMin(tempFilterAgeMin);
+                  setFilterAgeMax(tempFilterAgeMax);
+                  setFilterGpaMin(tempFilterGpaMin);
+                  setFilterGpaMax(tempFilterGpaMax);
+                  setSelectedMajor(tempSelectedMajor);
+                  setSelectedLevel(tempSelectedLevel);
+                  setFiltersOpen(false);
+                }}
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card className="p-4 group">
         <div className="flex items-center justify-between gap-4 mb-4">
