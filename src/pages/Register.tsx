@@ -16,7 +16,8 @@ export function Register() {
   const EMAIL_SUFFIX = "@must.edu.eg";
 
   const [roleTab, setRoleTab] = useState<RegistrationRole>("visitor");
-  const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +28,8 @@ export function Register() {
 
   const canSubmit = useMemo(() => {
     if (
-      !displayName.trim() ||
+      !firstName.trim() ||
+      !lastName.trim() ||
       !username.trim() ||
       !email.trim() ||
       !password.trim() ||
@@ -41,7 +43,8 @@ export function Register() {
     return true;
   }, [
     roleTab,
-    displayName,
+    firstName,
+    lastName,
     username,
     email,
     password,
@@ -73,11 +76,13 @@ export function Register() {
         finalEmail = `${finalEmail}${EMAIL_SUFFIX}`;
       }
 
+      const displayNameValue = `${firstName.trim()} ${lastName.trim()}`.trim();
+
       await register({
         username: username.trim(),
         email: finalEmail,
         password,
-        displayName: displayName.trim(),
+        displayName: displayNameValue,
         role: roleTab === "visitor" ? ROLES.VISITOR : ROLES.COLLEGE_MEMBER,
         universityId: roleTab !== "visitor" ? universityId.trim() : undefined,
       });
@@ -170,16 +175,29 @@ export function Register() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-            Display name
-          </label>
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className={authGlassInputClassName}
-            placeholder="Display name"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+              First name
+            </label>
+            <input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className={authGlassInputClassName}
+              placeholder="First name"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+              Last name
+            </label>
+            <input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className={authGlassInputClassName}
+              placeholder="Last name"
+            />
+          </div>
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
