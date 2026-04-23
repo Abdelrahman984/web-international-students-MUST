@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { ROLES } from '../constants/roles';
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ROLES } from "../constants/roles";
 import {
   login as loginRequest,
   register as registerRequest,
@@ -8,8 +8,8 @@ import {
   me,
   type RegisterPayload,
   type StrapiUser,
-} from '../services/auth';
-import { supabase } from '../services/supabase';
+} from "../services/auth";
+import { supabase } from "../services/supabase";
 
 interface AuthContextValue {
   user: StrapiUser | null;
@@ -35,17 +35,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  const clearSessionAndPurgeLocalSupabase = async () => {
+  const clearSessionAndPurgeLocalAuthCache = async () => {
     clearSession();
 
     try {
-      await supabase.auth.signOut({ scope: 'local' });
+      await supabase.auth.signOut({ scope: "local" });
     } catch (error) {
-      console.warn('Failed to clear local Supabase session cache.', error);
+      console.warn("Failed to clear local auth session cache.", error);
     }
   };
 
-  const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> => {
+  const withTimeout = async <T,>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    timeoutMessage: string,
+  ): Promise<T> => {
     return await new Promise<T>((resolve, reject) => {
       const timerId = window.setTimeout(() => {
         reject(new Error(timeoutMessage));
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshUser = async () => {
-    const freshUser = await me(token || '');
+    const freshUser = await me(token || "");
     setUser(freshUser);
   };
 
@@ -74,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const initialToken = await withTimeout(
           getCurrentAccessToken(),
           8000,
-          'Timed out restoring auth session from local storage.',
+          "Timed out restoring auth session from local storage.",
         );
         setToken(initialToken);
 
@@ -82,15 +86,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const freshUser = await withTimeout(
             me(initialToken),
             10000,
-            'Timed out loading current user profile.',
+            "Timed out loading current user profile.",
           );
           setUser(freshUser);
         } else {
           clearSession();
         }
       } catch (error) {
-        console.warn('Auth initialization failed. Clearing local session cache.', error);
-        await clearSessionAndPurgeLocalSupabase();
+        console.warn(
+          "Auth initialization failed. Clearing local session cache.",
+          error,
+        );
+        await clearSessionAndPurgeLocalAuthCache();
       } finally {
         setIsLoading(false);
       }
@@ -114,12 +121,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const freshUser = await withTimeout(
             me(nextToken),
             10000,
-            'Timed out refreshing user after auth state change.',
+            "Timed out refreshing user after auth state change.",
           );
           setUser(freshUser);
         } catch (error) {
-          console.warn('Auth state refresh failed. Clearing local session cache.', error);
-          await clearSessionAndPurgeLocalSupabase();
+          console.warn(
+            "Auth state refresh failed. Clearing local session cache.",
+            error,
+          );
+          await clearSessionAndPurgeLocalAuthCache();
         }
       })();
     });
@@ -129,7 +139,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const login = async (identifier: string, password: string): Promise<StrapiUser> => {
+  const login = async (
+    identifier: string,
+    password: string,
+  ): Promise<StrapiUser> => {
     setIsLoading(true);
     try {
       const auth = await loginRequest(identifier, password);
@@ -156,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await logoutRequest();
     } catch (error) {
-      console.warn('Supabase signOut failed, clearing local session anyway.', error);
+      console.warn("Sign out failed, clearing local session anyway.", error);
     } finally {
       clearSession();
     }
@@ -171,10 +184,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       register,
       logout,
       isAdmin: user?.role?.type === ROLES.ADMIN,
-      isCollegeMember: user?.role?.type === 'college-member',
+      isCollegeMember: user?.role?.type === "college-member",
       refreshUser,
     }),
-    [user, token, isLoading]
+    [user, token, isLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -183,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }

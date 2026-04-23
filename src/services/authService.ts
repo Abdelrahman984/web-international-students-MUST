@@ -17,7 +17,7 @@ async function resolveEmailFromLoginIdentifier(
 ): Promise<string | null> {
   if (!supabase) {
     throw new Error(
-      "Supabase is not configured. Create .env from .env.example and restart the Vite server.",
+      "API backend is not configured. Set VITE_API_BASE_URL and restart the Vite server.",
     );
   }
 
@@ -67,7 +67,7 @@ export async function signInWithPassword(
 ): Promise<void> {
   if (!supabase) {
     throw new Error(
-      "Supabase is not configured. Create .env from .env.example and restart the Vite server.",
+      "API backend is not configured. Set VITE_API_BASE_URL and restart the Vite server.",
     );
   }
 
@@ -89,7 +89,7 @@ export async function signUpWithPassword(input: {
   inviteToken?: string;
 }): Promise<void> {
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error("API backend is not configured.");
   }
 
   const { error } = await supabase.auth.signUp({
@@ -123,7 +123,7 @@ export async function getAdvisorProfile(
   userId: string,
 ): Promise<AdvisorProfile | null> {
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error("API backend is not configured.");
   }
 
   const { data, error } = await supabase
@@ -144,7 +144,7 @@ export async function uploadAdvisorAvatar(
   file: File,
 ): Promise<string> {
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error("API backend is not configured.");
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
@@ -178,7 +178,7 @@ export async function updateAdvisorProfileName(
   fullName: string,
 ): Promise<void> {
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error("API backend is not configured.");
   }
 
   const cleanedName = fullName.trim();

@@ -24,7 +24,7 @@ export default function Registeration() {
         );
       } catch (error) {
         console.error("Error fetching registration guides:", error);
-        setStatus("Network error: Could not connect to Supabase.");
+        setStatus("Network error: Could not connect to backend API.");
       } finally {
         setIsLoading(false);
       }
@@ -49,7 +49,7 @@ export default function Registeration() {
 
         {isLoading ? (
           <div className="animate-pulse text-emerald-600 dark:text-emerald-400">
-            Loading registration guides from Supabase...
+            Loading registration guides from API...
           </div>
         ) : status ? (
           <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-emerald-700 dark:border-slate-700 dark:text-emerald-400">

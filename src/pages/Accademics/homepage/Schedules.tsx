@@ -48,7 +48,7 @@ export default function Schedules() {
         setStatus(rows.length ? "" : "No schedule files available yet.");
       } catch (error) {
         console.error("Error fetching schedules:", error);
-        setStatus("Network error: Could not connect to Supabase.");
+        setStatus("Network error: Could not connect to backend API.");
       } finally {
         setIsLoading(false);
       }
@@ -102,7 +102,7 @@ export default function Schedules() {
 
         {isLoading ? (
           <div className="animate-pulse text-emerald-700 text-xl font-bold text-center p-12 dark:text-emerald-400">
-            Loading schedules from Supabase...
+            Loading schedules from API...
           </div>
         ) : status ? (
           <div className="text-center text-emerald-700 text-xl font-bold p-12 border border-dashed border-slate-300 rounded-xl dark:text-emerald-400 dark:border-slate-700">

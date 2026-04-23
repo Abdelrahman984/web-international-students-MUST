@@ -67,7 +67,7 @@ export function Facilities() {
         setStatus(rows.length ? "" : "No resources available yet.");
       } catch (error) {
         console.error(`Error fetching ${activeTab} resources:`, error);
-        setStatus("Network error: Could not connect to Supabase.");
+        setStatus("Network error: Could not connect to backend API.");
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +104,7 @@ export function Facilities() {
 
         {isLoading ? (
           <div className="animate-pulse text-emerald-600 dark:text-emerald-400">
-            Loading {sectionTitle.toLowerCase()} resources from Supabase...
+            Loading {sectionTitle.toLowerCase()} resources from API...
           </div>
         ) : status ? (
           <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-emerald-700 dark:border-slate-700 dark:text-emerald-400">

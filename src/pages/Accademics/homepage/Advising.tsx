@@ -10,6 +10,9 @@ type AdvisingPdfItem = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)
+  ?.trim()
+  .replace(/\/$/, "");
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)
   ?.trim()
   .replace(/\/$/, "");
@@ -23,7 +26,7 @@ const resourcesBucket =
   (import.meta.env.VITE_SUPABASE_RESOURCES_FILES_BUCKET as string | undefined)
     ?.trim()
     .replace(/^\/+|\/+$/g, "") || "resources-files";
-const academicAdvisingEndpoint = supabaseUrl
+const legacyAcademicAdvisingEndpoint = supabaseUrl
   ? `${supabaseUrl}/rest/v1/academic_advising`
   : "";
 
@@ -46,7 +49,9 @@ const resolveApiAssetUrl = (rawUrl: string): string => {
     return rawUrl;
   }
 
-  const baseUrl = supabaseUrl || "";
+  const baseUrl = apiBaseUrl || supabaseUrl || "";
+  const storageHost = supabaseUrl || baseUrl;
+
   if (!baseUrl) {
     return rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`;
   }
@@ -54,18 +59,22 @@ const resolveApiAssetUrl = (rawUrl: string): string => {
   const normalizedPath = rawUrl.replace(/^\/+/, "");
 
   if (normalizedPath.startsWith("storage/v1/object/public/")) {
-    return `${baseUrl}/${normalizedPath}`;
+    return `${storageHost}/${normalizedPath}`;
   }
 
   if (normalizedPath.startsWith("storage/v1/object/")) {
-    return `${baseUrl}/${normalizedPath.replace(
+    return `${storageHost}/${normalizedPath.replace(
       "storage/v1/object/",
       "storage/v1/object/public/",
     )}`;
   }
 
   if (normalizedPath.startsWith("academic-advising/")) {
-    return `${baseUrl}/storage/v1/object/public/${resourcesBucket}/${normalizedPath}`;
+    if (!apiBaseUrl && supabaseUrl) {
+      return `${supabaseUrl}/storage/v1/object/public/${resourcesBucket}/${normalizedPath}`;
+    }
+
+    return `${baseUrl}/${normalizedPath}`;
   }
 
   if (rawUrl.startsWith("/")) {
@@ -212,32 +221,86 @@ const extractList = (source: unknown): unknown[] => {
 };
 
 const fetchAcademicAdvising = async (): Promise<AdvisingPdfItem[]> => {
-  if (!academicAdvisingEndpoint || !supabaseApiKey) {
-    throw new Error("Supabase REST configuration is missing.");
-  }
+  const fetchFromApiEndpoint = async (): Promise<unknown | null> => {
+    if (!apiBaseUrl) {
+      return null;
+    }
 
-  const queryParams = new URLSearchParams({
-    select: "*",
-  });
+    const endpointCandidates = [
+      `${apiBaseUrl}/api/academic-advising`,
+      `${apiBaseUrl}/api/academic-advising/resources`,
+      `${apiBaseUrl}/api/advising/resources`,
+      `${apiBaseUrl}/api/academicAdvising`,
+    ];
 
-  const response = await fetch(
-    `${academicAdvisingEndpoint}?${queryParams.toString()}`,
-    {
-      method: "GET",
-      headers: {
-        apikey: supabaseApiKey,
-        Authorization: `Bearer ${supabaseApiKey}`,
-        Accept: "application/json",
+    const errors: string[] = [];
+
+    for (const endpoint of endpointCandidates) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            continue;
+          }
+
+          const message = await response.text();
+          errors.push(message || `${response.status} ${response.statusText}`);
+          continue;
+        }
+
+        return (await response.json()) as unknown;
+      } catch (error) {
+        errors.push(error instanceof Error ? error.message : String(error));
+      }
+    }
+
+    if (errors.length > 0) {
+      throw new Error(errors[0]);
+    }
+
+    return null;
+  };
+
+  const fetchFromLegacySupabaseEndpoint = async (): Promise<unknown> => {
+    if (!legacyAcademicAdvisingEndpoint || !supabaseApiKey) {
+      throw new Error("Backend API configuration is missing.");
+    }
+
+    const queryParams = new URLSearchParams({
+      select: "*",
+    });
+
+    const response = await fetch(
+      `${legacyAcademicAdvisingEndpoint}?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          apikey: supabaseApiKey,
+          Authorization: `Bearer ${supabaseApiKey}`,
+          Accept: "application/json",
+        },
       },
-    },
-  );
+    );
 
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Failed to fetch academic advising resources.");
-  }
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(
+        message || "Failed to fetch academic advising resources.",
+      );
+    }
 
-  const responseData = (await response.json()) as unknown;
+    return (await response.json()) as unknown;
+  };
+
+  const apiResponseData = await fetchFromApiEndpoint();
+  const responseData =
+    apiResponseData ?? (await fetchFromLegacySupabaseEndpoint());
 
   const items = extractList(responseData)
     .map((item, index) => toAdvisingPdfItem(item, index))

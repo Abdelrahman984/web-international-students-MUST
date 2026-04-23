@@ -1473,10 +1473,16 @@ export function getCmsMediaUrl(path: string): string {
     return "";
   }
 
-  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || "").replace(
+  const apiProjectUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(
     /\/$/,
     "",
   );
+  const supabaseProjectUrl = (import.meta.env.VITE_SUPABASE_URL || "").replace(
+    /\/$/,
+    "",
+  );
+  const projectUrl = apiProjectUrl || supabaseProjectUrl;
+  const storageHost = supabaseProjectUrl || projectUrl;
 
   if (/^https?:\/\//i.test(path)) {
     return path;
@@ -1485,8 +1491,8 @@ export function getCmsMediaUrl(path: string): string {
   const normalizedPath = path.replace(/^\/+/, "");
 
   if (normalizedPath.startsWith("storage/v1/object/public/")) {
-    return projectUrl
-      ? `${projectUrl}/${normalizedPath}`
+    return storageHost
+      ? `${storageHost}/${normalizedPath}`
       : `/${normalizedPath}`;
   }
 
@@ -1495,7 +1501,7 @@ export function getCmsMediaUrl(path: string): string {
       "storage/v1/object/",
       "storage/v1/object/public/",
     );
-    return projectUrl ? `${projectUrl}/${publicPath}` : `/${publicPath}`;
+    return storageHost ? `${storageHost}/${publicPath}` : `/${publicPath}`;
   }
 
   if (!projectUrl) {
@@ -1540,7 +1546,7 @@ export function getCmsMediaUrl(path: string): string {
     bucketName = STORAGE_BUCKETS.avatars;
   }
 
-  if (bucketName) {
+  if (bucketName && supabaseProjectUrl) {
     const { data } = supabase.storage
       .from(bucketName)
       .getPublicUrl(normalizedPath);
@@ -1553,7 +1559,7 @@ export function getCmsMediaUrl(path: string): string {
     return `${projectUrl}${path}`;
   }
 
-  return `${projectUrl}/${path}`;
+  return `${projectUrl}/${normalizedPath}`;
 }
 
 export function getStrapiMediaUrl(path: string): string {

@@ -64,6 +64,9 @@ const initialSectionsState: HomeSectionsState = {
   sectorPlan: null,
 };
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)
+  ?.trim()
+  .replace(/\/$/, "");
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)
   ?.trim()
   .replace(/\/$/, "");
@@ -73,7 +76,7 @@ const supabaseApiKey =
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
   )?.trim() ||
   "";
-const homeSectionsEndpoint = supabaseUrl
+const legacyHomeSectionsEndpoint = supabaseUrl
   ? `${supabaseUrl}/rest/v1/home_sections`
   : "";
 
@@ -203,17 +206,117 @@ const resolveMediaUrl = (path: string | null): string | null => {
     return path;
   }
 
-  const storageBase = `${
-    supabaseUrl || "https://qynenmfrntuicbrxvhqv.supabase.co"
-  }/storage/v1/object/public/home-images`;
   const normalizedPath = path.replace(/^\/+/, "");
+  const preferredBase = apiBaseUrl || supabaseUrl;
 
-  return `${storageBase}/${normalizedPath}`;
+  if (!preferredBase) {
+    return path;
+  }
+
+  if (normalizedPath.startsWith("storage/v1/object/public/")) {
+    return `${preferredBase}/${normalizedPath}`;
+  }
+
+  if (normalizedPath.startsWith("storage/v1/object/")) {
+    return `${preferredBase}/${normalizedPath.replace(
+      "storage/v1/object/",
+      "storage/v1/object/public/",
+    )}`;
+  }
+
+  // Keep legacy Supabase bucket behavior for old payloads that only include bucket-relative paths.
+  if (normalizedPath.startsWith("home-images/")) {
+    return `${preferredBase}/storage/v1/object/public/${normalizedPath}`;
+  }
+
+  if (path.startsWith("/")) {
+    return `${preferredBase}${path}`;
+  }
+
+  return `${preferredBase}/${normalizedPath}`;
 };
 
-const fetchHomeSectionRows = async <T,>(sectionKey: string): Promise<T[]> => {
-  if (!homeSectionsEndpoint || !supabaseApiKey) {
-    throw new Error("Supabase REST configuration is missing.");
+const normalizeSectionRows = <T,>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) {
+    return payload as T[];
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const record = payload as Record<string, unknown>;
+
+  if (Array.isArray(record.data)) {
+    return record.data as T[];
+  }
+
+  if (Array.isArray(record.items)) {
+    return record.items as T[];
+  }
+
+  if (record.data && typeof record.data === "object") {
+    return [record.data as T];
+  }
+
+  return [record as T];
+};
+
+const fetchFromApiEndpoint = async <T,>(
+  sectionKey: string,
+): Promise<T[] | null> => {
+  if (!apiBaseUrl) {
+    return null;
+  }
+
+  const encodedSectionKey = encodeURIComponent(sectionKey);
+  const endpointCandidates = [
+    `${apiBaseUrl}/api/home_sections?sectionKey=${encodedSectionKey}`,
+    `${apiBaseUrl}/api/home_sections?section_key=${encodedSectionKey}`,
+    `${apiBaseUrl}/api/home/sections?sectionKey=${encodedSectionKey}`,
+    `${apiBaseUrl}/api/home_sections/${encodedSectionKey}`,
+  ];
+
+  const errors: string[] = [];
+
+  for (const endpoint of endpointCandidates) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          continue;
+        }
+
+        const message = await response.text();
+        errors.push(message || `${response.status} ${response.statusText}`);
+        continue;
+      }
+
+      const payload = (await response.json()) as unknown;
+      return normalizeSectionRows<T>(payload);
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(errors[0]);
+  }
+
+  return null;
+};
+
+const fetchFromLegacySupabaseEndpoint = async <T,>(
+  sectionKey: string,
+): Promise<T[]> => {
+  if (!legacyHomeSectionsEndpoint || !supabaseApiKey) {
+    throw new Error("Backend API configuration is missing.");
   }
 
   const queryParams = new URLSearchParams({
@@ -222,7 +325,7 @@ const fetchHomeSectionRows = async <T,>(sectionKey: string): Promise<T[]> => {
   });
 
   const response = await fetch(
-    `${homeSectionsEndpoint}?${queryParams.toString()}`,
+    `${legacyHomeSectionsEndpoint}?${queryParams.toString()}`,
     {
       method: "GET",
       headers: {
@@ -239,6 +342,15 @@ const fetchHomeSectionRows = async <T,>(sectionKey: string): Promise<T[]> => {
   }
 
   return (await response.json()) as T[];
+};
+
+const fetchHomeSectionRows = async <T,>(sectionKey: string): Promise<T[]> => {
+  const apiRows = await fetchFromApiEndpoint<T>(sectionKey);
+  if (apiRows) {
+    return apiRows;
+  }
+
+  return fetchFromLegacySupabaseEndpoint<T>(sectionKey);
 };
 
 export default function HomePage() {
@@ -335,7 +447,8 @@ export default function HomePage() {
       p.style.transition = "opacity 550ms ease, transform 550ms ease";
       p.style.opacity = "0";
       p.style.transform = "translateY(12px)";
-      (p.style as any).willChange = "opacity, transform";
+      (p.style as CSSStyleDeclaration & { willChange?: string }).willChange =
+        "opacity, transform";
     });
 
     if (aboutVisible) {

@@ -41,11 +41,13 @@ export function Academics() {
           );
           setStaffList(formattedStaff);
         } else {
-          setStatus("Connected to Supabase, but no staff profiles were found.");
+          setStatus(
+            "Connected to backend API, but no staff profiles were found.",
+          );
         }
       } catch (error) {
         console.error("Error fetching staff:", error);
-        setStatus("Network error: Could not connect to Supabase.");
+        setStatus("Network error: Could not connect to backend API.");
       } finally {
         setIsLoading(false);
       }
@@ -97,7 +99,7 @@ export function Academics() {
 
       {isLoading ? (
         <div className="animate-pulse p-12 text-center text-xl font-bold text-emerald-600 dark:text-emerald-400">
-          Loading staff from Supabase...
+          Loading staff from API...
         </div>
       ) : status ? (
         <div className="rounded-xl border border-dashed border-slate-300 p-12 text-center text-xl font-bold text-emerald-700 dark:border-slate-700 dark:text-emerald-400">
