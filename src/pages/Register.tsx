@@ -6,12 +6,14 @@ import {
   authPrimaryButtonClassName,
 } from "../components/AuthCampusLayout";
 import { useAuth } from "../context/AuthContext";
+import { ROLES } from "../constants/roles";
 
-type RegistrationRole = "visitor" | "college-member";
+type RegistrationRole = "visitor" | "student" | "advisor";
 
 export function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const EMAIL_SUFFIX = "@must.edu.eg";
 
   const [roleTab, setRoleTab] = useState<RegistrationRole>("visitor");
   const [displayName, setDisplayName] = useState("");
@@ -33,7 +35,7 @@ export function Register() {
     ) {
       return false;
     }
-    if (roleTab === "college-member" && !universityId.trim()) {
+    if (roleTab !== "visitor" && !universityId.trim()) {
       return false;
     }
     return true;
@@ -63,14 +65,21 @@ export function Register() {
 
     setIsSubmitting(true);
     try {
+      let finalEmail = email.trim();
+      if (
+        (roleTab === "student" || roleTab === "advisor") &&
+        !finalEmail.includes("@")
+      ) {
+        finalEmail = `${finalEmail}${EMAIL_SUFFIX}`;
+      }
+
       await register({
         username: username.trim(),
-        email: email.trim(),
+        email: finalEmail,
         password,
         displayName: displayName.trim(),
-        role: roleTab,
-        universityId:
-          roleTab === "college-member" ? universityId.trim() : undefined,
+        role: roleTab === "visitor" ? ROLES.VISITOR : ROLES.COLLEGE_MEMBER,
+        universityId: roleTab !== "visitor" ? universityId.trim() : undefined,
       });
       navigate("/profile");
     } catch (err) {
@@ -98,6 +107,22 @@ export function Register() {
         <button
           type="button"
           role="tab"
+          aria-selected={roleTab === "student"}
+          onClick={() => {
+            setRoleTab("student");
+            setError(null);
+          }}
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
+            roleTab === "student"
+              ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
+              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+          }`}
+        >
+          Student
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={roleTab === "visitor"}
           onClick={() => {
             setRoleTab("visitor");
@@ -115,25 +140,27 @@ export function Register() {
         <button
           type="button"
           role="tab"
-          aria-selected={roleTab === "college-member"}
+          aria-selected={roleTab === "advisor"}
           onClick={() => {
-            setRoleTab("college-member");
+            setRoleTab("advisor");
             setError(null);
           }}
           className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            roleTab === "college-member"
+            roleTab === "advisor"
               ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
               : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
           }`}
         >
-          College member
+          Advisor
         </button>
       </div>
 
       <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
         {roleTab === "visitor"
           ? "For general access without a university ID."
-          : "For students and staff — university ID is required."}
+          : roleTab === "student"
+            ? "For students — university ID is required."
+            : "For advisors — university ID is required."}
       </p>
 
       <form
@@ -169,16 +196,31 @@ export function Register() {
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
             Email
           </label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            className={authGlassInputClassName}
-            placeholder="Email"
-          />
+          {roleTab === "student" || roleTab === "advisor" ? (
+            <div className="flex items-center">
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`${authGlassInputClassName} max-w-[calc(100%-140px)]`}
+                placeholder="Enter email local part"
+                aria-label="Email local part"
+              />
+              <span className="rounded-r border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white select-none">
+                {EMAIL_SUFFIX}
+              </span>
+            </div>
+          ) : (
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              className={authGlassInputClassName}
+              placeholder="Email"
+            />
+          )}
         </div>
 
-        {roleTab === "college-member" && (
+        {roleTab !== "visitor" && (
           <div>
             <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
               University ID

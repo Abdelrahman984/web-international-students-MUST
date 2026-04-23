@@ -8,7 +8,7 @@ import {
 import { ROLES } from "../constants/roles";
 import { useAuth } from "../context/AuthContext";
 
-type LoginPortalTab = "student" | "admin";
+type LoginPortalTab = "student" | "visitor" | "advisor";
 
 export function Login() {
   const { login, logout } = useAuth();
@@ -20,6 +20,7 @@ export function Login() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const EMAIL_SUFFIX = "@must.edu.eg";
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -33,20 +34,35 @@ export function Login() {
 
     setIsSubmitting(true);
     try {
-      const signedInUser = await login(identifier.trim(), password);
-      const isAdminAccount = signedInUser.role?.type === ROLES.ADMIN;
+      let identifierToUse = identifier.trim();
+      if (
+        (portalTab === "student" || portalTab === "advisor") &&
+        !identifierToUse.includes("@")
+      ) {
+        identifierToUse = `${identifierToUse}${EMAIL_SUFFIX}`;
+      }
 
-      if (portalTab === "admin" && !isAdminAccount) {
+      const signedInUser = await login(identifierToUse, password);
+      const isAdminAccount = signedInUser.role?.type === ROLES.ADMIN;
+      const isVisitorAccount = signedInUser.role?.type === ROLES.VISITOR;
+
+      if (portalTab === "advisor" && !isAdminAccount) {
         await logout();
-        setServerError("This sign-in is for administrator accounts only.");
+        setServerError("This sign-in is for advisor accounts only.");
         return;
       }
 
       if (portalTab === "student" && isAdminAccount) {
         await logout();
         setServerError(
-          "Administrator accounts should sign in using the Admin tab.",
+          "Advisor accounts should sign in using the Advisor tab.",
         );
+        return;
+      }
+
+      if (portalTab === "visitor" && !isVisitorAccount) {
+        await logout();
+        setServerError("This sign-in is for visitor accounts only.");
         return;
       }
 
@@ -93,26 +109,45 @@ export function Login() {
         <button
           type="button"
           role="tab"
-          aria-selected={portalTab === "admin"}
+          aria-selected={portalTab === "visitor"}
           onClick={() => {
-            setPortalTab("admin");
+            setPortalTab("visitor");
             setFieldError(null);
             setServerError(null);
           }}
           className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            portalTab === "admin"
+            portalTab === "visitor"
               ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
               : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
           }`}
         >
-          Admin
+          Visitor
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={portalTab === "advisor"}
+          onClick={() => {
+            setPortalTab("advisor");
+            setFieldError(null);
+            setServerError(null);
+          }}
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
+            portalTab === "advisor"
+              ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
+              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+          }`}
+        >
+          Advisor
         </button>
       </div>
 
       <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
         {portalTab === "student"
-          ? "For students, visitors, and college members."
-          : "For platform administrators only."}
+          ? "For only international students."
+          : portalTab === "visitor"
+            ? "For visitors."
+            : "For platform advisors only."}
       </p>
 
       {fieldError && <p className="mb-3 text-sm text-red-600">{fieldError}</p>}
@@ -129,12 +164,27 @@ export function Login() {
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
             Email or Username
           </label>
-          <input
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            className={authGlassInputClassName}
-            placeholder="Enter your email or username"
-          />
+          {portalTab === "student" || portalTab === "advisor" ? (
+            <div className="flex items-center">
+              <input
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                className={`${authGlassInputClassName} max-w-[calc(100%-140px)]`}
+                placeholder="Enter email local part"
+                aria-label="Email local part"
+              />
+              <span className="rounded-r border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white select-none">
+                {EMAIL_SUFFIX}
+              </span>
+            </div>
+          ) : (
+            <input
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              className={authGlassInputClassName}
+              placeholder="Enter your email or username"
+            />
+          )}
         </div>
 
         <div>

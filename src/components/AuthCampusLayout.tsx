@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 const campusBackgroundUrl = `${import.meta.env.BASE_URL}login-campus-bg.png`;
 
 export const authGlassInputClassName =
-  'w-full rounded-xl border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 shadow-sm outline-none ring-sky-200/40 transition-shadow placeholder:text-stone-400 focus:border-sky-300/80 focus:ring-2 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-sky-500/50 dark:focus:ring-sky-900/50';
+  'w-full rounded-l border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 shadow-sm outline-none ring-sky-200/40 transition-shadow placeholder:text-stone-400 focus:border-sky-300/80 focus:ring-2 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-sky-500/50 dark:focus:ring-sky-900/50';
 
 export const authPrimaryButtonClassName =
   'rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 px-4 py-2.5 font-semibold text-white shadow-lg shadow-emerald-900/20 outline-none ring-1 ring-emerald-500/30 transition hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-60 dark:shadow-emerald-950/40';
