@@ -50,6 +50,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ChatStoreProvider } from "./context/ChatContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Links from "./pages/links";
+import { AutoScrollManager } from "./components/AutoScrollManager";
 
 export type PageType =
   | "academics"
@@ -184,6 +185,7 @@ export function App() {
         <ProfileProvider>
           <RequestsProvider>
             <BrowserRouter>
+              <AutoScrollManager />
               <AppContent />
             </BrowserRouter>
           </RequestsProvider>

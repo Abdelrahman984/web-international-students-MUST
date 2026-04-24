@@ -25,7 +25,7 @@ export default function Advising() {
             url: item.resource_url || item.resourceUrl || item.url || '',
             resource_type: item.resource_type || '',
           }));
-          const valid = mapped.filter((item) => item.url && item.url !== "#" && item.resource_type === 'Advising');
+          const valid = mapped.filter((item) => item.url && item.url !== "#" && item.resource_type === 'Academic Advising');
           setAcademicAdvisingPdfs(valid);
         } else {
           setAcademicAdvisingPdfs([]);

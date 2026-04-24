@@ -1,12 +1,10 @@
 import { useSearchParams } from "react-router-dom";
 import { GoogleDriveLinkCard } from "../components/GoogleDriveLinkCard";
-import { InternationalStudentsData } from "./InternationalStudentsData";
 import { Reports } from "./Reports";
 
 type AdvisingTab =
   | "resources"
   | "announcements"
-  | "students-data"
   | "statistical-reports";
 
 type AnnouncementItem = {
@@ -75,11 +73,9 @@ export default function AdvisingPage() {
   const activeTab: AdvisingTab =
     tabParam === "announcements"
       ? "announcements"
-      : tabParam === "students-data"
-        ? "students-data"
-        : tabParam === "statistical-reports"
-          ? "statistical-reports"
-          : "resources";
+      : tabParam === "statistical-reports"
+        ? "statistical-reports"
+        : "resources";
 
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
@@ -92,9 +88,7 @@ export default function AdvisingPage() {
           </div>
         </div>
 
-        {activeTab === "students-data" ? (
-          <InternationalStudentsData />
-        ) : activeTab === "statistical-reports" ? (
+        {activeTab === "statistical-reports" ? (
           <Reports userName="International Student Affairs" />
         ) : activeTab === "resources" ? (
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/40 sm:p-8">

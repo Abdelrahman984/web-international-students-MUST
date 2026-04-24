@@ -31,11 +31,22 @@ interface ChatContextValue {
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 
-const currentUserParticipant = (user: ReturnType<typeof useAuth>['user']) => ({
+const decodeJwtEmail = (token: string | null): string | undefined => {
+  if (!token) return undefined;
+  try {
+    const payloadUrl = token.split('.')[1];
+    const payload = JSON.parse(atob(payloadUrl.replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.email || payload.upn || payload.unique_name;
+  } catch (e) {
+    return undefined;
+  }
+};
+
+const currentUserParticipant = (user: ReturnType<typeof useAuth>['user'], token: string | null) => ({
   id: user?.id ?? 'guest',
   displayName: user?.displayName || user?.username || 'You',
   avatarUrl: user?.avatar?.url ?? null,
-  email: user?.email,
+  email: user?.email || decodeJwtEmail(token),
   role: (user?.role?.type === ROLES.ADMIN ? 'admin' : 'user') as 'user' | 'admin',
 });
 
@@ -137,7 +148,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('Chat ready.');
-  const currentUser = currentUserParticipant(user);
+  const currentUser = currentUserParticipant(user, token);
 
   const provider = useMemo(() => {
     const createdProvider = createChatProvider(currentUser as ChatProviderCurrentUser);

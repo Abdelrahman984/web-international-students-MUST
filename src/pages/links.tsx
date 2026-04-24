@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../services/supabase";
+import { apiClient } from "../services/api";
 
 type ImportantLink = {
   id: string;
@@ -35,24 +35,19 @@ export default function LinksPage() {
       setLoading(true);
       setError(null);
 
-      const { data, error: queryError } = await supabase
-        .from("important_links")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!isMounted) {
-        return;
-      }
-
-      if (queryError) {
-        setError(queryError.message || "Failed to load important links.");
+      try {
+        const response = await apiClient.get('/api/Links');
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || response.data?.items || [];
+        
+        if (!isMounted) return;
+        setItems(data as ImportantLink[]);
+      } catch (err: any) {
+        if (!isMounted) return;
+        setError(err.message || "Failed to load important links.");
         setItems([]);
-        setLoading(false);
-        return;
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      setItems((data ?? []) as ImportantLink[]);
-      setLoading(false);
     };
 
     void fetchImportantLinks();
