@@ -14,6 +14,23 @@ const getTable = (envName: string, fallback: string) => {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 };
 
+const HERO_SLIDES_TABLE = (() => {
+  const explicit = getTable("VITE_SUPABASE_HERO_SLIDES_TABLE", "");
+  if (explicit) {
+    return explicit;
+  }
+
+  const legacyGalleryTable = getTable("VITE_SUPABASE_GALLERY_TABLE", "");
+  if (legacyGalleryTable) {
+    const normalizedLegacy = legacyGalleryTable.replace(/\/+$/, "");
+    return normalizedLegacy.endsWith("/hero_slider")
+      ? normalizedLegacy
+      : `${normalizedLegacy}/hero_slider`;
+  }
+
+  return "photo_gallery/hero_slider";
+})();
+
 const TABLES = {
   pages: getTable("VITE_SUPABASE_PAGES_TABLE", ""),
   homepage: getTable("VITE_SUPABASE_HOMEPAGE_TABLE", ""),
@@ -40,7 +57,7 @@ const TABLES = {
   ),
   schedules: getTable("VITE_SUPABASE_SCHEDULES_TABLE", "schedules"),
   calendars: getTable("VITE_SUPABASE_CALENDARS_TABLE", "calendars"),
-  heroSlides: getTable("VITE_SUPABASE_GALLERY_TABLE", "photo_gallery"),
+  heroSlides: HERO_SLIDES_TABLE,
   honorListDocs: getTable(
     "VITE_SUPABASE_STUDENT_HONOR_LIST_TABLE",
     "student_honor_list_documents",
