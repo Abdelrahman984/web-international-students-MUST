@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { resolveMediaUrl } from '../utils/media';
 
 interface EventCardItem {
   id: string;
@@ -173,7 +174,7 @@ function CardImageSlider({
   return (
     <div className="relative h-full w-full">
       <img
-        src={imageUrls[activeIndex]}
+        src={resolveMediaUrl(imageUrls[activeIndex] || '')}
         alt={imageAlt}
         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />

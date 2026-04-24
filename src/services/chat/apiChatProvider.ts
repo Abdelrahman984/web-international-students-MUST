@@ -107,20 +107,20 @@ async function getAdvisorMap(advisorIds: string[]): Promise<Record<string, Advis
     return {};
   }
 
-  const { data, error } = await supabase
-    .from(TABLES.advisors)
-    .select('id, full_name, email, avatar_url, is_active')
-    .in('id', advisorIds)
-    .eq('is_active', true);
-
-  if (error) {
-    throw new Error(`Failed to load advisor profiles: ${error.message}`);
+  try {
+    const res = await apiClient.get('/api/advisor_profiles');
+    const all = (res.data?.data || res.data?.items || res.data || []) as AdvisorProfileRow[];
+    const idSet = new Set(advisorIds);
+    return all
+      .filter((a) => idSet.has(a.id))
+      .reduce<Record<string, AdvisorProfileRow>>((acc, advisor) => {
+        acc[advisor.id] = advisor;
+        return acc;
+      }, {});
+  } catch {
+    // Graceful degradation — advisor display name will fall back to "Advisor"
+    return {};
   }
-
-  return (data || []).reduce<Record<string, AdvisorProfileRow>>((acc, advisor) => {
-    acc[advisor.id] = advisor as AdvisorProfileRow;
-    return acc;
-  }, {});
 }
 
 function mapConversation(
@@ -212,29 +212,31 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
     async listAdmins(query) {
       assertConfigured(currentUser);
 
-      let request = supabase
-        .from(TABLES.advisors)
-        .select('id, full_name, email, avatar_url, is_active')
-        .eq('is_active', true)
-        .order('full_name', { ascending: true });
-
-      const normalizedQuery = (query || '').trim();
-      if (normalizedQuery) {
-        request = request.ilike('full_name', `%${normalizedQuery}%`);
+      let advisors: AdvisorProfileRow[] = [];
+      try {
+        const res = await apiClient.get('/api/advisor_profiles');
+        advisors = (res.data?.data || res.data?.items || res.data || []) as AdvisorProfileRow[];
+      } catch (err: any) {
+        throw new Error(`Failed to load advisors: ${err.message}`);
       }
 
-      const { data, error } = await request;
+      // Filter active advisors client-side
+      const active = advisors.filter((a) => a.is_active !== false);
 
-      if (error) {
-        throw new Error(`Failed to load advisors: ${error.message}`);
-      }
+      const normalizedQuery = (query || '').trim().toLowerCase();
+      const filtered = normalizedQuery
+        ? active.filter((a) =>
+            (a.full_name || '').toLowerCase().includes(normalizedQuery) ||
+            (a.email || '').toLowerCase().includes(normalizedQuery)
+          )
+        : active;
 
       return {
-        data: (data || []).map((advisor) => ({
+        data: filtered.map((advisor) => ({
           id: advisor.id,
           displayName: advisor.full_name?.trim() || advisor.email,
           avatarUrl: advisor.avatar_url,
-          role: 'admin',
+          role: 'admin' as const,
         })),
       };
     },
