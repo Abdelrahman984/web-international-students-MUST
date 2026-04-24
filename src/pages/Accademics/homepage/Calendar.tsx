@@ -70,7 +70,7 @@ export default function Calendar() {
                     </svg>
                   </div>
                   <h3 className="text-slate-900 text-xl font-bold dark:text-white">
-                    {item.programLevel} Academic Calendar ({item.year})
+                    {item.title}
                   </h3>
                 </div>
 

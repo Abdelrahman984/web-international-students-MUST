@@ -162,6 +162,7 @@ export type AdmissionSectionItem = {
 
 export type CalendarItem = {
   id: string;
+  title: string;
   programLevel: string;
   year: number;
   fileUrl: string;
@@ -1444,6 +1445,7 @@ export async function getCalendarsList(): Promise<CalendarItem[]> {
 
     return {
       id: toId(row.id),
+      title: pickString(row.title) || "Academic Calendar",
       programLevel:
         pickString(row.program_level, row.programLevel) || "Academic Calendar",
       year: Number.isFinite(year) ? year : 0,
