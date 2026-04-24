@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface EventCardItem {
   id: string;
@@ -43,30 +44,42 @@ export function RelatedEventsCarousel({ events, onSeeAllEvents }: RelatedEventsC
             key={item.id}
             className="group w-full flex flex-col rounded-2xl border border-slate-200 bg-white transition-all duration-300 overflow-hidden shadow-sm hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10 dark:border-navy-700 dark:bg-navy-800/40"
           >
-            <a href={item.href || '#'} className="block flex-1 flex flex-col">
-              {/* CHANGED: Image height from 280px to 360px */}
-              <div className="relative overflow-hidden bg-slate-100 h-[360px] dark:bg-navy-800">
-                <CardImageSlider
-                  imageUrls={item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl]}
-                  imageAlt={item.imageAlt || item.title}
-                  keyPrefix={item.id}
-                />
+          {(() => {
+            const isExternal = item.href?.startsWith('http://') || item.href?.startsWith('https://');
+            const href = item.href || '#';
+            const className = "block flex-1 flex flex-col";
+            const content = (
+              <>
+                <div className="relative overflow-hidden bg-slate-100 h-[360px] dark:bg-navy-800">
+                  <CardImageSlider
+                    imageUrls={item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl]}
+                    imageAlt={item.imageAlt || item.title}
+                    keyPrefix={item.id}
+                  />
 
-                <div className="absolute bottom-5 left-5 rounded-xl border border-slate-200 bg-white/95 px-6 py-4 text-center shadow-2xl backdrop-blur-sm dark:border-navy-600 dark:bg-navy-900/90">
-                  <p className="text-5xl font-black leading-none text-slate-900 dark:text-white">{item.day}</p>
-                  <p className="mt-1 text-base font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{item.month}</p>
+                  <div className="absolute bottom-5 left-5 rounded-xl border border-slate-200 bg-white/95 px-6 py-4 text-center shadow-2xl backdrop-blur-sm dark:border-navy-600 dark:bg-navy-900/90">
+                    <p className="text-5xl font-black leading-none text-slate-900 dark:text-white">{item.day}</p>
+                    <p className="mt-1 text-base font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{item.month}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="p-8 flex-1 flex flex-col">
-                <p className="mb-4 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  <ClockIcon className="h-4 w-4" />
-                  {item.timeRange}
-                </p>
-                <h3 className="line-clamp-2 mb-4 text-3xl font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-300">{item.title}</h3>
-                <p className="line-clamp-3 flex-1 text-xl leading-relaxed text-slate-600 dark:text-slate-400">{item.description}</p>
-              </div>
-            </a>
+                <div className="p-8 flex-1 flex flex-col">
+                  <p className="mb-4 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                    <ClockIcon className="h-4 w-4" />
+                    {item.timeRange}
+                  </p>
+                  <h3 className="line-clamp-2 mb-4 text-3xl font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-300">{item.title}</h3>
+                  <p className="line-clamp-3 flex-1 text-xl leading-relaxed text-slate-600 dark:text-slate-400">{item.description}</p>
+                </div>
+              </>
+            );
+
+            return isExternal ? (
+              <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{content}</a>
+            ) : (
+              <Link to={href} className={className}>{content}</Link>
+            );
+          })()}
           </article>
         ))}
       </div>
@@ -96,24 +109,36 @@ export function NewsCarousel({ news, badgeLabel = 'News' }: NewsCarouselProps) {
             key={item.id}
             className="group w-full flex flex-col rounded-2xl border border-slate-200 bg-white transition-all duration-300 overflow-hidden shadow-sm hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 dark:border-navy-700 dark:bg-navy-800/40"
           >
-            <a href={item.href || '#'} className="block flex-1 flex flex-col">
-              {/* CHANGED: Image height from 280px to 360px */}
-              <div className="overflow-hidden bg-slate-100 h-[360px] dark:bg-navy-800">
-                <CardImageSlider
-                  imageUrls={item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl]}
-                  imageAlt={item.imageAlt || item.title}
-                  keyPrefix={item.id}
-                />
-              </div>
-
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="mb-5">
-                   <span className="inline-block rounded-full border border-blue-300 bg-blue-100 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-300">{badgeLabel}</span>
+          {(() => {
+            const isExternal = item.href?.startsWith('http://') || item.href?.startsWith('https://');
+            const href = item.href || '#';
+            const className = "block flex-1 flex flex-col";
+            const content = (
+              <>
+                <div className="overflow-hidden bg-slate-100 h-[360px] dark:bg-navy-800">
+                  <CardImageSlider
+                    imageUrls={item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl]}
+                    imageAlt={item.imageAlt || item.title}
+                    keyPrefix={item.id}
+                  />
                 </div>
-                <h3 className="line-clamp-3 mb-4 text-3xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">{item.title}</h3>
-                <p className="line-clamp-3 flex-1 text-xl leading-relaxed text-slate-600 dark:text-slate-400">{item.description}</p>
-              </div>
-            </a>
+
+                <div className="p-8 flex-1 flex flex-col">
+                  <div className="mb-5">
+                     <span className="inline-block rounded-full border border-blue-300 bg-blue-100 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-300">{badgeLabel}</span>
+                  </div>
+                  <h3 className="line-clamp-3 mb-4 text-3xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">{item.title}</h3>
+                  <p className="line-clamp-3 flex-1 text-xl leading-relaxed text-slate-600 dark:text-slate-400">{item.description}</p>
+                </div>
+              </>
+            );
+
+            return isExternal ? (
+              <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{content}</a>
+            ) : (
+              <Link to={href} className={className}>{content}</Link>
+            );
+          })()}
           </article>
         ))}
       </div>

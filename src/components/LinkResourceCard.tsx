@@ -1,4 +1,5 @@
 import { Link2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface LinkResourceCardProps {
   title: string;
@@ -7,13 +8,12 @@ interface LinkResourceCardProps {
 }
 
 export function LinkResourceCard({ title, href, className = '' }: LinkResourceCardProps) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-6 text-sky-700 transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-sky-300 ${className}`}
-    >
+  const isExternal = href?.startsWith('http://') || href?.startsWith('https://');
+  const targetHref = href || '#';
+  const cardClassName = `flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-6 text-sky-700 transition-opacity hover:opacity-80 dark:border-slate-700 dark:bg-slate-800 dark:text-sky-300 ${className}`;
+
+  const content = (
+    <>
       <span className="inline-flex h-14 w-14 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
         <Link2 className="h-8 w-8" aria-hidden="true" />
       </span>
@@ -21,7 +21,17 @@ export function LinkResourceCard({ title, href, className = '' }: LinkResourceCa
         <p className="text-xl font-semibold underline break-words text-slate-900 dark:text-slate-100">{title}</p>
       </div>
       <ExternalLinkIcon className="h-5 w-5 shrink-0 text-slate-500 dark:text-slate-300" />
+    </>
+  );
+
+  return isExternal ? (
+    <a href={targetHref} target="_blank" rel="noopener noreferrer" className={cardClassName}>
+      {content}
     </a>
+  ) : (
+    <Link to={targetHref} className={cardClassName}>
+      {content}
+    </Link>
   );
 }
 
