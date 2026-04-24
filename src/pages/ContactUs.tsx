@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { apiClient } from "../services/api";
 
 interface ContactCardProps {
   title: string;
@@ -31,6 +33,50 @@ function ContactForm({
   submitLabel,
   showCategorySelect = false,
 }: ContactFormProps) {
+  const [category, setCategory] = useState("suggestions");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [messageText, setMessageText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState<{type: "success" | "error", text: string} | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!firstName || !lastName || !email || !subject || !messageText) {
+      setFeedback({ type: "error", text: "Please fill out all fields." });
+      return;
+    }
+
+    setIsLoading(true);
+    setFeedback(null);
+    try {
+      const submissionType = showCategorySelect ? category : "super_admin_message";
+      const payload = {
+        submission_type: submissionType,
+        sender_name: `${firstName} ${lastName}`,
+        sender_email: email,
+        subject,
+        message_text: messageText,
+      };
+
+      await apiClient.post("/api/contact_submissions", payload);
+      setFeedback({ type: "success", text: "Your message has been sent successfully!" });
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setSubject("");
+      setMessageText("");
+      if (showCategorySelect) setCategory("suggestions");
+    } catch (error) {
+      console.error(error);
+      setFeedback({ type: "error", text: "Failed to send message. Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
       <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -38,39 +84,64 @@ function ContactForm({
       </h2>
       <form
         className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2"
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={handleSubmit}
       >
+        {feedback && (
+          <div className={`md:col-span-2 p-4 rounded-xl text-sm font-semibold ${feedback.type === 'success' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+            {feedback.text}
+          </div>
+        )}
         {showCategorySelect && (
-          <select className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 md:col-span-2">
-            <option value="suggestion">Suggestion</option>
-            <option value="complaint">Complaint</option>
+          <select 
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 md:col-span-2"
+          >
+            <option value="suggestions">Suggestion</option>
+            <option value="complaints">Complaint</option>
           </select>
         )}
         <input
           type="text"
           placeholder="First name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400"
         />
         <input
           type="text"
           placeholder="Last name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400"
+        />
+        <input
+          type="email"
+          placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400 md:col-span-2"
         />
         <input
           type="text"
           placeholder="Subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
           className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400 md:col-span-2"
         />
         <textarea
           placeholder="Your message"
           rows={6}
+          value={messageText}
+          onChange={(e) => setMessageText(e.target.value)}
           className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400 md:col-span-2"
         />
         <button
           type="submit"
-          className="md:col-span-2 inline-flex justify-center rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-emerald-700"
+          disabled={isLoading}
+          className="md:col-span-2 inline-flex justify-center rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
         >
-          {submitLabel}
+          {isLoading ? "Sending..." : submitLabel}
         </button>
       </form>
     </section>

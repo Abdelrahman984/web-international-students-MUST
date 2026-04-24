@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ActivitiesSection from '../components/ActivitiesSection';
 import { AdDetailCard } from '../components/AdDetailCard';
-import { getActivitiesList, type ActivityType, type NewsCardItem } from '../services/cmsApi';
+import { apiClient } from '../services/api';
+import type { ActivityType, NewsCardItem } from '../services/cmsApi';
 
 type ActivityRouteConfig = {
   title: string;
@@ -39,7 +40,7 @@ const ACTIVITY_ROUTE_MAP: Record<string, ActivityRouteConfig> = {
 
 export default function ActivitiesPage() {
   const location = useLocation();
-  const [activities, setActivities] = useState<NewsCardItem[]>([]);
+  const [allActivities, setAllActivities] = useState<NewsCardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const routeConfig = useMemo(() => {
@@ -50,18 +51,38 @@ export default function ActivitiesPage() {
     const fetchActivities = async () => {
       setIsLoading(true);
       try {
-        const rows = await getActivitiesList(routeConfig.activityType);
-        setActivities(rows);
+        const response = await apiClient.get('/api/activities');
+        const data = response.data?.data || response.data?.items || response.data;
+        if (Array.isArray(data)) {
+          const mapped: NewsCardItem[] = data.map((item: any) => ({
+            id: item.id || '',
+            title: item.title || '',
+            description: item.description || '',
+            imageUrl: item.image_url || item.imageUrl || '',
+            href: item.href || '#',
+            activityType: item.activity_type || '',
+          }));
+          setAllActivities(mapped);
+        } else {
+          setAllActivities([]);
+        }
       } catch (error) {
         console.error('Error fetching activities:', error);
-        setActivities([]);
+        setAllActivities([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     void fetchActivities();
-  }, [routeConfig.activityType]);
+  }, []);
+
+  const activities = useMemo(() => {
+    if (!routeConfig.activityType) return allActivities;
+    return allActivities.filter(
+      (item) => item.activityType?.toLowerCase() === routeConfig.activityType?.toLowerCase()
+    );
+  }, [allActivities, routeConfig.activityType]);
 
   const featuredActivity = activities[0];
   const listActivities = activities.slice(1).map((item) => ({

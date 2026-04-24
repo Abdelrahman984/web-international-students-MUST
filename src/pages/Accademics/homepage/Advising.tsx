@@ -1,320 +1,43 @@
-import { useCmsData } from "../../../hooks/useCmsData";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PdfResourceCard } from "../../../components/PdfResourceCard";
+import { apiClient } from "../../../services/api";
 
 type AdvisingPdfItem = {
   title: string;
   url: string;
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)
-  ?.trim()
-  .replace(/\/$/, "");
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)
-  ?.trim()
-  .replace(/\/$/, "");
-const supabaseApiKey =
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ||
-  (
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
-  )?.trim() ||
-  "";
-const resourcesBucket =
-  (import.meta.env.VITE_SUPABASE_RESOURCES_FILES_BUCKET as string | undefined)
-    ?.trim()
-    .replace(/^\/+|\/+$/g, "") || "resources-files";
-const legacyAcademicAdvisingEndpoint = supabaseUrl
-  ? `${supabaseUrl}/rest/v1/academic_advising`
-  : "";
-
-const getString = (
-  source: Record<string, unknown>,
-  keys: string[],
-): string | null => {
-  for (const key of keys) {
-    const value = source[key];
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-
-  return null;
-};
-
-const resolveApiAssetUrl = (rawUrl: string): string => {
-  if (/^https?:\/\//i.test(rawUrl)) {
-    return rawUrl;
-  }
-
-  const baseUrl = apiBaseUrl || supabaseUrl || "";
-  const storageHost = supabaseUrl || baseUrl;
-
-  if (!baseUrl) {
-    return rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`;
-  }
-
-  const normalizedPath = rawUrl.replace(/^\/+/, "");
-
-  if (normalizedPath.startsWith("storage/v1/object/public/")) {
-    return `${storageHost}/${normalizedPath}`;
-  }
-
-  if (normalizedPath.startsWith("storage/v1/object/")) {
-    return `${storageHost}/${normalizedPath.replace(
-      "storage/v1/object/",
-      "storage/v1/object/public/",
-    )}`;
-  }
-
-  if (normalizedPath.startsWith("academic-advising/")) {
-    if (!apiBaseUrl && supabaseUrl) {
-      return `${supabaseUrl}/storage/v1/object/public/${resourcesBucket}/${normalizedPath}`;
-    }
-
-    return `${baseUrl}/${normalizedPath}`;
-  }
-
-  if (rawUrl.startsWith("/")) {
-    return `${baseUrl}${rawUrl}`;
-  }
-
-  return `${baseUrl}/${rawUrl}`;
-};
-
-const extractFileUrl = (value: unknown): string | null => {
-  if (typeof value === "string" && value.trim()) {
-    return value.trim();
-  }
-
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const directUrl = getString(value, [
-    "url",
-    "href",
-    "link",
-    "file_path",
-    "filePath",
-    "file_url",
-    "fileUrl",
-    "resource_url",
-    "resourceUrl",
-    "path",
-  ]);
-  if (directUrl) {
-    return directUrl;
-  }
-
-  const nestedData = value.data;
-  if (isRecord(nestedData)) {
-    const nestedDataUrl = extractFileUrl(nestedData);
-    if (nestedDataUrl) {
-      return nestedDataUrl;
-    }
-
-    const nestedAttributes = nestedData.attributes;
-    if (isRecord(nestedAttributes)) {
-      const nestedAttrUrl = extractFileUrl(nestedAttributes);
-      if (nestedAttrUrl) {
-        return nestedAttrUrl;
-      }
-    }
-  }
-
-  const attributes = value.attributes;
-  if (isRecord(attributes)) {
-    return extractFileUrl(attributes);
-  }
-
-  return null;
-};
-
-const toAdvisingPdfItem = (
-  rawItem: unknown,
-  index: number,
-): AdvisingPdfItem | null => {
-  if (!isRecord(rawItem)) {
-    return null;
-  }
-
-  const title =
-    getString(rawItem, ["title", "name", "label", "document_title"]) ||
-    `Academic Advising Guide ${index + 1}`;
-
-  const url =
-    extractFileUrl(rawItem.file) ||
-    extractFileUrl(rawItem.document) ||
-    extractFileUrl(rawItem.attachment) ||
-    extractFileUrl(rawItem);
-
-  if (!url) {
-    return null;
-  }
-
-  return {
-    title,
-    url: resolveApiAssetUrl(url),
-  };
-};
-
-const extractList = (source: unknown): unknown[] => {
-  if (Array.isArray(source)) {
-    return source;
-  }
-
-  if (!isRecord(source)) {
-    return [];
-  }
-
-  const listKeys = [
-    "pdfs",
-    "documents",
-    "guides",
-    "resources",
-    "files",
-    "items",
-    "academic_advising",
-    "academicAdvising",
-  ];
-
-  for (const key of listKeys) {
-    const value = source[key];
-    if (Array.isArray(value)) {
-      return value;
-    }
-
-    if (isRecord(value) && Array.isArray(value.data)) {
-      return value.data;
-    }
-  }
-
-  const dataValue = source.data;
-  if (Array.isArray(dataValue)) {
-    return dataValue;
-  }
-
-  if (isRecord(dataValue)) {
-    const fromData = extractList(dataValue);
-    if (fromData.length > 0) {
-      return fromData;
-    }
-
-    const fromAttributes = extractList(dataValue.attributes);
-    if (fromAttributes.length > 0) {
-      return fromAttributes;
-    }
-  }
-
-  const attributesValue = source.attributes;
-  if (isRecord(attributesValue)) {
-    const fromAttributes = extractList(attributesValue);
-    if (fromAttributes.length > 0) {
-      return fromAttributes;
-    }
-  }
-
-  return [source];
-};
-
-const fetchAcademicAdvising = async (): Promise<AdvisingPdfItem[]> => {
-  const fetchFromApiEndpoint = async (): Promise<unknown | null> => {
-    if (!apiBaseUrl) {
-      return null;
-    }
-
-    const endpointCandidates = [
-      `${apiBaseUrl}/api/academic-advising`,
-      `${apiBaseUrl}/api/academic-advising/resources`,
-      `${apiBaseUrl}/api/advising/resources`,
-      `${apiBaseUrl}/api/academicAdvising`,
-    ];
-
-    const errors: string[] = [];
-
-    for (const endpoint of endpointCandidates) {
-      try {
-        const response = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            continue;
-          }
-
-          const message = await response.text();
-          errors.push(message || `${response.status} ${response.statusText}`);
-          continue;
-        }
-
-        return (await response.json()) as unknown;
-      } catch (error) {
-        errors.push(error instanceof Error ? error.message : String(error));
-      }
-    }
-
-    if (errors.length > 0) {
-      throw new Error(errors[0]);
-    }
-
-    return null;
-  };
-
-  const fetchFromLegacySupabaseEndpoint = async (): Promise<unknown> => {
-    if (!legacyAcademicAdvisingEndpoint || !supabaseApiKey) {
-      throw new Error("Backend API configuration is missing.");
-    }
-
-    const queryParams = new URLSearchParams({
-      select: "*",
-    });
-
-    const response = await fetch(
-      `${legacyAcademicAdvisingEndpoint}?${queryParams.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          apikey: supabaseApiKey,
-          Authorization: `Bearer ${supabaseApiKey}`,
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(
-        message || "Failed to fetch academic advising resources.",
-      );
-    }
-
-    return (await response.json()) as unknown;
-  };
-
-  const apiResponseData = await fetchFromApiEndpoint();
-  const responseData =
-    apiResponseData ?? (await fetchFromLegacySupabaseEndpoint());
-
-  const items = extractList(responseData)
-    .map((item, index) => toAdvisingPdfItem(item, index))
-    .filter((item): item is AdvisingPdfItem => item !== null);
-
-  return items;
+  resource_type: string;
 };
 
 export default function Advising() {
-  const {
-    data: academicAdvisingPdfs,
-    loading,
-    error,
-  } = useCmsData(fetchAcademicAdvising, []);
+  const [academicAdvisingPdfs, setAcademicAdvisingPdfs] = useState<AdvisingPdfItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const response = await apiClient.get('/api/advisor_resources');
+        const data = response.data?.data || response.data?.items || response.data;
+        if (Array.isArray(data)) {
+          const mapped = data.map((item: any) => ({
+            title: item.title || item.name || 'Academic Advising Guide',
+            url: item.resource_url || item.resourceUrl || item.url || '',
+            resource_type: item.resource_type || '',
+          }));
+          const valid = mapped.filter((item) => item.url && item.url !== "#" && item.resource_type === 'Advising');
+          setAcademicAdvisingPdfs(valid);
+        } else {
+          setAcademicAdvisingPdfs([]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to load resources'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResources();
+  }, []);
 
   return (
     <section className="min-h-screen bg-slate-50 py-24 pt-32 dark:bg-[#070d19]">

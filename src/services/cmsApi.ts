@@ -123,6 +123,7 @@ export type NewsCardItem = {
   href: string;
   imageUrl: string;
   imageUrls: string[];
+  activityType?: string;
 };
 
 export type ActivityType = "sport" | "cultural" | "art" | "student club";

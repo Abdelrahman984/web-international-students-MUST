@@ -1,27 +1,47 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PlaygroundVideo } from "../../../components/PlaygroundVideo";
-import {
-  getStudentResourcesByCategory,
-  type StudentResourceItem,
-} from "../../../services/cmsApi";
+import { apiClient } from "../../../services/api";
+
+type ResourceItem = {
+  id: string;
+  title: string;
+  resourceUrl: string;
+  description: string;
+  duration: string;
+  thumbnailUrl: string;
+  resource_type: string;
+};
 
 export default function Registeration() {
-  const [resources, setResources] = useState<StudentResourceItem[]>([]);
+  const [resources, setResources] = useState<ResourceItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
     const fetchRegistrationGuides = async () => {
       try {
-        const rows = await getStudentResourcesByCategory("Registration Guide");
-        const validRows = rows.filter(
-          (row) => row.resourceUrl && row.resourceUrl !== "#",
-        );
-        setResources(validRows);
-        setStatus(
-          validRows.length ? "" : "No registration guides available yet.",
-        );
+        const response = await apiClient.get("/api/advisor_resources");
+        const data = response.data?.data || response.data?.items || response.data;
+        if (Array.isArray(data)) {
+          const rows: ResourceItem[] = data.map((item: any) => ({
+            id: item.id || "",
+            title: item.title || "",
+            resourceUrl: item.resource_url || item.resourceUrl || "",
+            description: item.description || "",
+            duration: item.duration || "",
+            thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || "",
+            resource_type: item.resource_type || "",
+          }));
+          const validRows = rows.filter(
+            (row) => row.resourceUrl && row.resourceUrl !== "#" && row.resource_type === "Registration"
+          );
+          setResources(validRows);
+          setStatus(validRows.length ? "" : "No registration guides available yet.");
+        } else {
+          setResources([]);
+          setStatus("No registration guides available yet.");
+        }
       } catch (error) {
         console.error("Error fetching registration guides:", error);
         setStatus("Network error: Could not connect to backend API.");

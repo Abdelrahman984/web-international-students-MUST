@@ -5,6 +5,7 @@ import { AlertCircle, Inbox, LoaderCircle, MessageSquareText, RefreshCw, Search,
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import type { ChatAdmin, ChatThreadMessage } from '../../services/chat';
+import { apiClient } from '../../services/api';
 
 const focusableSelector = [
   'a[href]',
@@ -91,6 +92,44 @@ export function ChatPanel() {
     retryMessage,
   } = useChat();
 
+  const [apiConversations, setApiConversations] = useState<any[]>([]);
+  const [isApiLoading, setIsApiLoading] = useState(false);
+  const [apiErrorLocal, setApiErrorLocal] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let mounted = true;
+    const fetchApiConversations = async () => {
+      setIsApiLoading(true);
+      setApiErrorLocal(null);
+      try {
+        const response = await apiClient.get('/api/advisor_student_conversations');
+        const rawData = response.data?.data || response.data?.items || response.data;
+        if (mounted && Array.isArray(rawData)) {
+          const normalized = rawData.map((item: any) => ({
+            id: item.id || '',
+            title: `Chat with ${item.advisor_id || 'Advisor'}`,
+            participants: [{ id: item.advisor_id, displayName: 'Advisor', role: 'admin' }],
+            lastMessage: item.last_message_text ? { text: item.last_message_text } : null,
+            unreadCount: 0,
+            updatedAt: item.last_message_at || item.updated_at || item.created_at || new Date().toISOString(),
+          }));
+          setApiConversations(normalized);
+        } else if (mounted) {
+          setApiConversations([]);
+        }
+      } catch (err) {
+        console.error('Failed to load conversations', err);
+        if (mounted) setApiErrorLocal('Failed to load conversations.');
+        if (mounted) setApiConversations([]);
+      } finally {
+        if (mounted) setIsApiLoading(false);
+      }
+    };
+    void fetchApiConversations();
+    return () => { mounted = false; };
+  }, [isOpen]);
+
   const activeMessages = useMemo(
     () => sortMessages(messagesByConversation[activeConversationId ?? ''] ?? []),
     [messagesByConversation, activeConversationId],
@@ -98,17 +137,18 @@ export function ChatPanel() {
 
   const filteredConversations = useMemo(() => {
     const query = conversationQuery.trim().toLowerCase();
+    const source = apiConversations.length > 0 ? apiConversations : conversations;
 
     if (!query) {
-      return conversations;
+      return source;
     }
 
-    return conversations.filter((conversation) => {
-      const titleMatch = conversation.title.toLowerCase().includes(query);
-      const participantMatch = conversation.participants.some((participant) => participant.displayName.toLowerCase().includes(query));
+    return source.filter((conversation: any) => {
+      const titleMatch = conversation.title?.toLowerCase().includes(query);
+      const participantMatch = conversation.participants?.some((participant: any) => participant.displayName?.toLowerCase().includes(query));
       return titleMatch || participantMatch;
     });
-  }, [conversations, conversationQuery]);
+  }, [apiConversations, conversations, conversationQuery]);
 
   const filteredAdmins = useMemo(() => {
     const query = adminQuery.trim().toLowerCase();
@@ -349,10 +389,12 @@ export function ChatPanel() {
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-4 sm:px-4">
-                {isLoadingConversations ? (
+                {isLoadingConversations || isApiLoading ? (
                   <div className="flex h-48 items-center justify-center text-slate-500 dark:text-slate-400">
                     <LoaderCircle className="h-5 w-5 animate-spin" />
                   </div>
+                ) : apiErrorLocal ? (
+                  <div className="p-4 text-sm text-rose-500">{apiErrorLocal}</div>
                 ) : filteredConversations.length === 0 ? (
                   <div className="mx-2 mt-3 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-300">
                     <Inbox className="h-6 w-6 text-secondary" />
