@@ -151,6 +151,12 @@ export type AdmissionSectionKey =
 export type AdmissionSectionItem = {
   sectionKey: AdmissionSectionKey;
   steps: string[];
+  attachments: {
+    id: string;
+    title: string;
+    fileUrl: string;
+    fileType?: string;
+  }[];
   updatedAt: string;
 };
 
@@ -1307,6 +1313,17 @@ const normalizeSteps = (value: unknown): string[] => {
   }
 
   if (typeof value === "string" && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === "string" ? item.trim() : ""))
+          .filter(Boolean);
+      }
+    } catch {
+      // Fall back to newline parsing when the value is not valid JSON.
+    }
+
     return value
       .split(/\r?\n/)
       .map((item) => item.trim())
@@ -1314,6 +1331,53 @@ const normalizeSteps = (value: unknown): string[] => {
   }
 
   return [];
+};
+
+const normalizeAdmissionAttachments = (
+  value: unknown,
+): {
+  id: string;
+  title: string;
+  fileUrl: string;
+  fileType?: string;
+}[] => {
+  let items: unknown[] = [];
+
+  if (Array.isArray(value)) {
+    items = value;
+  } else if (typeof value === "string" && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        items = parsed;
+      }
+    } catch {
+      return [];
+    }
+  }
+
+  return items
+    .map((item, index) => {
+      if (!isObject(item)) {
+        return null;
+      }
+
+      const fileSource =
+        item.file_path || item.filePath || item.file_url || item.fileUrl;
+      const fileUrl = getFileUrl(fileSource);
+
+      if (!fileUrl || fileUrl === "#") {
+        return null;
+      }
+
+      return {
+        id: toId(item.id ?? index),
+        title: pickString(item.title, item.name) || `Attachment ${index + 1}`,
+        fileUrl,
+        fileType: pickString(item.file_type, item.fileType),
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 };
 
 export async function getAdmissionSectionByKey(
@@ -1332,16 +1396,32 @@ export async function getAdmissionSectionByKey(
     throw new Error(error.message);
   }
 
-  const first = data?.[0];
-  if (!first) {
+  const rows = toArray(data).map(
+    (raw): Record<string, unknown> => unwrapRow(raw) as Record<string, unknown>,
+  );
+  const row = rows.find(
+    (entry: Record<string, unknown>) =>
+      pickString(entry.section_key, entry.sectionKey) === sectionKey,
+  );
+
+  if (!row) {
     return null;
   }
 
-  const row = unwrapRow(first) as Record<string, unknown>;
+  const matchedSectionKey = pickString(row.section_key, row.sectionKey);
+
+  if (
+    matchedSectionKey !== "how-to-apply" &&
+    matchedSectionKey !== "required-documents" &&
+    matchedSectionKey !== "external-transfer-requirements"
+  ) {
+    return null;
+  }
 
   return {
-    sectionKey,
+    sectionKey: matchedSectionKey,
     steps: normalizeSteps(row.steps),
+    attachments: normalizeAdmissionAttachments(row.attachments),
     updatedAt: pickString(row.updated_at, row.updatedAt) || "",
   };
 }

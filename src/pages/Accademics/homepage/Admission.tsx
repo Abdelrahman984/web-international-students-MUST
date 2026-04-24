@@ -38,10 +38,18 @@ export default function Admission() {
           ),
         );
 
+        const filteredRows = rows.filter(
+          (row): row is AdmissionSectionItem =>
+            !!row &&
+            admissionSections.some((section) => section.key === row.sectionKey),
+        );
+
         const mapped = rows.reduce<
           Partial<Record<AdmissionSectionKey, AdmissionSectionItem | null>>
-        >((accumulator, row, index) => {
-          accumulator[admissionSections[index].key] = row;
+        >((accumulator, _, index) => {
+          const sectionKey = admissionSections[index].key;
+          accumulator[sectionKey] =
+            filteredRows.find((row) => row.sectionKey === sectionKey) || null;
           return accumulator;
         }, {});
 
@@ -79,7 +87,11 @@ export default function Admission() {
           <div className="mt-8 space-y-4">
             {admissionSections.map((section) => {
               const isOpen = openSection === section.key;
-              const steps = sectionRows[section.key]?.steps || [];
+              const sectionData = sectionRows[section.key];
+              const steps = sectionData?.steps || [];
+              const attachments = sectionData?.attachments || [];
+              const hasSteps = steps.length > 0;
+              const hasAttachments = attachments.length > 0;
 
               return (
                 <div
@@ -108,12 +120,27 @@ export default function Admission() {
                   >
                     <div className="overflow-hidden">
                       <div className="border-t border-slate-100 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-900/50">
-                        {steps.length ? (
+                        {hasSteps ? (
                           <ol className="list-decimal space-y-2 pl-5 text-slate-700 dark:text-slate-200">
                             {steps.map((step, index) => (
                               <li key={`${section.key}-${index}`}>{step}</li>
                             ))}
                           </ol>
+                        ) : hasAttachments ? (
+                          <ul className="space-y-2">
+                            {attachments.map((attachment) => (
+                              <li key={attachment.id}>
+                                <a
+                                  href={attachment.fileUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="font-medium text-emerald-700 underline decoration-emerald-300 underline-offset-4 hover:text-emerald-600 dark:text-emerald-300 dark:decoration-emerald-700 dark:hover:text-emerald-200"
+                                >
+                                  {attachment.title}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
                         ) : (
                           <p className="text-slate-600 dark:text-slate-400">
                             No steps available.
