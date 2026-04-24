@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import AcademicStaffProfileCard, {
-  AcademicStaffProfileCardProps,
-} from "../../components/AcademicStaffProfileCard";
+import { AcademicStaffProfileCardProps } from "../../components/AcademicStaffProfileCard";
 import StaffAccordion from "../../components/StaffAccordion";
 import { getAcademicStaffList } from "../../services/cmsApi";
 
@@ -56,39 +54,49 @@ export function Academics() {
     void fetchStaff();
   }, []);
 
-  const groupByRole = (
+  const groupAcademicStaffByTitle = (
     list: AcademicStaffProfileCardProps[],
-  ): Record<string, AcademicStaffProfileCardProps[]> => {
-    return list.reduce(
-      (acc, member) => {
-        const r = [member.role, member.title, member.name]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        let roleGroup = "Academic Staff";
+  ): [string, AcademicStaffProfileCardProps[]][] => {
+    const titleOrder = [
+      "Professor",
+      "Associate Professor",
+      "Assistant Professor",
+      "Lecturer",
+      "Assistant Lecturer",
+      "Teaching Assistant",
+      "Demonstrator",
+    ];
 
-        if (r.includes("assistant lecturer")) {
-          roleGroup = "Assistant Lecturers";
-        } else if (r.includes("lecturer")) {
-          roleGroup = "Lecturers";
-        } else if (r.includes("asst") && r.includes("prof")) {
-          roleGroup = "Assistant Professors";
-        } else if (r.includes("prof")) {
-          roleGroup = "Professors";
-        } else if (r.includes("teaching assistant")) {
-          roleGroup = "Teaching Assistants";
-        } else if (r.includes("demonstrator")) {
-          roleGroup = "Demonstrators";
-        } else if (member.role) {
-          roleGroup = member.role;
+    const groupedStaff = list.reduce(
+      (acc, member) => {
+        const title = member.title?.trim() || "Other Staff";
+
+        if (!acc[title]) {
+          acc[title] = [];
         }
 
-        if (!acc[roleGroup]) acc[roleGroup] = [];
-        acc[roleGroup].push(member);
+        acc[title].push(member);
         return acc;
       },
       {} as Record<string, AcademicStaffProfileCardProps[]>,
     );
+
+    const orderedEntries: [string, AcademicStaffProfileCardProps[]][] = [];
+
+    titleOrder.forEach((title) => {
+      const members = groupedStaff[title];
+      if (members?.length) {
+        orderedEntries.push([title, members]);
+      }
+    });
+
+    Object.entries(groupedStaff).forEach(([title, members]) => {
+      if (!titleOrder.includes(title)) {
+        orderedEntries.push([title, members]);
+      }
+    });
+
+    return orderedEntries;
   };
 
   return (
@@ -108,29 +116,9 @@ export function Academics() {
       ) : (
         <div className="flex flex-col gap-4">
           {(() => {
-            const groupedStaff = groupByRole(staffList);
-            const preferredOrder = [
-              "Professors",
-              "Assistant Professors",
-              "Lecturers",
-              "Assistant Lecturers",
-              "Teaching Assistants",
-            ];
+            const groupedStaff = groupAcademicStaffByTitle(staffList);
 
-            const orderedEntries: [string, AcademicStaffProfileCardProps[]][] =
-              [];
-
-            preferredOrder.forEach((role) => {
-              const members = groupedStaff[role];
-              if (members?.length) orderedEntries.push([role, members]);
-            });
-
-            Object.entries(groupedStaff).forEach(([role, members]) => {
-              if (!preferredOrder.includes(role))
-                orderedEntries.push([role, members]);
-            });
-
-            return orderedEntries.map(([roleName, members], index) => (
+            return groupedStaff.map(([roleName, members], index) => (
               <StaffAccordion
                 key={roleName}
                 roleName={roleName}

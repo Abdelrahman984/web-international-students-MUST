@@ -55,7 +55,7 @@ export default function AcademicStaffProfileCard({
         </div>
 
         <div className="flex flex-col gap-2">
-          <a
+          {/* <a
             href={cvUrl}
             target="_blank"
             rel="noreferrer"
@@ -63,7 +63,7 @@ export default function AcademicStaffProfileCard({
           >
             <PdfIcon className="h-5 w-5" />
             <span className="font-medium">{cvLabel}</span>
-          </a>
+          </a> */}
 
           {googleScholarLink && (
             <a
