@@ -49,6 +49,12 @@ function ContactForm({
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      return;
+    }
+
     setIsLoading(true);
     setFeedback(null);
     try {

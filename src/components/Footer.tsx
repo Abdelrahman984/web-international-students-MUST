@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.scss';
 
 interface FooterProps {
@@ -15,11 +16,11 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
           <div className="footer-column">
             <h3 className="footer-title">Links</h3>
             <ul className="footer-links">
-              <li><a href="https://must.edu.eg/undergraduate-admission/" target="_blank" rel="noopener noreferrer">Undergraduate</a></li>
-              <li><a href="https://must.edu.eg/post-graduate-admission/" target="_blank" rel="noopener noreferrer">Postgraduate</a></li>
-              <li><a href="https://must.edu.eg/apply-now/" target="_blank" rel="noopener noreferrer">Apply Online</a></li>
-              <li><a href="https://must.edu.eg/faculties/" target="_blank" rel="noopener noreferrer">Faculties</a></li>
-              <li><a href="https://must.edu.eg/academic-calendar/" target="_blank" rel="noopener noreferrer">Academic Calendar</a></li>
+              <li><Link to="/undergraduate">Undergraduate</Link></li>
+              <li><Link to="/postgraduate">Postgraduate</Link></li>
+              <li><Link to="/how-to-apply">Apply Online</Link></li>
+              <li><Link to="/educational-programs">Faculties</Link></li>
+              <li><Link to="/calendar">Academic Calendar</Link></li>
             </ul>
           </div>
 
@@ -40,8 +41,8 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
           <div className="footer-column">
             <h3 className="footer-title">MUST BUZZ</h3>
             <ul className="footer-links">
-              <li><a href="https://must.edu.eg/news/" target="_blank" rel="noopener noreferrer">News</a></li>
-              <li><a href="https://must.edu.eg/events/" target="_blank" rel="noopener noreferrer">Events</a></li>
+              <li><Link to="/news">News</Link></li>
+              <li><Link to="/events">Events</Link></li>
             </ul>
           </div>
 
@@ -81,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({ darkMode }) => {
             <div className="bottom-links">
               <a href="https://must.edu.eg/privacy-policy/" target="_blank" rel="noopener noreferrer">Policy</a>
               <span className="separator">|</span>
-              <a href="https://must.edu.eg/contact/" target="_blank" rel="noopener noreferrer">Contact Us</a>
+              <Link to="/contact">Contact Us</Link>
             </div>
           </div>
         </div>

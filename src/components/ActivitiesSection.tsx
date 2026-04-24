@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export type ActivityItem = {
   id: string;
   title: string;
@@ -43,12 +45,23 @@ export default function ActivitiesSection({
                 <p className="line-clamp-3 max-w-3xl text-base leading-6 text-slate-300">{item.description}</p>
               ) : null}
               <div className="mt-2">
-                <a
-                  href={item.href || '#'}
-                  className="inline-flex h-11 min-w-[110px] items-center justify-center rounded-md bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-400"
-                >
-                  See More
-                </a>
+                {(!item.href || item.href === '#' || item.href.startsWith('/')) ? (
+                  <Link
+                    to={item.href || '#'}
+                    className="inline-flex h-11 min-w-[110px] items-center justify-center rounded-md bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                  >
+                    See More
+                  </Link>
+                ) : (
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-11 min-w-[110px] items-center justify-center rounded-md bg-emerald-500 px-4 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                  >
+                    See More
+                  </a>
+                )}
               </div>
             </div>
             </div>

@@ -4,7 +4,10 @@ interface PdfResourceCardProps {
   className?: string;
 }
 
+import { resolveMediaUrl } from '../utils/media';
+
 export function PdfResourceCard({ title, url, className = '' }: PdfResourceCardProps) {
+  const resolvedUrl = resolveMediaUrl(url);
   return (
     <div
       className={`group relative flex h-full flex-col justify-between rounded-xl bg-white p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0px_8px_30px_rgba(0,0,0,0.12)] dark:bg-slate-800 dark:shadow-[0px_4px_20px_rgba(0,0,0,0.2)] ${className}`}
@@ -15,7 +18,7 @@ export function PdfResourceCard({ title, url, className = '' }: PdfResourceCardP
         </div>
         
         <a
-          href={url}
+          href={resolvedUrl}
           target="_blank"
           rel="noreferrer"
           className="focus:outline-none text-decoration-none"
@@ -28,7 +31,7 @@ export function PdfResourceCard({ title, url, className = '' }: PdfResourceCardP
 
       <div className="mt-8 w-full">
         <a
-          href={url}
+          href={resolvedUrl}
           target="_blank"
           rel="noreferrer"
           className="flex w-full items-center justify-center rounded-[8px] bg-[#27ae60] px-4 py-3 text-[14px] font-bold text-white transition-colors duration-300 hover:bg-[#219653]"

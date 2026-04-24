@@ -4,6 +4,7 @@ import ActivitiesSection from '../components/ActivitiesSection';
 import { AdDetailCard } from '../components/AdDetailCard';
 import { apiClient } from '../services/api';
 import type { ActivityType, NewsCardItem } from '../services/cmsApi';
+import { resolveMediaUrl } from '../utils/media';
 
 type ActivityRouteConfig = {
   title: string;
@@ -58,8 +59,8 @@ export default function ActivitiesPage() {
             id: item.id || '',
             title: item.title || '',
             description: item.description || '',
-            imageUrl: item.image_url || item.imageUrl || '',
-            href: item.href || '#',
+            imageUrl: resolveMediaUrl(item.image_url || item.imageUrl || ''),
+            href: item.href || item.link || '#',
             activityType: item.activity_type || '',
           }));
           setAllActivities(mapped);

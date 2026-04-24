@@ -1,3 +1,4 @@
+import { apiClient } from '../api';
 import { getSupabaseConfigError, supabase } from '../supabase';
 import type {
   ChatMessage,
@@ -185,29 +186,13 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
     async listConversations(page = 1, pageSize = 20): Promise<ChatConversationListResponse> {
       assertConfigured(currentUser);
 
-      const studentEmail = currentUser.email!.trim().toLowerCase();
-      const studentId = String(currentUser.id);
-
-      const { data, error } = await supabase
-        .from(TABLES.conversations)
-        .select('*')
-        .or(`student_email.eq.${escapeForOrFilter(studentEmail)},student_id.eq.${escapeForOrFilter(studentId)}`)
-        .order('last_message_at', { ascending: false, nullsFirst: false })
-        .order('updated_at', { ascending: false });
-
-      if (error) {
-        if (isMissingTablesError(error)) {
-          return {
-            data: [],
-            meta: {
-              pagination: { page, pageSize, total: 0, pageCount: 1 },
-            },
-          };
-        }
-        throw new Error(`Failed to load conversations: ${error.message}`);
+      let rows: ConversationRow[] = [];
+      try {
+        const response = await apiClient.get('/api/advisor_student_conversations');
+        rows = (response.data?.data || response.data?.items || response.data || []) as ConversationRow[];
+      } catch (err: any) {
+        throw new Error(`Failed to load conversations: ${err.message}`);
       }
-
-      const rows = (data || []) as ConversationRow[];
       const advisorMap = await getAdvisorMap(Array.from(new Set(rows.map((row) => row.advisor_id))));
       const mapped = rows.map((row) => mapConversation(row, advisorMap[row.advisor_id], currentUser));
 
@@ -265,15 +250,13 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
       const studentEmail = currentUser.email!.trim().toLowerCase();
       const studentId = String(currentUser.id);
 
-      const { data: existing, error: existingError } = await supabase
-        .from(TABLES.conversations)
-        .select('*')
-        .eq('advisor_id', advisorId)
-        .eq('student_email', studentEmail)
-        .maybeSingle();
-
-      if (existingError) {
-        throw new Error(`Failed to start conversation: ${existingError.message}`);
+      let existing: any = null;
+      try {
+        const res = await apiClient.get('/api/advisor_student_conversations');
+        const allConvos = res.data?.data || res.data?.items || res.data || [];
+        existing = allConvos.find((c: any) => c.advisor_id === advisorId && c.student_email === studentEmail);
+      } catch (err: any) {
+        throw new Error(`Failed to check existing conversations: ${err.message}`);
       }
 
       const now = new Date().toISOString();
@@ -281,25 +264,22 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
 
       if (existing) {
         if (existing.status === 'closed') {
-          const { data: reopened, error: reopenError } = await supabase
-            .from(TABLES.conversations)
-            .update({ status: 'open', updated_at: now })
-            .eq('id', existing.id)
-            .select('*')
-            .single();
-
-          if (reopenError) {
-            throw new Error(`Failed to reopen conversation: ${reopenError.message}`);
+          try {
+            const res = await apiClient.put(`/api/advisor_student_conversations/${existing.id}`, {
+              ...existing,
+              status: 'open',
+              updated_at: now,
+            });
+            conversationRow = res.data?.data || res.data || existing;
+          } catch (err: any) {
+            throw new Error(`Failed to reopen conversation: ${err.message}`);
           }
-
-          conversationRow = reopened as ConversationRow;
         } else {
           conversationRow = existing as ConversationRow;
         }
       } else {
-        const { data: inserted, error: insertError } = await supabase
-          .from(TABLES.conversations)
-          .insert({
+        try {
+          const res = await apiClient.post('/api/advisor_student_conversations', {
             advisor_id: advisorId,
             student_id: studentId,
             student_email: studentEmail,
@@ -307,15 +287,11 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
             status: 'open',
             created_at: now,
             updated_at: now,
-          })
-          .select('*')
-          .single();
-
-        if (insertError) {
-          throw new Error(`Failed to start conversation: ${insertError.message}`);
+          });
+          conversationRow = res.data?.data || res.data;
+        } catch (err: any) {
+          throw new Error(`Failed to start conversation: ${err.message}`);
         }
-
-        conversationRow = inserted as ConversationRow;
       }
 
       const advisorMap = await getAdvisorMap([advisorId]);
@@ -326,15 +302,13 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
       assertConfigured(currentUser);
 
       const studentEmail = currentUser.email!.trim().toLowerCase();
-      const { data: conversation, error: conversationError } = await supabase
-        .from(TABLES.conversations)
-        .select('id, advisor_id')
-        .eq('id', conversationId)
-        .eq('student_email', studentEmail)
-        .maybeSingle();
-
-      if (conversationError) {
-        throw new Error(`Failed to validate conversation: ${conversationError.message}`);
+      let conversation: any = null;
+      try {
+        const res = await apiClient.get('/api/advisor_student_conversations');
+        const allConvos = res.data?.data || res.data?.items || res.data || [];
+        conversation = allConvos.find((c: any) => String(c.id) === String(conversationId) && c.student_email === studentEmail);
+      } catch (err: any) {
+        throw new Error(`Failed to validate conversation: ${err.message}`);
       }
 
       if (!conversation) {
@@ -380,15 +354,13 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
       }
 
       const studentEmail = currentUser.email!.trim().toLowerCase();
-      const { data: conversation, error: conversationError } = await supabase
-        .from(TABLES.conversations)
-        .select('id, status, advisor_id')
-        .eq('id', conversationId)
-        .eq('student_email', studentEmail)
-        .maybeSingle();
-
-      if (conversationError) {
-        throw new Error(`Failed to validate conversation: ${conversationError.message}`);
+      let conversation: any = null;
+      try {
+        const res = await apiClient.get('/api/advisor_student_conversations');
+        const allConvos = res.data?.data || res.data?.items || res.data || [];
+        conversation = allConvos.find((c: any) => String(c.id) === String(conversationId) && c.student_email === studentEmail);
+      } catch (err: any) {
+        throw new Error(`Failed to validate conversation: ${err.message}`);
       }
 
       if (!conversation) {
@@ -416,17 +388,15 @@ export function createApiChatProvider(currentUser?: ChatProviderCurrentUser): Ch
         throw new Error(`Failed to send message: ${insertError.message}`);
       }
 
-      const { error: updateError } = await supabase
-        .from(TABLES.conversations)
-        .update({
+      try {
+        await apiClient.put(`/api/advisor_student_conversations/${conversationId}`, {
+          ...conversation,
           last_message_text: content,
           last_message_at: now,
           updated_at: now,
-        })
-        .eq('id', conversationId);
-
-      if (updateError) {
-        throw new Error(`Message sent, but conversation update failed: ${updateError.message}`);
+        });
+      } catch (err: any) {
+        throw new Error(`Message sent, but conversation update failed: ${err.message}`);
       }
 
       const advisorMap = await getAdvisorMap([conversation.advisor_id]);

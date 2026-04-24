@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 type AdDetailCardProps = {
   image: string;
   title: string;
@@ -25,14 +27,23 @@ export function AdDetailCard({ image, title, description, href, onLearnMore }: A
           </p>
           <div className="mt-6 flex justify-end">
             {href ? (
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
-              >
-                Learn More
-              </a>
+              (!href.startsWith('http')) ? (
+                <Link
+                  to={href}
+                  className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+                >
+                  Learn More
+                </Link>
+              ) : (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+                >
+                  Learn More
+                </a>
+              )
             ) : (
               <button
                 type="button"
