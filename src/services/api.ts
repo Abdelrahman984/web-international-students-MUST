@@ -58,6 +58,16 @@ apiClient.interceptors.request.use(async (config) => {
     return config;
   }
 
+  // Prefer the .NET JWT (stored by the student login flow) when present.
+  // This is required for /api/chat/* and all .NET backend endpoints.
+  const dotnetToken = localStorage.getItem("auth_token");
+  if (dotnetToken) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${dotnetToken}`;
+    return config;
+  }
+
+  // Fallback: attach Supabase session token for Supabase-backed endpoints.
   // Keep API calls working even when local auth storage is empty.
   if (getSupabaseConfigError()) {
     return config;
