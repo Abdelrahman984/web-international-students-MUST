@@ -208,7 +208,7 @@ export type MustFacilitySectionItem = {
   title: string;
   contentHtml: string;
   thumbnailUrl?: string;
-  galleryUrls: string[];
+  gallery_paths: string[];
 };
 
 export type AcademicStaffItem = {

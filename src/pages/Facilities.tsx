@@ -137,13 +137,13 @@ export function Facilities() {
               </p>
             )}
 
-            {selectedSection.galleryUrls.length > 0 && (
+            {selectedSection.gallery_paths.length > 0 && (
               <div className="mt-8">
                 <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Gallery
                 </h4>
                 <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {selectedSection.galleryUrls.map((imageUrl, index) => (
+                  {selectedSection.gallery_paths.map((imageUrl, index) => (
                     <figure
                       key={`${selectedSection.id}-image-${index}`}
                       className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800"
@@ -151,7 +151,7 @@ export function Facilities() {
                       <img
                         src={imageUrl}
                         alt={`${selectedSection.title} gallery ${index + 1}`}
-                        className="h-56 w-full object-cover"
+                        className="h-56 w-full object-fit"
                         loading="lazy"
                       />
                     </figure>
