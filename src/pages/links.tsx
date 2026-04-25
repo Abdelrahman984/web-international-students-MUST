@@ -85,7 +85,9 @@ export default function LinksPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => {
               // Swagger field: photo (not image_path)
-              const thumbnailSrc = item.photo ? resolveMediaUrl(item.photo) : null;
+              const thumbnailSrc = item.photo
+                ? resolveMediaUrl(item.photo)
+                : null;
               // Swagger field: linkUrl (not href)
               const href = item.linkUrl || "#";
               const title = item.title || "Untitled Link";
@@ -99,7 +101,7 @@ export default function LinksPage() {
                     <img
                       src={thumbnailSrc}
                       alt={title}
-                      className="h-48 w-full object-cover"
+                      className="h-48 w-full object-fit"
                       loading="lazy"
                     />
                   ) : (
