@@ -1,16 +1,33 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PlaygroundVideo } from "../../../components/PlaygroundVideo";
+import { PdfResourceCard } from "../../../components/PdfResourceCard";
 import { apiClient } from "../../../services/api";
 
 type ResourceItem = {
   id: string;
   title: string;
   resourceUrl: string;
+  filePath: string;
   description: string;
   duration: string;
   thumbnailUrl: string;
-  resource_type: string;
+};
+
+const toStringValue = (value: unknown): string =>
+  typeof value === "string" ? value : "";
+
+const isVideoUrl = (url: string): boolean => {
+  const normalized = url.toLowerCase();
+  return (
+    normalized.includes("youtube.com") ||
+    normalized.includes("youtu.be") ||
+    normalized.endsWith(".mp4") ||
+    normalized.endsWith(".webm") ||
+    normalized.endsWith(".ogg") ||
+    normalized.endsWith(".mov") ||
+    normalized.endsWith(".m3u8")
+  );
 };
 
 export default function Registeration() {
@@ -21,23 +38,40 @@ export default function Registeration() {
   useEffect(() => {
     const fetchRegistrationGuides = async () => {
       try {
-        const response = await apiClient.get("/api/advisor_resources");
-        const data = response.data?.data || response.data?.items || response.data;
+        const response = await apiClient.get(
+          "/api/advisor_resources/Registration",
+        );
+        const data =
+          response.data?.data || response.data?.items || response.data;
         if (Array.isArray(data)) {
-          const rows: ResourceItem[] = data.map((item: any) => ({
-            id: item.id || "",
-            title: item.title || "",
-            resourceUrl: item.resource_url || item.resourceUrl || "",
-            description: item.description || "",
-            duration: item.duration || "",
-            thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || "",
-            resource_type: item.resource_type || "",
-          }));
+          const rows: ResourceItem[] = data.map((item) => {
+            const row = item as Record<string, unknown>;
+
+            return {
+              id: toStringValue(row.id),
+              title: toStringValue(row.title),
+              resourceUrl:
+                toStringValue(row.resource_url) ||
+                toStringValue(row.resourceUrl),
+              filePath:
+                toStringValue(row.file_path) || toStringValue(row.filePath),
+              description: toStringValue(row.description),
+              duration: toStringValue(row.duration),
+              thumbnailUrl:
+                toStringValue(row.thumbnail_path) ||
+                toStringValue(row.thumbnail_url) ||
+                toStringValue(row.thumbnailUrl),
+            };
+          });
           const validRows = rows.filter(
-            (row) => row.resourceUrl && row.resourceUrl !== "#" && row.resource_type === "Registration"
+            (row) =>
+              (row.resourceUrl && row.resourceUrl !== "#") ||
+              (row.filePath && row.filePath !== "#"),
           );
           setResources(validRows);
-          setStatus(validRows.length ? "" : "No registration guides available yet.");
+          setStatus(
+            validRows.length ? "" : "No registration guides available yet.",
+          );
         } else {
           setResources([]);
           setStatus("No registration guides available yet.");
@@ -76,21 +110,29 @@ export default function Registeration() {
             {status}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {resources.map((resource) => (
-              <PlaygroundVideo
-                key={resource.id}
-                src={resource.resourceUrl}
-                externalUrl={resource.resourceUrl}
-                title={resource.title}
-                description={
-                  resource.description ||
-                  "Click play to open this registration guide video."
-                }
-                durationText={resource.duration}
-                poster={resource.thumbnailUrl}
-              />
-            ))}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {resources.map((resource) =>
+              isVideoUrl(resource.resourceUrl) ? (
+                <PlaygroundVideo
+                  key={resource.id}
+                  src={resource.resourceUrl}
+                  externalUrl={resource.resourceUrl}
+                  title={resource.title}
+                  description={
+                    resource.description ||
+                    "Click play to open this registration guide video."
+                  }
+                  durationText={resource.duration}
+                  poster={resource.thumbnailUrl || undefined}
+                />
+              ) : (
+                <PdfResourceCard
+                  key={resource.id}
+                  title={resource.title}
+                  url={resource.filePath || resource.resourceUrl}
+                />
+              ),
+            )}
           </div>
         )}
       </div>

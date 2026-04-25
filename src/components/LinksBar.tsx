@@ -35,6 +35,7 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
     children: [
       { label: "Advising Resources", to: "/advising?tab=resources" },
       { label: "Announcement", to: "/advising?tab=announcements" },
+      { label: "Students Data", to: "/advising?tab=students-data" },
       { label: "Statistical Reports", to: "/advising?tab=statistical-reports" },
     ],
   },

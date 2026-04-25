@@ -4,34 +4,55 @@ import { PdfResourceCard } from "../../../components/PdfResourceCard";
 import { apiClient } from "../../../services/api";
 
 type AdvisingPdfItem = {
+  id: string;
   title: string;
   url: string;
-  resource_type: string;
 };
 
+const toStringValue = (value: unknown): string =>
+  typeof value === "string" ? value : "";
+
 export default function Advising() {
-  const [academicAdvisingPdfs, setAcademicAdvisingPdfs] = useState<AdvisingPdfItem[]>([]);
+  const [academicAdvisingPdfs, setAcademicAdvisingPdfs] = useState<
+    AdvisingPdfItem[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await apiClient.get('/api/advisor_resources');
-        const data = response.data?.data || response.data?.items || response.data;
+        const response = await apiClient.get(
+          "/api/advisor_resources/Academic_Advising",
+        );
+        const data =
+          response.data?.data || response.data?.items || response.data;
         if (Array.isArray(data)) {
-          const mapped = data.map((item: any) => ({
-            title: item.title || item.name || 'Academic Advising Guide',
-            url: item.resource_url || item.resourceUrl || item.url || '',
-            resource_type: item.resource_type || '',
-          }));
-          const valid = mapped.filter((item) => item.url && item.url !== "#" && item.resource_type === 'Academic Advising');
+          const mapped = data.map((item) => {
+            const row = item as Record<string, unknown>;
+
+            return {
+              id: toStringValue(row.id),
+              title:
+                toStringValue(row.title) ||
+                toStringValue(row.name) ||
+                "Academic Advising Guide",
+              url:
+                toStringValue(row.resource_url) ||
+                toStringValue(row.file_path) ||
+                toStringValue(row.resourceUrl) ||
+                toStringValue(row.url),
+            };
+          });
+          const valid = mapped.filter((item) => item.url && item.url !== "#");
           setAcademicAdvisingPdfs(valid);
         } else {
           setAcademicAdvisingPdfs([]);
         }
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to load resources'));
+        setError(
+          err instanceof Error ? err : new Error("Failed to load resources"),
+        );
       } finally {
         setLoading(false);
       }
@@ -68,7 +89,7 @@ export default function Advising() {
           <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
             {academicAdvisingPdfs?.map((item, index) => (
               <PdfResourceCard
-                key={`${item.url}-${index}`}
+                key={item.id || `${item.url}-${index}`}
                 title={item.title}
                 url={item.url}
               />
