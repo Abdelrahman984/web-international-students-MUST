@@ -44,6 +44,8 @@ import AdvisingPage from "./pages/Advising";
 import News from "./pages/News";
 import Events from "./pages/Events";
 
+import VisitorChat from "./components/VisitorChat";
+import StudentChatDotnet from "./pages/StudentChatDotnet";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import { RequestsProvider } from "./contexts/RequestsContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -164,6 +166,14 @@ function AppContent() {
               <Route path="/submit-request" element={<SubmitRequest />} />
               <Route path="/my-requests" element={<MyRequests />} />
               <Route path="/playground" element={<Playground />} />
+              <Route
+                path="/chat"
+                element={
+                  <ProtectedRoute>
+                    <StudentChatDotnet />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route path="/:slug" element={<CmsPage />} />
               <Route path="*" element={<NotFound />} />
@@ -173,6 +183,7 @@ function AppContent() {
       </main>
       <Footer darkMode={darkMode} />
       <FloatingSocialBar />
+      <VisitorChat />
       <ChatPanel />
     </div>
   );
