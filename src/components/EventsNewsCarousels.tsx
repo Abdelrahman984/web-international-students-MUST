@@ -176,7 +176,7 @@ function CardImageSlider({
       <img
         src={resolveMediaUrl(imageUrls[activeIndex] || '')}
         alt={imageAlt}
-        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className="h-full w-full object-fit transition-transform duration-700 group-hover:scale-105"
       />
 
       {hasMultipleImages && (
