@@ -3,12 +3,14 @@ import {
   BarChart3Icon,
   ArrowUpDownIcon,
   DownloadIcon,
+  SlidersHorizontalIcon,
   MailIcon,
   MessageSquareIcon,
   PlusIcon,
-  SlidersHorizontalIcon,
   SearchIcon,
   UploadIcon,
+  Pen,
+  Trash2,
 } from "lucide-react";
 import {
   Bar,
@@ -23,10 +25,12 @@ import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import {
-  replaceAllStudents,
+  uploadStudentsExcel,
   createStudent,
   listStudents,
   updateStudentStatus,
+  updateStudent,
+  deleteStudent,
   studentMajors,
   studentStatuses,
   type StudentInput,
@@ -64,44 +68,6 @@ const gpaRanges = [
   { key: "pass", label: "Pass", min: 0, max: 1.999999 },
 ];
 
-function normalizeMajor(value: string): StudentInput["major"] {
-  const normalized = value.trim().toLowerCase();
-
-  if (["cs", "computer science", "computer sciences"].includes(normalized)) {
-    return "cs";
-  }
-  if (
-    ["is", "information systems", "information system"].includes(normalized)
-  ) {
-    return "is";
-  }
-  if (["ai", "artificial intelligence"].includes(normalized)) {
-    return "ai";
-  }
-
-  return "general";
-}
-
-function normalizeHeader(value: unknown): string {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-}
-
-function extractCell(row: Record<string, unknown>, keys: string[]): string {
-  for (const [key, value] of Object.entries(row)) {
-    if (keys.includes(normalizeHeader(key))) {
-      return String(value ?? "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-  }
-
-  return "";
-}
-
 function getSvgDataUrl(svg: SVGSVGElement): string {
   const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
   const width = svg.clientWidth || Number(svg.getAttribute("width")) || 900;
@@ -121,90 +87,6 @@ function getSvgDataUrl(svg: SVGSVGElement): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(source)}`;
 }
 
-async function parseStudentSheet(file: File): Promise<StudentInput[]> {
-  const XLSX = await import("xlsx");
-  const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: "array" });
-  const firstSheetName = workbook.SheetNames[0];
-
-  if (!firstSheetName) {
-    throw new Error("The Excel file does not contain any sheets.");
-  }
-
-  const sheet = workbook.Sheets[firstSheetName];
-  const rawRows = XLSX.utils.sheet_to_json<(string | number | null)[]>(sheet, {
-    header: 1,
-    defval: "",
-  });
-
-  if (rawRows.length === 0) {
-    throw new Error("The Excel sheet is empty.");
-  }
-
-  const headerRowIndex = rawRows.findIndex((row) => {
-    const normalizedCells = row.map((cell) => normalizeHeader(cell));
-    return normalizedCells.includes("id") && normalizedCells.includes("name");
-  });
-
-  if (headerRowIndex === -1) {
-    throw new Error(
-      "Could not find a header row with ID and NAME in the Excel sheet.",
-    );
-  }
-
-  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-    defval: "",
-    range: headerRowIndex,
-  });
-
-  return rows
-    .map((row) => {
-      const gpaValue = extractCell(row, ["gpa", "current gpa"]);
-      const parsedGpa = gpaValue === "" ? null : Number(gpaValue);
-      const rawEmail = extractCell(row, ["email", "e mail", "student email"]);
-      const normalizedEmail =
-        rawEmail === "0" ? "" : rawEmail.replace(/\s+/g, "");
-
-      return {
-        studentId: extractCell(row, ["id", "student id", "studentid"]),
-        fullName: extractCell(row, ["name", "full name", "student name"]),
-        college: extractCell(row, ["college", "collegue", "faculty"]),
-        major: normalizeMajor(
-          extractCell(row, ["major", "program", "department"]),
-        ),
-        teamCode: extractCell(row, ["team code", "teamcode", "team"]),
-        amit: extractCell(row, [
-          "amit",
-          "admit",
-          "admit code",
-          "term code admit",
-          "term code_admit",
-        ]),
-        gpa: parsedGpa != null && Number.isFinite(parsedGpa) ? parsedGpa : null,
-        level: extractCell(row, ["class", "level", "year"]) || "Level 1",
-        className: extractCell(row, ["class", "class name"]),
-        mobile: extractCell(row, ["mobile", "phone", "phone number"]),
-        email: normalizedEmail,
-        advisorName: extractCell(row, [
-          "advisor name",
-          "advisor",
-          "advisorname",
-        ]),
-        nationality: extractCell(row, ["nationality", "country"]),
-        status: studentStatuses.includes(
-          extractCell(row, [
-            "status",
-          ]).toLowerCase() as (typeof studentStatuses)[number],
-        )
-          ? (extractCell(row, [
-              "status",
-            ]).toLowerCase() as (typeof studentStatuses)[number])
-          : "active",
-      } satisfies StudentInput;
-    })
-    .filter((row) => row.studentId || row.fullName);
-}
-
 export function InternationalStudentsData({
   onNavigateToMessages,
 }: InternationalStudentsDataProps) {
@@ -214,6 +96,12 @@ export function InternationalStudentsData({
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("all");
+  const [editingStudent, setEditingStudent] = useState<StudentRecord | null>(
+    null,
+  );
+  const [studentToDelete, setStudentToDelete] = useState<StudentRecord | null>(
+    null,
+  );
   const [selectedLevel, setSelectedLevel] = useState("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -266,15 +154,19 @@ export function InternationalStudentsData({
     students.forEach((s) => {
       if (s.nationality) set.add(s.nationality);
     });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+    return Array.from(set).sort((a, b) =>
+      String(a || "").localeCompare(String(b || "")),
+    );
   }, [students]);
 
   const advisorOptions = useMemo(() => {
     const set = new Set<string>();
     students.forEach((s) => {
-      if (s.advisor_name) set.add(s.advisor_name);
+      if (s.advisorName && s.advisorName.trim() !== "") set.add(s.advisorName);
     });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+    return Array.from(set).sort((a, b) =>
+      String(a || "").localeCompare(String(b || "")),
+    );
   }, [students]);
 
   const hasAge = useMemo(() => {
@@ -292,26 +184,15 @@ export function InternationalStudentsData({
     return Array.from(levels).sort();
   }, [students]);
 
-  const trimUntilCapital = (str: String) => {
-    // Find the index of the first character between A and Z
-    const firstCapIndex = str.search(/[A-Z]/);
-
-    // If no capital letter is found, return an empty string or the original
-    // depending on your preference. Here we return the slice if found.
-    return firstCapIndex !== -1 ? str.slice(firstCapIndex) : "";
-  };
-
   const filteredStudents = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     const filtered = students.filter((student) => {
-      const studentEmail = `${student.student_id}@must.edu.eg`;
       const actualEmail = student.email?.toLowerCase() ?? "";
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        student.student_id.toLowerCase().includes(normalizedSearch) ||
-        student.full_name.toLowerCase().includes(normalizedSearch) ||
-        studentEmail.toLowerCase().includes(normalizedSearch) ||
+        (student.studentId || "").toLowerCase().includes(normalizedSearch) ||
+        (student.name || "").toLowerCase().includes(normalizedSearch) ||
         actualEmail.includes(normalizedSearch);
 
       const matchesMajor =
@@ -327,7 +208,7 @@ export function InternationalStudentsData({
 
       const matchesAdvisor =
         filterAdvisor === "all" ||
-        (student.advisor_name ?? "").toLowerCase() ===
+        (student.advisorName ?? "").toLowerCase() ===
           filterAdvisor.toLowerCase();
 
       const matchesStatus =
@@ -335,11 +216,12 @@ export function InternationalStudentsData({
 
       const gpaMin = filterGpaMin.trim() === "" ? null : Number(filterGpaMin);
       const gpaMax = filterGpaMax.trim() === "" ? null : Number(filterGpaMax);
+      const studentGpa = student.gpa != null ? Number(student.gpa) : null;
       const matchesGpa =
         (gpaMin == null && gpaMax == null) ||
-        (student.gpa != null &&
-          (gpaMin == null || student.gpa >= gpaMin) &&
-          (gpaMax == null || student.gpa <= gpaMax));
+        (studentGpa != null &&
+          (gpaMin == null || studentGpa >= gpaMin) &&
+          (gpaMax == null || studentGpa <= gpaMax));
 
       const ageMin = filterAgeMin.trim() === "" ? null : Number(filterAgeMin);
       const ageMax = filterAgeMax.trim() === "" ? null : Number(filterAgeMax);
@@ -372,16 +254,18 @@ export function InternationalStudentsData({
       let comparison = 0;
 
       if (sortBy === "name") {
-        comparison = a.full_name.localeCompare(b.full_name);
+        comparison = String(a.name || "").localeCompare(String(b.name || ""));
       }
 
       if (sortBy === "id") {
-        comparison = a.student_id.localeCompare(b.student_id);
+        comparison = String(a.studentId || "").localeCompare(
+          String(b.studentId || ""),
+        );
       }
 
       if (sortBy === "gpa") {
-        const gpaA = a.gpa ?? Number.NEGATIVE_INFINITY;
-        const gpaB = b.gpa ?? Number.NEGATIVE_INFINITY;
+        const gpaA = a.gpa != null ? Number(a.gpa) : Number.NEGATIVE_INFINITY;
+        const gpaB = b.gpa != null ? Number(b.gpa) : Number.NEGATIVE_INFINITY;
         comparison = gpaA - gpaB;
       }
 
@@ -412,8 +296,8 @@ export function InternationalStudentsData({
       students: filteredStudents.filter(
         (student) =>
           student.gpa != null &&
-          student.gpa >= range.min &&
-          student.gpa <= range.max,
+          Number(student.gpa) >= range.min &&
+          Number(student.gpa) <= range.max,
       ).length,
     }));
   }, [filteredStudents]);
@@ -454,19 +338,23 @@ export function InternationalStudentsData({
     }));
   };
 
-  const handleCreateStudent = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSaveStudent = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFeedbackError(null);
     setFeedbackSuccess(null);
     setIsSubmitting(true);
 
     try {
-      await createStudent(formValues);
-      setFeedbackSuccess("Student created successfully.");
+      if (editingStudent) {
+        await updateStudent(editingStudent.id, formValues);
+        setFeedbackSuccess("Student updated successfully.");
+      } else {
+        await createStudent(formValues);
+        setFeedbackSuccess("Student created successfully.");
+      }
       setFormValues(DEFAULT_FORM_VALUES);
       setShowAddForm(false);
+      setEditingStudent(null);
       await loadStudents();
     } catch (error) {
       const message =
@@ -488,11 +376,10 @@ export function InternationalStudentsData({
     setFeedbackSuccess(null);
 
     try {
-      const importedStudents = await parseStudentSheet(selectedImportFile);
-      await replaceAllStudents(importedStudents);
+      await uploadStudentsExcel(selectedImportFile);
       setSelectedImportFile(null);
       setFeedbackSuccess(
-        `Replaced all student records with ${importedStudents.length} rows from the new file.`,
+        "Successfully uploaded and imported students from the Excel file.",
       );
       await loadStudents();
     } catch (error) {
@@ -504,36 +391,75 @@ export function InternationalStudentsData({
     }
   };
 
-  const handleStatusChange = async (
-    studentId: string,
-    nextStatus: (typeof studentStatuses)[number],
-  ) => {
+  const handleEditClick = (student: StudentRecord) => {
+    setEditingStudent(student);
+    setFormValues({
+      studentId: student.studentId || "",
+      fullName: student.name || "",
+      nationality: student.nationality || "",
+      major: student.major || "cs",
+      level: student.level || "Level 1",
+      college: student.college || "",
+      teamCode: student.teamCode || "",
+      amit: student.termCodeAdmit || "",
+      className: student.className || "",
+      mobile: student.mobile || "",
+      email: student.email || "",
+      advisorName: student.advisorName || "",
+      gpa: student.gpa != null ? Number(student.gpa) : null,
+      status: student.status || "active",
+    });
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!studentToDelete) return;
     setFeedbackError(null);
     setFeedbackSuccess(null);
-    setStatusSavingStudentId(studentId);
+    try {
+      await deleteStudent(studentToDelete.id);
+      setFeedbackSuccess("Student deleted successfully.");
+      await loadStudents();
+    } catch (error: any) {
+      setFeedbackError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to delete student.",
+      );
+    } finally {
+      setStudentToDelete(null);
+    }
+  };
+
+  const handleStatusChange = async (studentIdNum: number) => {
+    setFeedbackError(null);
+    setFeedbackSuccess(null);
+    setStatusSavingStudentId(String(studentIdNum));
 
     const previousStudents = students;
     setStudents((currentStudents) =>
       currentStudents.map((student) =>
-        student.student_id === studentId
+        student.id === studentIdNum
           ? {
               ...student,
-              status: nextStatus,
+              status: student.status === "active" ? "discontinued" : "active",
             }
           : student,
       ),
     );
 
     try {
-      await updateStudentStatus(studentId, nextStatus);
-      setFeedbackSuccess(`Student status updated to ${nextStatus}.`);
+      await updateStudentStatus(studentIdNum);
+      setFeedbackSuccess(`Student status updated.`);
+      await loadStudents();
     } catch (error) {
-      setStudents(previousStudents);
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to update student status.";
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update student status.";
       setFeedbackError(message);
+      setStudents(previousStudents);
     } finally {
       setStatusSavingStudentId(null);
     }
@@ -638,7 +564,7 @@ export function InternationalStudentsData({
   };
 
   const formatGpa = (gpa: unknown): string => {
-    if (gpa == null) return "-";
+    if (gpa == null || gpa === "") return "N/A";
 
     let num: number | null = null;
 
@@ -650,7 +576,7 @@ export function InternationalStudentsData({
       num = Number.isFinite(parsed) ? parsed : null;
     }
 
-    if (num == null) return "-";
+    if (num == null) return "N/A";
     return num.toFixed(2);
   };
 
@@ -699,7 +625,15 @@ export function InternationalStudentsData({
           </Button>
           <Button
             icon={<PlusIcon className="w-4 h-4" />}
-            onClick={() => setShowAddForm((previous) => !previous)}
+            onClick={() => {
+              if (showAddForm) {
+                setShowAddForm(false);
+                setEditingStudent(null);
+                setFormValues(DEFAULT_FORM_VALUES);
+              } else {
+                setShowAddForm(true);
+              }
+            }}
           >
             {showAddForm ? "Close Form" : "Add Student"}
           </Button>
@@ -708,7 +642,7 @@ export function InternationalStudentsData({
 
       {showAddForm && (
         <Card className="p-4">
-          <form className="space-y-4" onSubmit={handleCreateStudent}>
+          <form className="space-y-4" onSubmit={handleSaveStudent}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Student ID"
@@ -867,7 +801,11 @@ export function InternationalStudentsData({
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Student"}
+                {isSubmitting
+                  ? "Saving..."
+                  : editingStudent
+                    ? "Update Student"
+                    : "Save Student"}
               </Button>
             </div>
           </form>
@@ -1204,29 +1142,33 @@ export function InternationalStudentsData({
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#d7e7db"
+                stroke="var(--must-border)"
                 vertical={false}
               />
               <XAxis
                 dataKey="range"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#5f7164" }}
+                tick={{ fontSize: 12, fill: "var(--must-text-secondary)" }}
               />
               <YAxis
                 allowDecimals={false}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#5f7164" }}
+                tick={{ fontSize: 12, fill: "var(--must-text-secondary)" }}
               />
               <Tooltip
                 cursor={{ fill: "rgba(27, 138, 61, 0.08)" }}
                 contentStyle={{
                   borderRadius: "8px",
-                  border: "1px solid #d7e7db",
+                  border: "1px solid var(--must-border)",
                 }}
               />
-              <Bar dataKey="students" fill="#1fa56b" radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey="students"
+                fill="var(--must-green)"
+                radius={[8, 8, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1250,10 +1192,7 @@ export function InternationalStudentsData({
                   Major
                 </th>
                 <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
-                  Team Code
-                </th>
-                <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
-                  Amit
+                  Term Code Admit
                 </th>
                 <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
                   Class
@@ -1288,47 +1227,64 @@ export function InternationalStudentsData({
               {!isLoading &&
                 filteredStudents.map((student) => (
                   <tr
-                    key={student.student_id}
+                    key={student.studentId || Math.random().toString()}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                   >
                     <td className="px-6 py-4 text-sm font-medium text-must-text-primary">
-                      {student.student_id}
+                      {student.studentId && student.studentId.trim() !== ""
+                        ? student.studentId
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-primary flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-must-navy text-white flex items-center justify-center text-xs font-bold">
-                        {student.full_name.charAt(0)}
-                      </div>
-                      {student.full_name}
+                      {student.name && student.name.trim() !== ""
+                        ? student.name
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.college || "-"}
+                      {student.college && student.college.trim() !== ""
+                        ? student.college
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.major.toUpperCase()}
+                      {student.major && student.major.trim() !== ""
+                        ? student.major.toUpperCase()
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.team_code || "-"}
+                      {student.termCodeAdmit &&
+                      student.termCodeAdmit.trim() !== ""
+                        ? student.termCodeAdmit
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.amit || "-"}
+                      {student.className && student.className.trim() !== ""
+                        ? student.className
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.class_name || "-"}
+                      {student.mobile && student.mobile.trim() !== ""
+                        ? student.mobile
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.mobile || "-"}
+                      {student.email && student.email.trim() !== ""
+                        ? student.email
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.email || `${student.student_id}@must.edu.eg`}
+                      {student.advisorName && student.advisorName.trim() !== ""
+                        ? student.advisorName
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.advisor_name || "-"}
+                      {student.nationality && student.nationality.trim() !== ""
+                        ? student.nationality
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.nationality}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.level}
+                      {student.level && student.level.trim() !== ""
+                        ? student.level
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
                       {formatGpa(student.gpa)}
@@ -1336,19 +1292,17 @@ export function InternationalStudentsData({
                     <td className="px-6 py-4 text-sm">
                       <select
                         value={student.status}
-                        disabled={statusSavingStudentId === student.student_id}
+                        disabled={statusSavingStudentId === String(student.id)}
                         onChange={(event) => {
-                          void handleStatusChange(
-                            student.student_id,
-                            event.target
-                              .value as (typeof studentStatuses)[number],
-                          );
+                          if (event.target.value !== student.status) {
+                            void handleStatusChange(student.id);
+                          }
                         }}
                         className={`min-w-[140px] rounded-full border px-3 py-1.5 text-xs font-medium outline-none transition-colors ${
                           student.status === "discontinued"
                             ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
                             : "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/30 dark:text-green-300"
-                        } ${statusSavingStudentId === student.student_id ? "opacity-70" : ""}`}
+                        } ${statusSavingStudentId === String(student.id) ? "opacity-70" : ""}`}
                       >
                         {studentStatuses.map((status) => (
                           <option key={status} value={status}>
@@ -1362,15 +1316,36 @@ export function InternationalStudentsData({
                     <td className="px-6 py-4 text-sm text-right space-x-2">
                       <button
                         className="p-1.5 text-slate-400 hover:text-must-green transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+                        title="Edit Student"
+                        onClick={() => handleEditClick(student)}
+                      >
+                        <Pen className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="p-1.5 text-slate-400 hover:text-red-600 transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+                        title="Delete Student"
+                        onClick={() => setStudentToDelete(student)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="p-1.5 text-slate-400 hover:text-must-green transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
                         title="Open Messages"
                         onClick={navigateToMessages}
                       >
                         <MessageSquareIcon className="w-4 h-4" />
                       </button>
                       <a
-                        className="inline-flex p-1.5 text-slate-400 hover:text-must-navy transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
-                        title="Send Email"
-                        href={`mailto:${student.email || `${student.student_id}@must.edu.eg`}`}
+                        className={`inline-flex p-1.5 transition-colors rounded-md ${student.email ? "text-slate-400 hover:text-must-navy hover:bg-slate-100 dark:hover:bg-slate-700" : "text-slate-300 opacity-50 cursor-not-allowed"}`}
+                        title={
+                          student.email ? "Send Email" : "No Email Available"
+                        }
+                        href={
+                          student.email ? `mailto:${student.email}` : undefined
+                        }
+                        onClick={(e) => {
+                          if (!student.email) e.preventDefault();
+                        }}
                       >
                         <MailIcon className="w-4 h-4" />
                       </a>
@@ -1406,6 +1381,50 @@ export function InternationalStudentsData({
           </span>
         </div>
       </Card>
+
+      {studentToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setStudentToDelete(null)}
+          />
+          <div className="relative w-full max-w-md rounded-xl border border-must-border bg-white shadow-xl p-6 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-must-text-primary">
+                  Delete Student
+                </h3>
+                <p className="text-sm text-must-text-secondary mt-1">
+                  Are you sure you want to delete{" "}
+                  <strong>
+                    {studentToDelete.name && studentToDelete.name.trim() !== ""
+                      ? studentToDelete.name
+                      : "this student"}
+                  </strong>
+                  ? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setStudentToDelete(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteConfirm}
+                className="bg-red-600 hover:bg-red-700 text-white border-transparent"
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
