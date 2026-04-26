@@ -1,7 +1,24 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from './AuthContext';
-import { ROLES } from '../constants/roles';
-import { createChatProvider, type ChatAdmin, type ChatConversation, type ChatCreateConversationPayload, type ChatMessage, type ChatProviderCurrentUser, type ChatThreadMessage } from '../services/chat';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useAuth } from "./AuthContext";
+import { ROLES } from "../constants/roles";
+import {
+  createChatProvider,
+  type ChatAdmin,
+  type ChatConversation,
+  type ChatCreateConversationPayload,
+  type ChatMessage,
+  type ChatProviderCurrentUser,
+  type ChatThreadMessage,
+} from "../services/chat";
+import { getStoredUserId } from "../utils/storageUtils";
 
 interface ChatContextValue {
   isOpen: boolean;
@@ -34,31 +51,45 @@ const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 const decodeJwtEmail = (token: string | null): string | undefined => {
   if (!token) return undefined;
   try {
-    const payloadUrl = token.split('.')[1];
-    const payload = JSON.parse(atob(payloadUrl.replace(/-/g, '+').replace(/_/g, '/')));
+    const payloadUrl = token.split(".")[1];
+    const payload = JSON.parse(
+      atob(payloadUrl.replace(/-/g, "+").replace(/_/g, "/")),
+    );
     return payload.email || payload.upn || payload.unique_name;
   } catch (e) {
     return undefined;
   }
 };
 
-const currentUserParticipant = (user: ReturnType<typeof useAuth>['user'], token: string | null) => ({
-  id: user?.id ?? 'guest',
-  displayName: user?.displayName || user?.username || 'You',
+const currentUserParticipant = (
+  user: ReturnType<typeof useAuth>["user"],
+  token: string | null,
+) => ({
+  id: user?.id || getStoredUserId() || "guest",
+  displayName: user?.displayName || user?.username || "You",
   avatarUrl: user?.avatar?.url ?? null,
   email: user?.email || decodeJwtEmail(token),
-  role: (user?.role?.type === ROLES.ADMIN ? 'admin' : 'user') as 'user' | 'admin',
+  role: (user?.role?.type === ROLES.ADMIN ? "admin" : "user") as
+    | "user"
+    | "admin",
 });
 
 const generateClientMessageId = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
   return `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
-const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> => {
+const withTimeout = async <T,>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  timeoutMessage: string,
+): Promise<T> => {
   return await new Promise<T>((resolve, reject) => {
     const timerId = window.setTimeout(() => {
       reject(new Error(timeoutMessage));
@@ -79,11 +110,11 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, timeoutMe
 const updateConversationPreview = (
   conversations: ChatConversation[],
   conversationId: string,
-  lastMessage: ChatConversation['lastMessage'],
+  lastMessage: ChatConversation["lastMessage"],
   unreadCount = 0,
   updatedAt = new Date().toISOString(),
   title?: string,
-  participants: ChatConversation['participants'] = [],
+  participants: ChatConversation["participants"] = [],
 ) => {
   const updatedConversations = conversations.map((conversation) => {
     if (conversation.id !== conversationId) {
@@ -98,10 +129,14 @@ const updateConversationPreview = (
     };
   });
 
-  if (!updatedConversations.some((conversation) => conversation.id === conversationId)) {
+  if (
+    !updatedConversations.some(
+      (conversation) => conversation.id === conversationId,
+    )
+  ) {
     updatedConversations.push({
       id: conversationId,
-      title: title ?? 'Support',
+      title: title ?? "Support",
       participants,
       lastMessage,
       unreadCount,
@@ -109,16 +144,22 @@ const updateConversationPreview = (
     });
   }
 
-  return updatedConversations.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  return updatedConversations.sort((left, right) =>
+    right.updatedAt.localeCompare(left.updatedAt),
+  );
 };
 
 const replaceMessage = (
   messages: ChatThreadMessage[],
   messageId: string,
   nextMessage: ChatThreadMessage,
-) => messages.map((message) => (message.id === messageId ? nextMessage : message));
+) =>
+  messages.map((message) => (message.id === messageId ? nextMessage : message));
 
-const appendUniqueMessages = (currentMessages: ChatThreadMessage[], nextMessages: ChatMessage[]) => {
+const appendUniqueMessages = (
+  currentMessages: ChatThreadMessage[],
+  nextMessages: ChatMessage[],
+) => {
   const existingIds = new Set(currentMessages.map((message) => message.id));
   const mergedMessages = [...currentMessages];
 
@@ -139,24 +180,43 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
   const [adminDirectory, setAdminDirectory] = useState<ChatAdmin[]>([]);
-  const [messagesByConversation, setMessagesByConversation] = useState<Record<string, ChatThreadMessage[]>>({});
-  const [nextCursorByConversation, setNextCursorByConversation] = useState<Record<string, string | null>>({});
+  const [messagesByConversation, setMessagesByConversation] = useState<
+    Record<string, ChatThreadMessage[]>
+  >({});
+  const [nextCursorByConversation, setNextCursorByConversation] = useState<
+    Record<string, string | null>
+  >({});
   const [isLoadingConversations, setIsLoadingConversations] = useState(false);
   const [isLoadingAdmins, setIsLoadingAdmins] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [announcement, setAnnouncement] = useState('Chat ready.');
+  const [announcement, setAnnouncement] = useState("Chat ready.");
   const currentUser = currentUserParticipant(user, token);
 
   const provider = useMemo(() => {
-    const createdProvider = createChatProvider(currentUser as ChatProviderCurrentUser);
+    const createdProvider = createChatProvider(
+      currentUser as ChatProviderCurrentUser,
+    );
     return createdProvider;
-  }, [currentUser.id, currentUser.displayName, currentUser.avatarUrl, currentUser.email]);
+  }, [
+    currentUser.id,
+    currentUser.displayName,
+    currentUser.avatarUrl,
+    currentUser.email,
+  ]);
 
-  const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
-  const unreadCount = conversations.reduce((total, conversation) => total + conversation.unreadCount, 0);
+  const activeConversation =
+    conversations.find(
+      (conversation) => conversation.id === activeConversationId,
+    ) ?? null;
+  const unreadCount = conversations.reduce(
+    (total, conversation) => total + conversation.unreadCount,
+    0,
+  );
 
   const resetChatState = () => {
     setIsOpen(false);
@@ -168,7 +228,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     setIsLoadingConversations(false);
     setIsLoadingMessages(false);
     setError(null);
-    setAnnouncement('Chat ready.');
+    setAnnouncement("Chat ready.");
     lastReadMessageRef.current = {};
   };
 
@@ -192,7 +252,12 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       setConversations(nextConversations);
 
       setActiveConversationId((currentActiveConversationId) => {
-        if (currentActiveConversationId && nextConversations.some((conversation) => conversation.id === currentActiveConversationId)) {
+        if (
+          currentActiveConversationId &&
+          nextConversations.some(
+            (conversation) => conversation.id === currentActiveConversationId,
+          )
+        ) {
           return currentActiveConversationId;
         }
 
@@ -200,10 +265,15 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (nextConversations.length === 0) {
-        setAnnouncement('No conversations yet. Start a new support chat when you need help.');
+        setAnnouncement(
+          "No conversations yet. Start a new support chat when you need help.",
+        );
       }
     } catch (refreshError) {
-      const message = refreshError instanceof Error ? refreshError.message : 'Failed to load conversations.';
+      const message =
+        refreshError instanceof Error
+          ? refreshError.message
+          : "Failed to load conversations.";
       setError(message);
       setAnnouncement(message);
     } finally {
@@ -211,70 +281,94 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isAuthLoading, provider]);
 
-  const loadAdmins = useCallback(async (query?: string) => {
-    if (!user || isAuthLoading) {
-      return;
-    }
+  const loadAdmins = useCallback(
+    async (query?: string) => {
+      if (!user || isAuthLoading) {
+        return;
+      }
 
-    setIsLoadingAdmins(true);
+      setIsLoadingAdmins(true);
 
-    try {
-      const response = await provider.listAdmins(query);
-      setAdminDirectory(response.data || []);
-    } catch (loadAdminsError) {
-      const message = loadAdminsError instanceof Error ? loadAdminsError.message : 'Failed to load admins.';
-      setError(message);
-      setAnnouncement(message);
-    } finally {
-      setIsLoadingAdmins(false);
-    }
-  }, [user, isAuthLoading, provider]);
+      try {
+        const response = await provider.listAdmins(query);
+        setAdminDirectory(response.data || []);
+      } catch (loadAdminsError) {
+        const message =
+          loadAdminsError instanceof Error
+            ? loadAdminsError.message
+            : "Failed to load admins.";
+        setError(message);
+        setAnnouncement(message);
+      } finally {
+        setIsLoadingAdmins(false);
+      }
+    },
+    [user, isAuthLoading, provider],
+  );
 
-  const loadMessages = useCallback(async (conversationId: string, reset = true) => {
-    if (!conversationId || !user || isAuthLoading) {
-      return;
-    }
+  const loadMessages = useCallback(
+    async (conversationId: string, reset = true) => {
+      if (!conversationId || !user || isAuthLoading) {
+        return;
+      }
 
-    setIsLoadingMessages(true);
-    setError(null);
+      setIsLoadingMessages(true);
+      setError(null);
 
-    try {
-      const cursor = reset ? null : nextCursorByConversation[conversationId] ?? null;
-      const response = await provider.listMessages(conversationId, cursor, 30);
+      try {
+        const cursor = reset
+          ? null
+          : (nextCursorByConversation[conversationId] ?? null);
+        const response = await provider.listMessages(
+          conversationId,
+          cursor,
+          30,
+        );
 
-      setMessagesByConversation((currentMessages) => {
-        const existingMessages = reset ? [] : currentMessages[conversationId] ?? [];
-        const normalizedMessages = response.data.map((message) => ({
-          ...message,
-          status: message.status,
+        setMessagesByConversation((currentMessages) => {
+          const existingMessages = reset
+            ? []
+            : (currentMessages[conversationId] ?? []);
+          const normalizedMessages = response.data.map((message) => ({
+            ...message,
+            status: message.status,
+          }));
+
+          return {
+            ...currentMessages,
+            [conversationId]: reset
+              ? normalizedMessages
+              : appendUniqueMessages(existingMessages, normalizedMessages),
+          };
+        });
+
+        setNextCursorByConversation((currentCursors) => ({
+          ...currentCursors,
+          [conversationId]: response.meta.nextCursor,
         }));
-
-        return {
-          ...currentMessages,
-          [conversationId]: reset
-            ? normalizedMessages
-            : appendUniqueMessages(existingMessages, normalizedMessages),
-        };
-      });
-
-      setNextCursorByConversation((currentCursors) => ({
-        ...currentCursors,
-        [conversationId]: response.meta.nextCursor,
-      }));
-    } catch (loadError) {
-      const message = loadError instanceof Error ? loadError.message : 'Failed to load messages.';
-      setError(message);
-      setAnnouncement(message);
-    } finally {
-      setIsLoadingMessages(false);
-    }
-  }, [user, isAuthLoading, provider, nextCursorByConversation]);
+      } catch (loadError) {
+        const message =
+          loadError instanceof Error
+            ? loadError.message
+            : "Failed to load messages.";
+        setError(message);
+        setAnnouncement(message);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    },
+    [user, isAuthLoading, provider, nextCursorByConversation],
+  );
 
   const openChat = (triggerElement?: HTMLElement | null) => {
-    returnFocusRef.current = triggerElement ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    returnFocusRef.current =
+      triggerElement ??
+      (document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null);
     setIsOpen(true);
     setError(null);
-    setAnnouncement('Chat panel opened.');
+    setAnnouncement("Chat panel opened.");
 
     if (conversations.length === 0) {
       void refreshConversations();
@@ -287,7 +381,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 
   const closeChat = () => {
     setIsOpen(false);
-    setAnnouncement('Chat panel closed.');
+    setAnnouncement("Chat panel closed.");
     focusReturnTarget();
   };
 
@@ -329,28 +423,36 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       void loadMessages(createdConversation.id, true);
       setAnnouncement(`Conversation ${createdConversation.title} created.`);
     } catch (createError) {
-      const message = createError instanceof Error ? createError.message : 'Failed to create conversation.';
+      const message =
+        createError instanceof Error
+          ? createError.message
+          : "Failed to create conversation.";
       setError(message);
       setAnnouncement(message);
       throw createError instanceof Error ? createError : new Error(message);
     }
   };
 
-  const startConversationWithAdmin = useCallback(async (admin: ChatAdmin) => {
-    const existingConversation = conversations.find((conversation) =>
-      conversation.participants.some((participant) => participant.id === admin.id),
-    );
+  const startConversationWithAdmin = useCallback(
+    async (admin: ChatAdmin) => {
+      const existingConversation = conversations.find((conversation) =>
+        conversation.participants.some(
+          (participant) => participant.id === admin.id,
+        ),
+      );
 
-    if (existingConversation) {
-      await selectConversation(existingConversation.id);
-      return;
-    }
+      if (existingConversation) {
+        await selectConversation(existingConversation.id);
+        return;
+      }
 
-    await createConversation({
-      participantIds: [admin.id],
-      title: `Chat with ${admin.displayName}`,
-    });
-  }, [conversations]);
+      await createConversation({
+        participantIds: [admin.id],
+        title: `Chat with ${admin.displayName}`,
+      });
+    },
+    [conversations],
+  );
 
   const sendMessage = async (text: string) => {
     const trimmedText = text.trim();
@@ -365,14 +467,17 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       conversationId: activeConversationId,
       text: trimmedText,
       sender,
-      status: 'sending',
+      status: "sending",
       createdAt: new Date().toISOString(),
       clientMessageId,
     };
 
     setMessagesByConversation((currentMessages) => ({
       ...currentMessages,
-      [activeConversationId]: [...(currentMessages[activeConversationId] ?? []), optimisticMessage],
+      [activeConversationId]: [
+        ...(currentMessages[activeConversationId] ?? []),
+        optimisticMessage,
+      ],
     }));
     setAnnouncement(`Sending message: ${trimmedText}`);
 
@@ -383,16 +488,20 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
           clientMessageId,
         }),
         15000,
-        'Message request timed out. Please retry.',
+        "Message request timed out. Please retry.",
       );
 
       const sentMessage = response.data;
       setMessagesByConversation((currentMessages) => ({
         ...currentMessages,
-        [activeConversationId]: replaceMessage(currentMessages[activeConversationId] ?? [], clientMessageId, {
-          ...sentMessage,
-          status: 'sent',
-        }),
+        [activeConversationId]: replaceMessage(
+          currentMessages[activeConversationId] ?? [],
+          clientMessageId,
+          {
+            ...sentMessage,
+            status: "sent",
+          },
+        ),
       }));
 
       setConversations((currentConversations) =>
@@ -412,14 +521,19 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setAnnouncement(`Message sent: ${sentMessage.text}`);
     } catch (sendError) {
-      const message = sendError instanceof Error ? sendError.message : 'Failed to send message.';
+      const message =
+        sendError instanceof Error
+          ? sendError.message
+          : "Failed to send message.";
       setMessagesByConversation((currentMessages) => ({
         ...currentMessages,
-        [activeConversationId]: (currentMessages[activeConversationId] ?? []).map((threadMessage) =>
+        [activeConversationId]: (
+          currentMessages[activeConversationId] ?? []
+        ).map((threadMessage) =>
           threadMessage.id === clientMessageId
             ? {
                 ...threadMessage,
-                status: 'failed',
+                status: "failed",
                 errorMessage: message,
               }
             : threadMessage,
@@ -435,14 +549,18 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const failedMessage = (messagesByConversation[activeConversationId] ?? []).find((message) => message.id === messageId);
+    const failedMessage = (
+      messagesByConversation[activeConversationId] ?? []
+    ).find((message) => message.id === messageId);
     if (!failedMessage) {
       return;
     }
 
     setMessagesByConversation((currentMessages) => ({
       ...currentMessages,
-      [activeConversationId]: (currentMessages[activeConversationId] ?? []).filter((message) => message.id !== messageId),
+      [activeConversationId]: (
+        currentMessages[activeConversationId] ?? []
+      ).filter((message) => message.id !== messageId),
     }));
     await sendMessage(failedMessage.text);
   };
@@ -458,7 +576,10 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (previousUserIdRef.current !== null && previousUserIdRef.current !== user.id) {
+    if (
+      previousUserIdRef.current !== null &&
+      previousUserIdRef.current !== user.id
+    ) {
       resetChatState();
     }
 
@@ -486,7 +607,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     const messages = messagesByConversation[activeConversationId] ?? [];
     const lastMessage = messages[messages.length - 1];
 
-    if (!lastMessage || lastMessage.status === 'failed') {
+    if (!lastMessage || lastMessage.status === "failed") {
       return;
     }
 
@@ -545,7 +666,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 export function useChat() {
   const context = useContext(ChatContext);
   if (!context) {
-    throw new Error('useChat must be used within ChatStoreProvider');
+    throw new Error("useChat must be used within ChatStoreProvider");
   }
 
   return context;
