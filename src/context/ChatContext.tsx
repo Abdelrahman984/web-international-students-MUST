@@ -177,6 +177,9 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   const previousUserIdRef = useRef<string | number | null>(null);
   const lastReadMessageRef = useRef<Record<string, string | undefined>>({});
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const activeConversationPollingRef = useRef<ReturnType<
+    typeof window.setInterval
+  > | null>(null);
 
   const [isOpen, setIsOpen] = useState(false);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
@@ -195,19 +198,17 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("Chat ready.");
-  const currentUser = currentUserParticipant(user, token);
+  const currentUser = useMemo(
+    () => currentUserParticipant(user, token),
+    [user, token],
+  );
 
   const provider = useMemo(() => {
     const createdProvider = createChatProvider(
       currentUser as ChatProviderCurrentUser,
     );
     return createdProvider;
-  }, [
-    currentUser.id,
-    currentUser.displayName,
-    currentUser.avatarUrl,
-    currentUser.email,
-  ]);
+  }, [currentUser]);
 
   const activeConversation =
     conversations.find(
@@ -307,13 +308,21 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loadMessages = useCallback(
-    async (conversationId: string, reset = true) => {
+    async (
+      conversationId: string,
+      reset = true,
+      options?: { silent?: boolean },
+    ) => {
       if (!conversationId || !user || isAuthLoading) {
         return;
       }
 
-      setIsLoadingMessages(true);
-      setError(null);
+      const isSilent = options?.silent === true;
+
+      if (!isSilent) {
+        setIsLoadingMessages(true);
+        setError(null);
+      }
 
       try {
         const cursor = reset
@@ -354,11 +363,40 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
         setError(message);
         setAnnouncement(message);
       } finally {
-        setIsLoadingMessages(false);
+        if (!isSilent) {
+          setIsLoadingMessages(false);
+        }
       }
     },
     [user, isAuthLoading, provider, nextCursorByConversation],
   );
+
+  useEffect(() => {
+    if (activeConversationPollingRef.current !== null) {
+      window.clearInterval(activeConversationPollingRef.current);
+      activeConversationPollingRef.current = null;
+    }
+
+    if (!isOpen || !activeConversationId || !user || isAuthLoading) {
+      return;
+    }
+
+    const pollActiveConversation = () => {
+      void loadMessages(activeConversationId, true, { silent: true });
+    };
+
+    activeConversationPollingRef.current = window.setInterval(
+      pollActiveConversation,
+      5000,
+    );
+
+    return () => {
+      if (activeConversationPollingRef.current !== null) {
+        window.clearInterval(activeConversationPollingRef.current);
+        activeConversationPollingRef.current = null;
+      }
+    };
+  }, [isOpen, activeConversationId, user, isAuthLoading, loadMessages]);
 
   const openChat = (triggerElement?: HTMLElement | null) => {
     returnFocusRef.current =
@@ -396,10 +434,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 
   const selectConversation = async (conversationId: string) => {
     setActiveConversationId(conversationId);
-
-    if (!messagesByConversation[conversationId]) {
-      await loadMessages(conversationId, true);
-    }
+    await loadMessages(conversationId, true);
   };
 
   const createConversation = async (payload: ChatCreateConversationPayload) => {
@@ -433,26 +468,23 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const startConversationWithAdmin = useCallback(
-    async (admin: ChatAdmin) => {
-      const existingConversation = conversations.find((conversation) =>
-        conversation.participants.some(
-          (participant) => participant.id === admin.id,
-        ),
-      );
+  const startConversationWithAdmin = async (admin: ChatAdmin) => {
+    const existingConversation = conversations.find((conversation) =>
+      conversation.participants.some(
+        (participant) => participant.id === admin.id,
+      ),
+    );
 
-      if (existingConversation) {
-        await selectConversation(existingConversation.id);
-        return;
-      }
+    if (existingConversation) {
+      await selectConversation(existingConversation.id);
+      return;
+    }
 
-      await createConversation({
-        participantIds: [admin.id],
-        title: `Chat with ${admin.displayName}`,
-      });
-    },
-    [conversations],
-  );
+    await createConversation({
+      participantIds: [admin.id],
+      title: `Chat with ${admin.displayName}`,
+    });
+  };
 
   const sendMessage = async (text: string) => {
     const trimmedText = text.trim();
@@ -461,10 +493,11 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     }
 
     const clientMessageId = generateClientMessageId();
-    const sender = currentUserParticipant(user);
+    const sender = currentUserParticipant(user, token);
     const optimisticMessage: ChatThreadMessage = {
       id: clientMessageId,
       conversationId: activeConversationId,
+      senderType: sender.role === "admin" ? "admin" : "user",
       text: trimmedText,
       sender,
       status: "sending",
@@ -663,6 +696,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useChat() {
   const context = useContext(ChatContext);
   if (!context) {

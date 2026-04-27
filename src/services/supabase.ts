@@ -27,6 +27,7 @@ type AuthStateListener = (
 
 const TOKEN_STORAGE_KEY = "must_auth_token";
 const USER_STORAGE_KEY = "must_auth_user";
+const USER_ID_STORAGE_KEY = "auth_user_id";
 
 const getApiBaseUrl = (): string => {
   const configured = (
@@ -73,6 +74,12 @@ const normalizeUserFromToken = (token: string): UserLike | null => {
     const id =
       (typeof claims.sub === "string" && claims.sub) ||
       (typeof claims.nameid === "string" && claims.nameid) ||
+      (typeof claims[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ] === "string" &&
+        (claims[
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+        ] as string)) ||
       (typeof claims.userId === "string" && claims.userId) ||
       "";
     const email =
@@ -146,6 +153,9 @@ const persistSession = (token: string, user: UserLike) => {
 
   localStorage.setItem(TOKEN_STORAGE_KEY, token);
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+  if (user.id) {
+    localStorage.setItem(USER_ID_STORAGE_KEY, user.id);
+  }
 };
 
 const clearSession = () => {
@@ -155,6 +165,7 @@ const clearSession = () => {
 
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem(USER_STORAGE_KEY);
+  localStorage.removeItem(USER_ID_STORAGE_KEY);
 };
 
 const getCurrentSession = (): SessionLike | null => {
@@ -542,6 +553,8 @@ export const supabase = {
     async signInWithPassword(input: { email: string; password: string }) {
       try {
         const { data } = await apiClient.post("/api/Auth/login", input);
+        const responseUserId =
+          (typeof data?.id === "string" && data.id.trim()) || "";
         const token =
           (typeof data?.token === "string" && data.token) ||
           (typeof data?.jwt === "string" && data.jwt) ||
@@ -555,12 +568,19 @@ export const supabase = {
           };
         }
 
-        const user = (data?.user as UserLike | undefined) ||
-          normalizeUserFromToken(token) || {
-            id: input.email,
-            email: input.email,
-            user_metadata: {},
-          };
+        const tokenUser = normalizeUserFromToken(token);
+        const user =
+          (data?.user as UserLike | undefined) ||
+          (tokenUser
+            ? {
+                ...tokenUser,
+                id: responseUserId || tokenUser.id,
+              }
+            : {
+                id: responseUserId || input.email,
+                email: input.email,
+                user_metadata: {},
+              });
 
         persistSession(token, user);
         emitAuthEvent("SIGNED_IN", { access_token: token, user });
