@@ -59,6 +59,28 @@ const usernameFromEmail = (email?: string | null) => {
 
 const majorValues = new Set(["cs", "is", "ai", "general"]);
 
+const normalizeRoleType = (value: unknown): RoleType => {
+  if (typeof value !== "string") {
+    return ROLES.VISITOR;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === "admin" || normalized === "advisor") {
+    return ROLES.ADMIN;
+  }
+
+  if (
+    normalized === "college-member" ||
+    normalized === "college_member" ||
+    normalized === "student"
+  ) {
+    return ROLES.COLLEGE_MEMBER;
+  }
+
+  return ROLES.VISITOR;
+};
+
 const normalizeMajor = (value: unknown): "cs" | "is" | "ai" | "general" => {
   if (typeof value !== "string") {
     return "general";
@@ -128,8 +150,7 @@ async function fetchProfile(studentId: string): Promise<ProfileRow | null> {
 }
 
 function buildUser(authUser: AuthUser, profile: ProfileRow | null): StrapiUser {
-  const roleType: RoleType = (authUser.user_metadata?.role ||
-    "visitor") as RoleType;
+  const roleType = normalizeRoleType(authUser.user_metadata?.role);
   const metadata = authUser.user_metadata || {};
   const avatarUrl =
     (typeof metadata.avatar_url === "string" && metadata.avatar_url) ||

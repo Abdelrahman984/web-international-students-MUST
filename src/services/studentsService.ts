@@ -1,4 +1,5 @@
 import { api } from "../lib/axios";
+import { getStoredAuthToken } from "../utils/storageUtils";
 
 export const studentMajors = ["cs", "is", "ai", "general"] as const;
 export type StudentMajor = (typeof studentMajors)[number];
@@ -390,11 +391,15 @@ export async function uploadStudentsExcel(file: File): Promise<void> {
   const formData = new FormData();
   formData.append("file", file);
   try {
-    await api.post("/Admin/upload-students", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const token = getStoredAuthToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "multipart/form-data",
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    await api.post("/Admin/upload-students", formData, { headers });
   } catch (error: any) {
     throw new Error(
       "Failed to upload students file: " +

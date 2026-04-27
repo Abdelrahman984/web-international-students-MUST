@@ -43,16 +43,32 @@ export function Login() {
       }
 
       const signedInUser = await login(identifierToUse, password);
-      const isAdminAccount = signedInUser.role?.type === ROLES.ADMIN;
-      const isVisitorAccount = signedInUser.role?.type === ROLES.VISITOR;
+      const rawRole = (signedInUser as { role?: unknown }).role;
+      const normalizedRole =
+        typeof rawRole === "string"
+          ? rawRole.trim().toLowerCase()
+          : rawRole && typeof rawRole === "object"
+            ? ("type" in rawRole && typeof rawRole.type === "string"
+                ? rawRole.type
+                : "name" in rawRole && typeof rawRole.name === "string"
+                  ? rawRole.name
+                  : ""
+              )
+                .trim()
+                .toLowerCase()
+            : "";
 
-      if (portalTab === "advisor" && !isAdminAccount) {
+      const isAdvisorAccount =
+        normalizedRole === ROLES.ADMIN || normalizedRole === "advisor";
+      const isVisitorAccount = normalizedRole === ROLES.VISITOR;
+
+      if (portalTab === "advisor" && !isAdvisorAccount) {
         await logout();
         setServerError("This sign-in is for advisor accounts only.");
         return;
       }
 
-      if (portalTab === "student" && isAdminAccount) {
+      if (portalTab === "student" && isAdvisorAccount) {
         await logout();
         setServerError(
           "Advisor accounts should sign in using the Advisor tab.",

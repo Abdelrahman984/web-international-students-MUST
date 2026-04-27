@@ -1,12 +1,22 @@
 import axios from "axios";
 import { getApiUrl } from "./api";
+import { getStoredAuthToken } from "../utils/storageUtils";
 
 export const api = axios.create({ baseURL: getApiUrl() });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("auth_token");
-  if (token && config.headers) {
+  // Prefer the canonical stored token accessor, but fall back to
+  // legacy keys used elsewhere in the app.
+  const token =
+    getStoredAuthToken() ||
+    localStorage.getItem("must_auth_token") ||
+    localStorage.getItem("auth_token") ||
+    null;
+
+  config.headers = config.headers || {};
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });

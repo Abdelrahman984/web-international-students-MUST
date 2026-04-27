@@ -17,7 +17,6 @@ import {
   uploadStudentsExcel,
   createStudent,
   listStudents,
-  updateStudentStatus,
   updateStudent,
   deleteStudent,
   studentMajors,
@@ -395,48 +394,6 @@ export function InternationalStudentsData({
             clears existing records and loads only what is in the new sheet.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <label className="inline-flex items-center gap-2 rounded-lg border border-dashed border-must-border px-4 py-2 text-sm text-must-text-secondary hover:text-must-text-primary hover:border-must-green transition-colors cursor-pointer bg-must-surface">
-            <UploadIcon className="w-4 h-4" />
-            <span>
-              {selectedImportFile
-                ? selectedImportFile.name
-                : "Choose Excel File"}
-            </span>
-            <input
-              type="file"
-              className="hidden"
-              accept=".xlsx,.xls,.csv"
-              onChange={(event) => {
-                setSelectedImportFile(event.target.files?.[0] ?? null);
-              }}
-            />
-          </label>
-          <Button
-            variant="outline"
-            icon={<UploadIcon className="w-4 h-4" />}
-            onClick={() => {
-              void handleImportStudents();
-            }}
-            disabled={isImporting || !selectedImportFile}
-          >
-            {isImporting ? "Replacing…" : "Replace all from Excel"}
-          </Button>
-          <Button
-            icon={<PlusIcon className="w-4 h-4" />}
-            onClick={() => {
-              if (showAddForm) {
-                setShowAddForm(false);
-                setEditingStudent(null);
-                setFormValues(DEFAULT_FORM_VALUES);
-              } else {
-                setShowAddForm(true);
-              }
-            }}
-          >
-            {showAddForm ? "Close Form" : "Add Student"}
-          </Button>
-        </div>
       </div>
 
       {showAddForm && (
@@ -605,13 +562,6 @@ export function InternationalStudentsData({
       )}
 
       <Card className="p-4">
-        <div className="mb-4 rounded-lg border border-dashed border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 text-sm text-must-text-secondary">
-          <strong className="text-must-text-primary">Full replace:</strong>{" "}
-          uploading applies the spreadsheet as the only source of truth—every
-          previous row is removed first. Supported columns: `id`, `name`,
-          `college`, `major`, `term code admit`, `gpa`, `class`, `mobile`,
-          `email`, `advisor name`, `nationality`, `status`.
-        </div>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <Input
