@@ -37,6 +37,7 @@ import { NotFound } from "./pages/NotFound";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import ActivitiesPage from "./pages/Activities";
+import ActivityDetail from "./pages/ActivityDetail";
 import AdvisingPage from "./pages/Advising";
 
 // Custom Collection Pages
@@ -127,6 +128,7 @@ function AppContent() {
               <Route path="/honor-list" element={<HonorList />} />
               <Route path="/advising" element={<AdvisingPage />} />
               <Route path="/activities" element={<ActivitiesPage />} />
+              <Route path="/activities/:id" element={<ActivityDetail />} />
               <Route path="/cultural" element={<ActivitiesPage />} />
               <Route path="/sports" element={<ActivitiesPage />} />
               <Route path="/art" element={<ActivitiesPage />} />
