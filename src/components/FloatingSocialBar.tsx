@@ -25,7 +25,7 @@ export function FloatingSocialBar() {
     },
     {
       icon: "fab fa-instagram",
-      href: "https://www.instagram.com/must_university/",
+      href: "https://www.instagram.com/mustuni/",
       label: "Instagram",
       color: "#1f3769",
     },
