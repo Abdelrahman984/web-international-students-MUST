@@ -183,7 +183,7 @@ function AppContent() {
       </main>
       <Footer darkMode={darkMode} />
       <FloatingSocialBar />
-      <VisitorChat />
+      {/* <VisitorChat /> */}
       <ChatPanel />
     </div>
   );

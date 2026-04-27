@@ -476,7 +476,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-8">
-        <header className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-900 to-[#0b1b45] p-8 shadow-xl sm:p-10 dark:border-slate-700">
+        {/* <header className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-900 to-[#0b1b45] p-8 shadow-xl sm:p-10 dark:border-slate-700">
           <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10" />
           <div className="absolute bottom-[-30px] right-12 h-28 w-28 rounded-t-full bg-emerald-400/25" />
           <div className="relative z-10">
@@ -488,9 +488,9 @@ export default function HomePage() {
               Information Technology.
             </p>
           </div>
-        </header>
+        </header> */}
 
-        <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
           {stats.map(
             ({ label, value, Icon, iconClassName, iconBgClassName }) => (
               <article
@@ -515,9 +515,9 @@ export default function HomePage() {
               </article>
             ),
           )}
-        </section>
+        </section> */}
 
-        <section className="mt-10">
+        {/* <section className="mt-10">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             Quick Overview
           </h2>
@@ -609,9 +609,9 @@ export default function HomePage() {
               </div>
             </article>
           </div>
-        </section>
+        </section> */}
 
-        <section className="mt-12">
+        <section className="">
           {isLoadingSections ? (
             <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-slate-600 dark:border-slate-700 dark:bg-[#08132e] dark:text-slate-300">
               Loading home sections...
@@ -708,7 +708,7 @@ export default function HomePage() {
                         className={`overflow-hidden transition-all duration-300 ${missionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
                       >
                         <div
-                          className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          className="prose text-[40px] mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
                           dangerouslySetInnerHTML={{
                             __html:
                               missionHtml ||
@@ -761,7 +761,7 @@ export default function HomePage() {
                         className={`overflow-hidden transition-all duration-300 ${visionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
                       >
                         <div
-                          className="prose mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          className="prose text-[40px] mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
                           dangerouslySetInnerHTML={{
                             __html:
                               visionHtml ||
