@@ -23,7 +23,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { listStudents, type StudentRecord } from "../services/studentsService";
-import { countAdvisorProfiles } from "../services/authService";
 
 function toCountryLabel(raw: string): string {
   const trimmed = raw.trim();
@@ -106,10 +105,9 @@ export function Reports({ userName }: ReportsProps) {
   const [students, setStudents] = useState<StudentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [advisorCount, setAdvisorCount] = useState(0);
   const countryChartRef = useRef<HTMLDivElement | null>(null);
   const majorChartRef = useRef<HTMLDivElement | null>(null);
-  const levelChartRef = useRef<HTMLDivElement | null>(null);
+  const classChartRef = useRef<HTMLDivElement | null>(null);
   const gpaChartRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -119,9 +117,7 @@ export function Reports({ userName }: ReportsProps) {
 
       try {
         const data = await listStudents();
-        const advisors = await countAdvisorProfiles();
         setStudents(data);
-        setAdvisorCount(advisors);
       } catch (error) {
         const message =
           error instanceof Error
@@ -173,24 +169,30 @@ export function Reports({ userName }: ReportsProps) {
       }));
   }, [students]);
 
-  const levelBarData = useMemo(() => {
-    const levelCountMap = new Map<string, number>();
+  const classBarData = useMemo(() => {
+    const classCountMap = new Map<string, number>();
 
     students.forEach((student) => {
-      const levelLabel = (student.level || "").trim() || "Unknown";
-      levelCountMap.set(levelLabel, (levelCountMap.get(levelLabel) ?? 0) + 1);
+      const classLabel =
+        (student.className ?? student.class_name ?? "").trim() || "Unknown";
+      classCountMap.set(classLabel, (classCountMap.get(classLabel) ?? 0) + 1);
     });
 
-    const getLevelSortValue = (level: string): number => {
-      const matches = level.match(/\d+/);
-      if (!matches) {
+    const getClassSortValue = (className: string): number => {
+      if (className.toLowerCase() === "unknown") {
         return Number.MAX_SAFE_INTEGER;
       }
+
+      const matches = className.match(/\d+/);
+      if (!matches) {
+        return Number.MAX_SAFE_INTEGER - 1;
+      }
+
       return Number(matches[0]);
     };
 
-    return Array.from(levelCountMap.entries())
-      .sort((a, b) => getLevelSortValue(a[0]) - getLevelSortValue(b[0]))
+    return Array.from(classCountMap.entries())
+      .sort((a, b) => getClassSortValue(a[0]) - getClassSortValue(b[0]))
       .map(([name, studentsCount]) => ({ name, students: studentsCount }));
   }, [students]);
 
@@ -225,6 +227,23 @@ export function Reports({ userName }: ReportsProps) {
   const strugglingStudentsCount = useMemo(() => {
     return students.filter((student) => student.gpa != null && student.gpa < 2)
       .length;
+  }, [students]);
+
+  const advisorCount = useMemo(() => {
+    const advisorSet = new Set<string>();
+
+    students.forEach((student) => {
+      const advisor = (
+        student.advisorName ??
+        student.advisor_name ??
+        ""
+      ).trim();
+      if (advisor) {
+        advisorSet.add(advisor);
+      }
+    });
+
+    return advisorSet.size;
   }, [students]);
 
   const today = new Date().toLocaleDateString("en-US", {
@@ -347,11 +366,11 @@ export function Reports({ userName }: ReportsProps) {
     );
   };
 
-  const handleDownloadLevelChart = () => {
+  const handleDownloadClassChart = () => {
     downloadChartAsPng(
-      levelChartRef,
-      "Students by Level",
-      "reports-students-by-level.png",
+      classChartRef,
+      "Students by Class",
+      "reports-students-by-class.png",
     );
   };
 
@@ -598,11 +617,11 @@ export function Reports({ userName }: ReportsProps) {
       <Card className="group">
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-must-text-primary">
-            Students by Level
+            Students by Class
           </h2>
           <button
             type="button"
-            onClick={handleDownloadLevelChart}
+            onClick={handleDownloadClassChart}
             className="inline-flex items-center gap-2 rounded-lg border border-must-border px-3 py-2 text-sm text-must-text-secondary hover:text-must-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
           >
             <DownloadIcon className="w-4 h-4" />
@@ -610,15 +629,15 @@ export function Reports({ userName }: ReportsProps) {
           </button>
         </CardHeader>
         <CardContent className="h-[300px] relative">
-          <div ref={levelChartRef} className="h-full">
-            {levelBarData.length === 0 ? (
+          <div ref={classChartRef} className="h-full">
+            {classBarData.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-must-text-secondary">
                 No students yet
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={levelBarData}
+                  data={classBarData}
                   margin={{
                     top: 10,
                     right: 10,
@@ -756,4 +775,3 @@ export function Reports({ userName }: ReportsProps) {
     </div>
   );
 }
-

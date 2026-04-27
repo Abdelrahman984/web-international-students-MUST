@@ -1,8 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  BarChart3Icon,
   ArrowUpDownIcon,
-  DownloadIcon,
   SlidersHorizontalIcon,
   MailIcon,
   MessageSquareIcon,
@@ -12,15 +10,6 @@ import {
   Pen,
   Trash2,
 } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -49,10 +38,8 @@ const DEFAULT_FORM_VALUES: StudentInput = {
   fullName: "",
   nationality: "",
   major: "cs",
-  level: "Level 1",
   college: "",
-  teamCode: "",
-  amit: "",
+  termCodeAdmit: "",
   className: "",
   mobile: "",
   email: "",
@@ -60,32 +47,6 @@ const DEFAULT_FORM_VALUES: StudentInput = {
   gpa: null,
   status: "active",
 };
-
-const gpaRanges = [
-  { key: "excellent", label: "Excellent", min: 3.6, max: 4 },
-  { key: "very-good", label: "Very Good", min: 2.7, max: 3.599999 },
-  { key: "good", label: "Good", min: 2, max: 2.699999 },
-  { key: "pass", label: "Pass", min: 0, max: 1.999999 },
-];
-
-function getSvgDataUrl(svg: SVGSVGElement): string {
-  const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
-  const width = svg.clientWidth || Number(svg.getAttribute("width")) || 900;
-  const height = svg.clientHeight || Number(svg.getAttribute("height")) || 320;
-
-  clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  clonedSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  clonedSvg.setAttribute("width", String(width));
-  clonedSvg.setAttribute("height", String(height));
-
-  if (!clonedSvg.getAttribute("viewBox")) {
-    clonedSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  }
-
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(clonedSvg);
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(source)}`;
-}
 
 export function InternationalStudentsData({
   onNavigateToMessages,
@@ -102,7 +63,6 @@ export function InternationalStudentsData({
   const [studentToDelete, setStudentToDelete] = useState<StudentRecord | null>(
     null,
   );
-  const [selectedLevel, setSelectedLevel] = useState("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [formValues, setFormValues] =
@@ -116,7 +76,6 @@ export function InternationalStudentsData({
   const [statusSavingStudentId, setStatusSavingStudentId] = useState<
     string | null
   >(null);
-  const chartRef = useRef<HTMLDivElement | null>(null);
 
   // Filters state
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -146,8 +105,6 @@ export function InternationalStudentsData({
     useState<string>(filterGpaMax);
   const [tempSelectedMajor, setTempSelectedMajor] =
     useState<string>(selectedMajor);
-  const [tempSelectedLevel, setTempSelectedLevel] =
-    useState<string>(selectedLevel);
 
   const nationalityOptions = useMemo(() => {
     const set = new Set<string>();
@@ -175,15 +132,6 @@ export function InternationalStudentsData({
     );
   }, [students]);
 
-  const levelOptions = useMemo(() => {
-    const levels = new Set<string>();
-    students.forEach((student) => {
-      levels.add(student.level);
-    });
-
-    return Array.from(levels).sort();
-  }, [students]);
-
   const filteredStudents = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -197,8 +145,6 @@ export function InternationalStudentsData({
 
       const matchesMajor =
         selectedMajor === "all" || student.major === selectedMajor;
-      const matchesLevel =
-        selectedLevel === "all" || student.level === selectedLevel;
 
       // Filters
       const matchesNationality =
@@ -241,7 +187,6 @@ export function InternationalStudentsData({
       return (
         matchesSearch &&
         matchesMajor &&
-        matchesLevel &&
         matchesNationality &&
         matchesAdvisor &&
         matchesStatus &&
@@ -276,7 +221,6 @@ export function InternationalStudentsData({
   }, [
     searchTerm,
     selectedMajor,
-    selectedLevel,
     sortBy,
     sortDirection,
     students,
@@ -289,18 +233,6 @@ export function InternationalStudentsData({
     filterGpaMax,
     hasAge,
   ]);
-
-  const gpaRangeData = useMemo(() => {
-    return gpaRanges.map((range) => ({
-      range: range.label,
-      students: filteredStudents.filter(
-        (student) =>
-          student.gpa != null &&
-          Number(student.gpa) >= range.min &&
-          Number(student.gpa) <= range.max,
-      ).length,
-    }));
-  }, [filteredStudents]);
 
   useEffect(() => {
     loadStudents();
@@ -398,10 +330,8 @@ export function InternationalStudentsData({
       fullName: student.name || "",
       nationality: student.nationality || "",
       major: student.major || "cs",
-      level: student.level || "Level 1",
       college: student.college || "",
-      teamCode: student.teamCode || "",
-      amit: student.termCodeAdmit || "",
+      termCodeAdmit: student.termCodeAdmit || "",
       className: student.className || "",
       mobile: student.mobile || "",
       email: student.email || "",
@@ -430,137 +360,6 @@ export function InternationalStudentsData({
     } finally {
       setStudentToDelete(null);
     }
-  };
-
-  const handleStatusChange = async (studentIdNum: number) => {
-    setFeedbackError(null);
-    setFeedbackSuccess(null);
-    setStatusSavingStudentId(String(studentIdNum));
-
-    const previousStudents = students;
-    setStudents((currentStudents) =>
-      currentStudents.map((student) =>
-        student.id === studentIdNum
-          ? {
-              ...student,
-              status: student.status === "active" ? "discontinued" : "active",
-            }
-          : student,
-      ),
-    );
-
-    try {
-      await updateStudentStatus(studentIdNum);
-      setFeedbackSuccess(`Student status updated.`);
-      await loadStudents();
-    } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to update student status.";
-      setFeedbackError(message);
-      setStudents(previousStudents);
-    } finally {
-      setStatusSavingStudentId(null);
-    }
-  };
-
-  const handleDownloadGpaChart = () => {
-    const svg = chartRef.current?.querySelector("svg");
-
-    if (!svg) {
-      setFeedbackError("Chart is not ready to download yet.");
-      return;
-    }
-
-    const image = new Image();
-    const url = getSvgDataUrl(svg);
-
-    image.onload = () => {
-      const chartWidth = svg.clientWidth || 900;
-      const chartHeight = svg.clientHeight || 320;
-      const padding = 32;
-      const headerHeight = 72;
-      const canvas = document.createElement("canvas");
-      const scale = 2;
-
-      canvas.width = (chartWidth + padding * 2) * scale;
-      canvas.height = (chartHeight + padding * 2 + headerHeight) * scale;
-
-      const context = canvas.getContext("2d");
-      if (!context) {
-        setFeedbackError("Failed to prepare chart download.");
-        return;
-      }
-
-      context.scale(scale, scale);
-
-      const cardWidth = chartWidth + padding * 2;
-      const cardHeight = chartHeight + padding * 2 + headerHeight;
-      const radius = 24;
-
-      context.fillStyle = "#eef6f0";
-      context.fillRect(0, 0, cardWidth, cardHeight);
-
-      context.fillStyle = "#ffffff";
-      context.beginPath();
-      context.moveTo(radius, 0);
-      context.lineTo(cardWidth - radius, 0);
-      context.quadraticCurveTo(cardWidth, 0, cardWidth, radius);
-      context.lineTo(cardWidth, cardHeight - radius);
-      context.quadraticCurveTo(
-        cardWidth,
-        cardHeight,
-        cardWidth - radius,
-        cardHeight,
-      );
-      context.lineTo(radius, cardHeight);
-      context.quadraticCurveTo(0, cardHeight, 0, cardHeight - radius);
-      context.lineTo(0, radius);
-      context.quadraticCurveTo(0, 0, radius, 0);
-      context.closePath();
-      context.fill();
-
-      context.strokeStyle = "#d7e7db";
-      context.lineWidth = 1;
-      context.stroke();
-
-      context.fillStyle = "#16301e";
-      context.font = "700 24px Arial";
-      context.fillText("Students by CGPA Classification", padding, 38);
-
-      context.fillStyle = "#5f7164";
-      context.font = "400 14px Arial";
-      context.fillText(
-        `Filtered students: ${filteredStudents.length}`,
-        padding,
-        62,
-      );
-
-      context.drawImage(image, padding, headerHeight, chartWidth, chartHeight);
-
-      canvas.toBlob((pngBlob) => {
-        if (!pngBlob) {
-          setFeedbackError("Failed to generate chart image.");
-          return;
-        }
-
-        const pngUrl = URL.createObjectURL(pngBlob);
-        const link = document.createElement("a");
-        link.href = pngUrl;
-        link.download = "students-gpa-range-chart.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(pngUrl);
-      }, "image/png");
-    };
-
-    image.onerror = () => {
-      setFeedbackError("Failed to generate chart image.");
-    };
-
-    image.src = url;
   };
 
   const formatGpa = (gpa: unknown): string => {
@@ -703,31 +502,12 @@ export function InternationalStudentsData({
               </div>
 
               <Input
-                label="Team Code"
-                value={formValues.teamCode ?? ""}
+                label="Term Code Admit"
+                value={formValues.termCodeAdmit ?? ""}
                 onChange={(event) =>
-                  handleFormFieldChange("teamCode", event.target.value)
-                }
-                placeholder="e.g. A1"
-              />
-
-              <Input
-                label="Amit"
-                value={formValues.amit ?? ""}
-                onChange={(event) =>
-                  handleFormFieldChange("amit", event.target.value)
+                  handleFormFieldChange("termCodeAdmit", event.target.value)
                 }
                 placeholder="e.g. 2024FA"
-              />
-
-              <Input
-                label="Level"
-                value={formValues.level}
-                onChange={(event) =>
-                  handleFormFieldChange("level", event.target.value)
-                }
-                placeholder="e.g. Level 3"
-                required
               />
 
               <Input
@@ -829,7 +609,7 @@ export function InternationalStudentsData({
           <strong className="text-must-text-primary">Full replace:</strong>{" "}
           uploading applies the spreadsheet as the only source of truth—every
           previous row is removed first. Supported columns: `id`, `name`,
-          `college`, `major`, `team code`, `amit`, `gpa`, `class`, `mobile`,
+          `college`, `major`, `term code admit`, `gpa`, `class`, `mobile`,
           `email`, `advisor name`, `nationality`, `status`.
         </div>
         <div className="flex flex-col md:flex-row gap-4">
@@ -855,7 +635,6 @@ export function InternationalStudentsData({
                 setTempFilterGpaMin(filterGpaMin);
                 setTempFilterGpaMax(filterGpaMax);
                 setTempSelectedMajor(selectedMajor);
-                setTempSelectedLevel(selectedLevel);
                 setFiltersOpen(true);
               }}
             >
@@ -927,24 +706,6 @@ export function InternationalStudentsData({
                   {studentMajors.map((major) => (
                     <option key={major} value={major}>
                       {major.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-must-text-primary mb-1">
-                  Level
-                </label>
-                <select
-                  value={tempSelectedLevel}
-                  onChange={(e) => setTempSelectedLevel(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
-                >
-                  <option value="all">All</option>
-                  {levelOptions.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
                     </option>
                   ))}
                 </select>
@@ -1078,7 +839,6 @@ export function InternationalStudentsData({
                   setTempFilterGpaMin("");
                   setTempFilterGpaMax("4");
                   setTempSelectedMajor("all");
-                  setTempSelectedLevel("all");
                   setFilterNationality("all");
                   setFilterAdvisor("all");
                   setFilterStatus("all");
@@ -1087,7 +847,6 @@ export function InternationalStudentsData({
                   setFilterGpaMin("");
                   setFilterGpaMax("4");
                   setSelectedMajor("all");
-                  setSelectedLevel("all");
                   setFiltersOpen(false);
                 }}
               >
@@ -1106,7 +865,6 @@ export function InternationalStudentsData({
                   setFilterGpaMin(tempFilterGpaMin);
                   setFilterGpaMax(tempFilterGpaMax);
                   setSelectedMajor(tempSelectedMajor);
-                  setSelectedLevel(tempSelectedLevel);
                   setFiltersOpen(false);
                 }}
               >
@@ -1116,63 +874,6 @@ export function InternationalStudentsData({
           </div>
         </div>
       )}
-
-      <Card className="p-4 group">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <BarChart3Icon className="w-5 h-5 text-must-green" />
-            <h2 className="text-lg font-semibold text-must-text-primary">
-              Students by CGPA Classification
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={handleDownloadGpaChart}
-            className="inline-flex items-center gap-2 rounded-lg border border-must-border px-3 py-2 text-sm text-must-text-secondary hover:text-must-text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <DownloadIcon className="w-4 h-4" />
-            Download
-          </button>
-        </div>
-        <div ref={chartRef} className="h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={gpaRangeData}
-              margin={{ top: 12, right: 12, left: 0, bottom: 12 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--must-border)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="range"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: "var(--must-text-secondary)" }}
-              />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: "var(--must-text-secondary)" }}
-              />
-              <Tooltip
-                cursor={{ fill: "rgba(27, 138, 61, 0.08)" }}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid var(--must-border)",
-                }}
-              />
-              <Bar
-                dataKey="students"
-                fill="var(--must-green)"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
@@ -1208,9 +909,6 @@ export function InternationalStudentsData({
                 </th>
                 <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
                   Nationality
-                </th>
-                <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
-                  Level
                 </th>
                 <th className="px-6 py-4 text-sm font-semibold text-must-text-secondary">
                   GPA
@@ -1282,37 +980,9 @@ export function InternationalStudentsData({
                         : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-must-text-secondary">
-                      {student.level && student.level.trim() !== ""
-                        ? student.level
-                        : "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-must-text-secondary">
                       {formatGpa(student.gpa)}
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <select
-                        value={student.status}
-                        disabled={statusSavingStudentId === String(student.id)}
-                        onChange={(event) => {
-                          if (event.target.value !== student.status) {
-                            void handleStatusChange(student.id);
-                          }
-                        }}
-                        className={`min-w-[140px] rounded-full border px-3 py-1.5 text-xs font-medium outline-none transition-colors ${
-                          student.status === "discontinued"
-                            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
-                            : "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/30 dark:text-green-300"
-                        } ${statusSavingStudentId === String(student.id) ? "opacity-70" : ""}`}
-                      >
-                        {studentStatuses.map((status) => (
-                          <option key={status} value={status}>
-                            {status === "discontinued"
-                              ? "Discontinued"
-                              : "Active"}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+                    <td className="px-6 py-4 text-sm">{student.status}</td>
                     <td className="px-6 py-4 text-sm text-right space-x-2">
                       <button
                         className="p-1.5 text-slate-400 hover:text-must-green transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
