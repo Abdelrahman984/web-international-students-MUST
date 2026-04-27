@@ -427,7 +427,7 @@ export function HeroSlider() {
             type="button"
             onClick={goToNextSlide}
             aria-label="Next slide"
-            className="absolute z-[5000] right-8 md:right-10 lg:right-20 top-1/2 -translate-y-1/2 h-9 w-9 md:h-10 md:w-10 rounded-full border border-white/35 bg-black/25 text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-black/45 hover:border-white/70"
+            className="absolute z-[1000] right-8 md:right-10 lg:right-20 top-1/2 -translate-y-1/2 h-9 w-9 md:h-10 md:w-10 rounded-full border border-white/35 bg-black/25 text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-black/45 hover:border-white/70"
           >
             <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
           </button>
