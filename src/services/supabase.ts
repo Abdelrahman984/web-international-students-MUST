@@ -575,11 +575,17 @@ export const supabase = {
             ? {
                 ...tokenUser,
                 id: responseUserId || tokenUser.id,
+                user_metadata: { 
+                  ...(tokenUser.user_metadata || {}), 
+                  ...(data?.profileMetadata ? { profileMetadata: data.profileMetadata } : {}) 
+                }
               }
             : {
                 id: responseUserId || input.email,
                 email: input.email,
-                user_metadata: {},
+                user_metadata: { 
+                  ...(data?.profileMetadata ? { profileMetadata: data.profileMetadata } : {}) 
+                },
               });
 
         persistSession(token, user);

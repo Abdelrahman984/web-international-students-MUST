@@ -41,3 +41,7 @@ export async function searchUsers(query: string, requesterId?: string): Promise<
   const res = await apiClient.get<ChatUserResult[]>(`${BASE}/search`, { params });
   return res.data;
 }
+
+export async function deleteConversation(conversationId: number): Promise<void> {
+  await apiClient.delete(`${BASE}/${conversationId}`);
+}

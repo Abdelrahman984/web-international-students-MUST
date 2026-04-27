@@ -1,12 +1,12 @@
 import { MessageCircle } from 'lucide-react';
-import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 
 export function FloatingSocialBar() {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { toggleChat, unreadCount } = useChat();
+  const { unreadCount } = useChat();
 
   // Social links to match Angular reference global-social-sidebar
   const socialLinks = [
@@ -52,9 +52,8 @@ export function FloatingSocialBar() {
 
           {/* Chat Button aligned with icons above */}
           <button
-            ref={buttonRef}
             type="button"
-            onClick={() => toggleChat(buttonRef.current)}
+            onClick={() => navigate('/chat')}
             className="relative w-10 h-10 md:w-12 md:h-12 rounded-full border border-gray-200 flex items-center justify-center bg-[#1f3769] text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 ease-in-out"
             aria-label="Open chat"
           >

@@ -45,6 +45,68 @@ export function Profile() {
           )}
         </div>
 
+        {user?.profileMetadata && (
+          <div className="mt-8 border-t border-gray-200 dark:border-slate-700 pt-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Academic Profile</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              {user.profileMetadata.studentId && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Student ID</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.studentId}</p>
+                </div>
+              )}
+              {user.profileMetadata.college && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">College</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.college}</p>
+                </div>
+              )}
+              {user.profileMetadata.major && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Major</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.major}</p>
+                </div>
+              )}
+              {user.profileMetadata.gpa && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">GPA</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.gpa}</p>
+                </div>
+              )}
+              {user.profileMetadata.advisorName && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Advisor</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.advisorName}</p>
+                </div>
+              )}
+              {user.profileMetadata.nationality && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Nationality</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.nationality}</p>
+                </div>
+              )}
+              {user.profileMetadata.className && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Class</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.className}</p>
+                </div>
+              )}
+              {user.profileMetadata.status && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Status</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.status}</p>
+                </div>
+              )}
+              {user.profileMetadata.termCodeAdmit && (
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400">Admit Term Code</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.profileMetadata.termCodeAdmit}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6">
           <Link to="/settings" className="inline-flex items-center px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white">
             Go to Settings

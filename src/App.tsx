@@ -5,7 +5,6 @@ import { MustHeader } from "./components/MustHeader/MustHeader";
 import { Footer } from "./components/Footer";
 import { HeroSlider } from "./components/HeroSlider";
 import { FloatingSocialBar } from "./components/FloatingSocialBar";
-import { ChatPanel } from "./components/Chat/ChatPanel";
 
 // Pages
 import { Academics } from "./pages/Accademics/Academics";
@@ -184,7 +183,6 @@ function AppContent() {
       <Footer darkMode={darkMode} />
       <FloatingSocialBar />
       {/* <VisitorChat /> */}
-      <ChatPanel />
     </div>
   );
 }
