@@ -394,24 +394,6 @@ export function Reports({ userName }: ReportsProps) {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              icon={<FileIcon className="w-4 h-4" />}
-            >
-              Export PDF
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              icon={<DownloadIcon className="w-4 h-4" />}
-            >
-              Export Excel
-            </Button>
-          </div>
           <div className="text-sm font-medium text-must-text-secondary bg-must-surface px-4 py-2 rounded-lg border border-must-border shadow-sm text-center sm:text-right">
             {today}
           </div>

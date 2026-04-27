@@ -4,6 +4,7 @@ import "./MustHeader.scss";
 import { MENU_ITEMS, MenuItem } from "./navigation.data";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../constants/roles";
+import { getMyProfile, type MyProfile } from "../../services/profileApi";
 
 export interface MustHeaderProps {
   darkMode: boolean;
@@ -16,7 +17,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
 }) => {
   const [activeDropdown, setActiveDropdown] = useState<MenuItem | null>(null);
   const [activeLeftItem, setActiveLeftItem] = useState<MenuItem | null>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileActiveItem, setMobileActiveItem] = useState<MenuItem | null>(
@@ -28,15 +31,53 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [profile, setProfile] = useState<MyProfile | null>(null);
   const isAdvisor = user?.role?.type === ROLES.ADMIN;
   const strapiAdminUrl = import.meta.env.VITE_STRAPI_URL
     ? `${import.meta.env.VITE_STRAPI_URL.replace(/\/$/, "")}/admin`
     : "#";
 
+  const userDisplayName =
+    profile?.fullName ||
+    profile?.studentProfile?.fullName ||
+    profile?.userName ||
+    user?.username ||
+    "User";
+
   // Close menus on route change
   useEffect(() => {
     closeMenus();
   }, [location.pathname]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      if (!user) {
+        if (isMounted) {
+          setProfile(null);
+        }
+        return;
+      }
+
+      try {
+        const nextProfile = await getMyProfile();
+        if (isMounted) {
+          setProfile(nextProfile);
+        }
+      } catch {
+        if (isMounted) {
+          setProfile(null);
+        }
+      }
+    };
+
+    void loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   // Desktop hover logic
   const onMouseEnter = (item: MenuItem) => {
@@ -365,7 +406,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   style={{ textDecoration: "none" }}
                 >
                   <i className="fas fa-user"></i>
-                  <span>{user.displayName || user.username}</span>
+                  <span>{userDisplayName}</span>
                 </Link>
                 <button
                   className="btn-auth logout-btn ms-2"
@@ -571,7 +612,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   className="mobile-nav-link"
                   onClick={closeMenus}
                 >
-                  {user.displayName || user.username}
+                  {userDisplayName}
                 </Link>
                 <button
                   className="mobile-nav-link"
