@@ -77,12 +77,24 @@ export default function StudentChatDotnet() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadingConvs, setLoadingConvs] = useState(true);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // ── Auto-scroll whenever messages update ────────────────────────────────
+  // ── Auto-scroll whenever new messages arrive or conversation changes ──
+  const prevMessagesLengthRef = useRef(0);
+  const prevConvIdRef = useRef<number | null>(null);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (activeConvId !== prevConvIdRef.current || messages.length > prevMessagesLengthRef.current) {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }
+    prevMessagesLengthRef.current = messages.length;
+    prevConvIdRef.current = activeConvId;
+  }, [messages, activeConvId]);
 
   // ── Load ALL conversations on mount ────────────────────────
   const loadConversations = async () => {
@@ -466,7 +478,7 @@ export default function StudentChatDotnet() {
         </div>
 
         {/* ── Messages ──────────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin p-6 flex flex-col gap-4 bg-gray-50/30 dark:bg-slate-950/30">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto scrollbar-thin p-6 flex flex-col gap-4 bg-gray-50/30 dark:bg-slate-950/30">
           {!activeConvId && (
             <div className="flex flex-col items-center justify-center h-full text-center px-6">
               <div className="w-24 h-24 bg-green-600/10 rounded-[2.5rem] flex items-center justify-center mb-6 rotate-12">
@@ -534,7 +546,7 @@ export default function StudentChatDotnet() {
               </div>
             );
           })}
-          <div ref={messagesEndRef} />
+
         </div>
 
         {/* ── Message input ─────────────────────────────────────────────── */}
