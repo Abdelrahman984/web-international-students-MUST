@@ -15,7 +15,8 @@ export interface ChatMsg {
 export interface ChatConversation {
   id: number;
   createdAt: string;
-  participants: { id: number; conversationId: number; userId: string }[];
+  participants: { id: number; conversationId: number; userId: string; name?: string; email?: string }[];
+  lastMessage?: ChatMsg | null;
 }
 
 export interface ChatUserResult {

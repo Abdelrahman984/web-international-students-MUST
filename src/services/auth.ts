@@ -26,6 +26,7 @@ export interface StrapiUser {
     url: string;
   } | null;
   role?: StrapiRole;
+  profileMetadata?: any;
 }
 
 interface AuthResponse {
@@ -194,9 +195,10 @@ function buildUser(authUser: AuthUser, profile: ProfileRow | null): StrapiUser {
       : null,
     role: {
       id: roleType,
-      name: roleType,
+      name: roleType === ROLES.VISITOR ? "Visitor" : "Student",
       type: roleType,
     },
+    profileMetadata: metadata.profileMetadata || null,
   };
 }
 
