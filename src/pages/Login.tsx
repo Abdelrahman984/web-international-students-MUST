@@ -82,7 +82,7 @@ export function Login() {
         return;
       }
 
-      navigate("/profile");
+      navigate("/");
     } catch (error) {
       setServerError(error instanceof Error ? error.message : "Login failed.");
     } finally {
