@@ -936,11 +936,26 @@ export async function getMustFacilitiesSections(): Promise<
   return (data || []).map((raw) => {
     const row = unwrapRow(raw) as Record<string, unknown>;
     const thumbnailPath = pickString(row.thumbnail_path, row.thumbnailPath);
-    const galleryPaths = Array.isArray(row.gallery_paths)
-      ? row.gallery_paths
-      : Array.isArray(row.galleryPaths)
-        ? row.galleryPaths
-        : [];
+    let galleryPaths: string[] = [];
+    const rawGalleryPaths = pickString(row.gallery_paths, row.galleryPaths);
+    if (Array.isArray(rawGalleryPaths)) {
+      galleryPaths = rawGalleryPaths.filter(
+        (value): value is string => typeof value === "string",
+      );
+    } else if (typeof rawGalleryPaths === "string" && rawGalleryPaths.trim()) {
+      try {
+        const parsed = JSON.parse(rawGalleryPaths) as unknown;
+        if (Array.isArray(parsed)) {
+          galleryPaths = parsed.filter(
+            (value): value is string => typeof value === "string",
+          );
+        } else {
+          galleryPaths = [];
+        }
+      } catch {
+        galleryPaths = rawGalleryPaths.split(",").filter(Boolean);
+      }
+    }
 
     return {
       id: toId(row.id),
@@ -948,7 +963,7 @@ export async function getMustFacilitiesSections(): Promise<
       contentHtml:
         pickString(row.content_html, row.contentHtml, row.content) || "",
       thumbnailUrl: thumbnailPath ? getCmsMediaUrl(thumbnailPath) : undefined,
-      galleryUrls: galleryPaths
+      gallery_paths: galleryPaths
         .filter(
           (value): value is string =>
             typeof value === "string" && !!value.trim(),

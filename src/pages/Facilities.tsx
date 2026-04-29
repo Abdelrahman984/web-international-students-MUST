@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PdfResourceCard } from "../components/PdfResourceCard";
 import {
   getCurrentInternationalHandbookDocuments,
@@ -20,6 +21,126 @@ const getActiveTab = (tabValue: string | null): FacilitiesTab =>
   tabValue === "internationalHandbook"
     ? "internationalHandbook"
     : "mustFacilities";
+
+function MustFacilitiesGallerySlider({
+  imageUrls,
+  title,
+}: {
+  imageUrls: string[];
+  title: string;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const hasMultipleImages = imageUrls.length > 1;
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [imageUrls.join("|")]);
+
+  const goPrev = () => {
+    setActiveIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const goNext = () => {
+    setActiveIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div
+      className="mt-8"
+      tabIndex={0}
+      aria-label="Facility gallery slider"
+      onKeyDown={(event) => {
+        if (!hasMultipleImages) return;
+        if (event.key === "ArrowLeft") goPrev();
+        if (event.key === "ArrowRight") goNext();
+      }}
+    >
+      <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+        Gallery
+      </h4>
+
+      <div className="mt-4 relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+        <div className="aspect-[16/9] w-full">
+          <img
+            src={imageUrls[activeIndex]}
+            alt={`${title} gallery ${activeIndex + 1}`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        </div>
+
+        {hasMultipleImages ? (
+          <>
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={goPrev}
+              className="absolute left-4 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/85 text-slate-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={goNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/85 text-slate-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        ) : null}
+      </div>
+
+      {hasMultipleImages ? (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {imageUrls.map((_, index) => (
+              <button
+                key={`dot-${index}`}
+                type="button"
+                aria-label={`Go to image ${index + 1}`}
+                onClick={() => setActiveIndex(index)}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  index === activeIndex
+                    ? "bg-emerald-600"
+                    : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {activeIndex + 1} / {imageUrls.length}
+          </p>
+        </div>
+      ) : null}
+
+      {hasMultipleImages ? (
+        <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+          {imageUrls.map((url, index) => (
+            <button
+              key={`thumb-${url}-${index}`}
+              type="button"
+              aria-label={`Select image ${index + 1}`}
+              onClick={() => setActiveIndex(index)}
+              className={`shrink-0 overflow-hidden rounded-xl border transition ${
+                index === activeIndex
+                  ? "border-emerald-500 ring-2 ring-emerald-400/40"
+                  : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
+              }`}
+            >
+              <img
+                src={url}
+                alt={`${title} thumbnail ${index + 1}`}
+                className="h-20 w-28 object-cover"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function Facilities() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,6 +202,7 @@ export function Facilities() {
     nextParams.set("tab", "mustFacilities");
     nextParams.set("section", sectionId);
     setSearchParams(nextParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const closeMustFacilitySection = () => {
@@ -88,6 +210,7 @@ export function Facilities() {
     nextParams.set("tab", "mustFacilities");
     nextParams.delete("section");
     setSearchParams(nextParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -137,28 +260,12 @@ export function Facilities() {
               </p>
             )}
 
-            {selectedSection.gallery_paths.length > 0 && (
-              <div className="mt-8">
-                <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                  Gallery
-                </h4>
-                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {selectedSection.gallery_paths.map((imageUrl, index) => (
-                    <figure
-                      key={`${selectedSection.id}-image-${index}`}
-                      className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800"
-                    >
-                      <img
-                        src={imageUrl}
-                        alt={`${selectedSection.title} gallery ${index + 1}`}
-                        className="h-56 w-full object-fit"
-                        loading="lazy"
-                      />
-                    </figure>
-                  ))}
-                </div>
-              </div>
-            )}
+            {selectedSection.gallery_paths.length > 0 ? (
+              <MustFacilitiesGallerySlider
+                imageUrls={selectedSection.gallery_paths}
+                title={selectedSection.title}
+              />
+            ) : null}
           </section>
         ) : isMustFacilitiesTab ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
