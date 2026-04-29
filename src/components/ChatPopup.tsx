@@ -241,23 +241,23 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   };
 
   // ── Guard: no identity ────────────────────────────────────────────
-  if (!currentUserId) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <MessageSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="font-medium mb-1">Identity not found</p>
-          <p className="text-sm">Please log in again to use the chat system.</p>
-          <button
-            onClick={onClose}
-            className="mt-4 px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 transition-colors"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (!currentUserId) {
+  //   return (
+  //     <div className="flex items-center justify-center h-full">
+  //       <div className="text-center text-gray-500 dark:text-gray-400">
+  //         <MessageSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+  //         <p className="font-medium mb-1">Identity not found</p>
+  //         <p className="text-sm">Please log in again to use the chat system.</p>
+  //         <button
+  //           onClick={onClose}
+  //           className="mt-4 px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 transition-colors"
+  //         >
+  //           Close
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // ── Get the active conversation object for the header ──────────────────
   const activeConv = conversations.find((c) => c.id === activeConvId);
