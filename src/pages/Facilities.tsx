@@ -1,3 +1,4 @@
+// Facilities Page
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -101,10 +102,11 @@ function MustFacilitiesGallerySlider({
                 type="button"
                 aria-label={`Go to image ${index + 1}`}
                 onClick={() => setActiveIndex(index)}
-                className={`h-2.5 w-2.5 rounded-full transition ${index === activeIndex
-                  ? "bg-emerald-600"
-                  : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
-                  }`}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  index === activeIndex
+                    ? "bg-emerald-600"
+                    : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
+                }`}
               />
             ))}
           </div>
@@ -122,10 +124,11 @@ function MustFacilitiesGallerySlider({
               type="button"
               aria-label={`Select image ${index + 1}`}
               onClick={() => setActiveIndex(index)}
-              className={`shrink-0 overflow-hidden rounded-xl border transition ${index === activeIndex
-                ? "border-emerald-500 ring-2 ring-emerald-400/40"
-                : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
-                }`}
+              className={`shrink-0 overflow-hidden rounded-xl border transition ${
+                index === activeIndex
+                  ? "border-emerald-500 ring-2 ring-emerald-400/40"
+                  : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
+              }`}
             >
               <img
                 src={url}
@@ -224,13 +227,15 @@ export function Facilities() {
 
   const paginatedMustFacilities = mustFacilitySections.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
-  const totalMustFacilitiesPages = Math.ceil(mustFacilitySections.length / ITEMS_PER_PAGE);
+  const totalMustFacilitiesPages = Math.ceil(
+    mustFacilitySections.length / ITEMS_PER_PAGE,
+  );
 
   const paginatedResources = resources.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
   const totalResourcesPages = Math.ceil(resources.length / ITEMS_PER_PAGE);
 
@@ -263,7 +268,8 @@ export function Facilities() {
                 onClick={closeMustFacilitySection}
                 className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-6 py-3.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
               >
-                <i className="fa-solid fa-arrow-left text-lg" /> Back to Facilities
+                <i className="fa-solid fa-arrow-left text-lg" /> Back to
+                Facilities
               </button>
             </div>
 
@@ -286,39 +292,45 @@ export function Facilities() {
               )}
             </div>
 
-            {selectedSection.gallery_paths && selectedSection.gallery_paths.length > 0 && (
-              <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
-                <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
-                  Gallery
-                </h4>
+            {selectedSection.gallery_paths &&
+              selectedSection.gallery_paths.length > 0 && (
+                <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
+                  <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
+                    Gallery
+                  </h4>
 
-                {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
-                <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {selectedSection.gallery_paths.map((url, i) => (
-                    <div
-                      key={i}
-                      className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
-                    >
-                      <div className="aspect-[16/10] w-full overflow-hidden">
-                        <img
-                          src={url}
-                          alt={`${selectedSection.title} gallery ${i + 1}`}
-                          className="h-full w-full object-cover pointer-events-none"
-                          loading="lazy"
-                        />
+                  {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
+                  <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {selectedSection.gallery_paths.map((url, i) => (
+                      <div
+                        key={i}
+                        className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
+                      >
+                        <div className="aspect-[16/10] w-full overflow-hidden">
+                          <img
+                            src={url}
+                            alt={`${selectedSection.title} gallery ${i + 1}`}
+                            className="h-full w-full object-cover pointer-events-none"
+                            loading="lazy"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </section>
         ) : isMustFacilitiesTab ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {paginatedMustFacilities.map((section) => {
-                const plainText = section.contentHtml ? section.contentHtml.replace(/<[^>]+>/g, '').trim() : '';
-                const excerpt = plainText.length > 80 ? plainText.substring(0, 80) + '...' : plainText;
+                const plainText = section.contentHtml
+                  ? section.contentHtml.replace(/<[^>]+>/g, "").trim()
+                  : "";
+                const excerpt =
+                  plainText.length > 80
+                    ? plainText.substring(0, 80) + "..."
+                    : plainText;
 
                 return (
                   <article
@@ -345,7 +357,6 @@ export function Facilities() {
 
                     {/* Content Container */}
                     <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
-
                       {/* Icon that appears on hover (if we wanted to hardcode an icon, but we don't have it in DB, so we'll just show the title) */}
 
                       <div className="flex w-full flex-col items-center transform translate-y-[80px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:-translate-y-8">
