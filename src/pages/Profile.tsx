@@ -299,7 +299,13 @@ function ChangePasswordForm() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Failed to change password." });
+      const msg = err.message || String(err);
+      let friendlyMsg = msg;
+      if (msg.includes("401")) friendlyMsg = "Incorrect current password. Please try again.";
+      if (msg.includes("400")) friendlyMsg = "Failed to update password. Ensure your new password meets the requirements.";
+      if (msg.includes("404")) friendlyMsg = "The password service is currently unavailable.";
+      
+      setMessage({ type: "error", text: friendlyMsg });
     } finally {
       setIsSubmitting(false);
     }

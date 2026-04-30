@@ -253,6 +253,7 @@ export function Login() {
         <ForgotPasswordModal
           onClose={() => setIsForgotPassword(false)}
           emailSuffix={EMAIL_SUFFIX}
+          portalTab={portalTab}
         />
       )}
       <ScrollToHash />
@@ -301,7 +302,15 @@ function ScrollToHash() {
   return null;
 }
 
-function ForgotPasswordModal({ onClose, emailSuffix }: { onClose: () => void; emailSuffix: string }) {
+function ForgotPasswordModal({
+  onClose,
+  emailSuffix,
+  portalTab,
+}: {
+  onClose: () => void;
+  emailSuffix: string;
+  portalTab: LoginPortalTab;
+}) {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -311,25 +320,43 @@ function ForgotPasswordModal({ onClose, emailSuffix }: { onClose: () => void; em
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const isVisitor = portalTab === "visitor";
+
+  const toFriendlyError = (err: any) => {
+    const msg = err.message || String(err);
+    if (msg.includes("404"))
+      return "The reset service is currently unavailable. Please contact support.";
+    if (msg.includes("400"))
+      return "There was a problem with the reset request. Please check your details.";
+    if (msg.toLowerCase().includes("user not found"))
+      return "No account found with this email address.";
+    if (msg.toLowerCase().includes("invalid otp"))
+      return "The verification code is incorrect or has expired.";
+    return msg;
+  };
+
+  const getFullEmail = () => {
+    if (isVisitor) return email;
+    return email.includes("@") ? email : `${email}${emailSuffix}`;
+  };
+
   const handleRequestOtp = async () => {
     if (!email) {
-      setError("Email is required.");
+      setError("Please enter your email address.");
       return;
     }
     setError(null);
     setIsSubmitting(true);
     try {
-      const fullEmail = email.includes("@") ? email : `${email}${emailSuffix}`;
-      await authNetService.requestOtp(fullEmail);
-      setSuccess("OTP sent to your email!");
+      await authNetService.requestOtp(getFullEmail());
+      setSuccess("Verification code sent! Check your inbox.");
       setStep(2);
     } catch (err: any) {
-      // If request-otp doesn't exist, we might just proceed to step 2 and let user try
       if (err.message?.includes("404")) {
-         setStep(2);
-         setSuccess("Please enter the OTP sent to your email.");
+        setStep(2);
+        setSuccess("Please enter the verification code sent to your email.");
       } else {
-        setError(err.message || "Failed to send OTP.");
+        setError(toFriendlyError(err));
       }
     } finally {
       setIsSubmitting(false);
@@ -339,20 +366,28 @@ function ForgotPasswordModal({ onClose, emailSuffix }: { onClose: () => void; em
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("The passwords you entered do not match.");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const fullEmail = email.includes("@") ? email : `${email}${emailSuffix}`;
-      await authNetService.forgotPassword({ email: fullEmail, otp, newPassword });
-      setSuccess("Password reset successfully! You can now login.");
+      await authNetService.forgotPassword({
+        email: getFullEmail(),
+        otp,
+        newPassword,
+      });
+      setSuccess("Password reset successfully! You can now sign in.");
       setTimeout(() => onClose(), 2000);
     } catch (err: any) {
-      setError(err.message || "Failed to reset password.");
+      setError(toFriendlyError(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -373,16 +408,18 @@ function ForgotPasswordModal({ onClose, emailSuffix }: { onClose: () => void; em
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">University Email</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              {isVisitor ? "Your Email" : "University Email"}
+            </label>
             <div className="flex items-center">
               <input
                 disabled={step === 2}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={`${authGlassInputClassName} flex-1`}
-                placeholder="Student ID"
+                placeholder={isVisitor ? "e.g. user@gmail.com" : "Student ID"}
               />
-              {!email.includes("@") && (
+              {!isVisitor && !email.includes("@") && (
                 <span className="rounded-r border border-stone-200/90 bg-white/85 px-3 py-2.5 text-sm text-stone-900 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white">
                   {emailSuffix}
                 </span>
