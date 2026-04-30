@@ -291,40 +291,63 @@ export function Facilities() {
         ) : isMustFacilitiesTab ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {paginatedMustFacilities.map((section) => (
-                <article
-                  key={section.id}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
-                >
-                  <div className="aspect-[16/10] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+              {paginatedMustFacilities.map((section) => {
+                const plainText = section.contentHtml ? section.contentHtml.replace(/<[^>]+>/g, '').trim() : '';
+                const excerpt = plainText.length > 80 ? plainText.substring(0, 80) + '...' : plainText;
+
+                return (
+                  <article
+                    key={section.id}
+                    className="group relative h-[350px] w-full overflow-hidden rounded-[16px] shadow-lg cursor-pointer"
+                    onClick={() => openMustFacilitySection(section.id)}
+                  >
+                    {/* Background Image */}
                     {section.thumbnailUrl ? (
                       <img
                         src={section.thumbnailUrl}
                         alt={section.title}
-                        className="h-full w-full object-cover"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:scale-110"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                        No thumbnail available
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-500">
+                        <i className="fa-solid fa-building text-4xl" />
                       </div>
                     )}
-                  </div>
 
-                  <div className="space-y-4 p-5">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                      {section.title}
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => openMustFacilitySection(section.id)}
-                      className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-                    >
-                      Read more
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-colors duration-500 group-hover:from-[#11203d]/95 group-hover:via-[#162a52]/90 group-hover:to-[#162a52]/80" />
+
+                    {/* Content Container */}
+                    <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
+                      
+                      {/* Icon that appears on hover (if we wanted to hardcode an icon, but we don't have it in DB, so we'll just show the title) */}
+                      
+                      <div className="flex w-full flex-col items-center transform translate-y-[80px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:-translate-y-8">
+                        <h3 className="text-center text-2xl font-black uppercase tracking-wider text-white drop-shadow-md transition-transform duration-500">
+                          {section.title}
+                        </h3>
+
+                        {/* Excerpt container (height expands on hover) */}
+                        <div className="mt-4 grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:grid-rows-[1fr] w-full">
+                          <div className="overflow-hidden">
+                            <p className="text-center text-base font-medium leading-relaxed text-slate-100 opacity-0 transition-opacity duration-300 delay-100 group-hover:opacity-100 px-2">
+                              {excerpt}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="mt-6 text-xl font-bold text-emerald-500 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:text-emerald-400 drop-shadow-md"
+                        >
+                          See More
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             <Pagination
