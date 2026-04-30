@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NewStudyPlanResources from "../../../components/NewStudyPlanResources";
 import { undergradStudyPlanConfig } from "../../../components/newStudyPlanResourcesMockData";
-import { getFileUrl, getStudyPlansRow } from "../../../services/cmsApi";
+import { getManyFileLinks, getStudyPlansRow } from "../../../services/cmsApi";
+
+const mapPlanFiles = (files: unknown, idPrefix: string, titlePrefix: string) =>
+  getManyFileLinks(files, idPrefix)
+    .filter((resource) => resource.url !== "#")
+    .map((resource, index, list) => ({
+      ...resource,
+      title: list.length > 1 ? `${titlePrefix} ${index + 1}` : titlePrefix,
+    }));
 
 export default function Undergraduate() {
   const [config, setConfig] = useState<any>(undergradStudyPlanConfig);
@@ -20,70 +28,61 @@ export default function Undergraduate() {
             cs: {
               label: "Computer Science",
               resourcesByCurriculum: {
-                old: attrs.undergrad_cs_old_curriculum
-                  ? [
-                      {
-                        id: "ug-cs-old",
-                        title: "CS - Old",
-                        url: getFileUrl(attrs.undergrad_cs_old_curriculum),
-                      },
-                    ]
-                  : [],
-                new: attrs.undergrad_cs_new_curriculum
-                  ? [
-                      {
-                        id: "ug-cs-new",
-                        title: "CS - New",
-                        url: getFileUrl(attrs.undergrad_cs_new_curriculum),
-                      },
-                    ]
-                  : [],
+                old: mapPlanFiles(
+                  attrs.undergrad_cs_old_curriculum,
+                  "ug-cs-old",
+                  "CS - Old",
+                ),
+                new: mapPlanFiles(
+                  attrs.undergrad_cs_new_curriculum,
+                  "ug-cs-new",
+                  "CS - New",
+                ),
+              },
+            },
+            general: {
+              label: "General",
+              resourcesByCurriculum: {
+                old: mapPlanFiles(
+                  attrs.undergrad_general_old_curriculum,
+                  "ug-general-old",
+                  "General - Old",
+                ),
+                new: mapPlanFiles(
+                  attrs.undergrad_general_new_curriculum,
+                  "ug-general-new",
+                  "General - New",
+                ),
               },
             },
             is: {
               label: "Information System",
               resourcesByCurriculum: {
-                old: attrs.undergrad_is_old_curriculum
-                  ? [
-                      {
-                        id: "ug-is-old",
-                        title: "IS - Old",
-                        url: getFileUrl(attrs.undergrad_is_old_curriculum),
-                      },
-                    ]
-                  : [],
-                new: attrs.undergrad_is_new_curriculum
-                  ? [
-                      {
-                        id: "ug-is-new",
-                        title: "IS - New",
-                        url: getFileUrl(attrs.undergrad_is_new_curriculum),
-                      },
-                    ]
-                  : [],
+                old: mapPlanFiles(
+                  attrs.undergrad_is_old_curriculum,
+                  "ug-is-old",
+                  "IS - Old",
+                ),
+                new: mapPlanFiles(
+                  attrs.undergrad_is_new_curriculum,
+                  "ug-is-new",
+                  "IS - New",
+                ),
               },
             },
             ai: {
               label: "Artificial Intelligence",
               resourcesByCurriculum: {
-                old: attrs.undergrad_ai_old_curriculum
-                  ? [
-                      {
-                        id: "ug-ai-old",
-                        title: "AI - Old",
-                        url: getFileUrl(attrs.undergrad_ai_old_curriculum),
-                      },
-                    ]
-                  : [],
-                new: attrs.undergrad_ai_new_curriculum
-                  ? [
-                      {
-                        id: "ug-ai-new",
-                        title: "AI - New",
-                        url: getFileUrl(attrs.undergrad_ai_new_curriculum),
-                      },
-                    ]
-                  : [],
+                old: mapPlanFiles(
+                  attrs.undergrad_ai_old_curriculum,
+                  "ug-ai-old",
+                  "AI - Old",
+                ),
+                new: mapPlanFiles(
+                  attrs.undergrad_ai_new_curriculum,
+                  "ug-ai-new",
+                  "AI - New",
+                ),
               },
             },
           },

@@ -14,12 +14,14 @@ interface NewStudyPlanResourcesProps {
 }
 
 const trackOrder: StudyTrackKey[] = ['msc', 'phd', 'professional'];
-const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['cs', 'is', 'ai'];
+const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['cs', 'general', 'is', 'ai'];
 const curriculumOrder: CurriculumKey[] = ['old', 'new'];
+const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ['CS', 'IS', 'AI'];
 
 const studyTrackSpecialtyLabels: Record<StudyTrackSpecialty, string> = {
   CS: 'Computer Science',
   IS: 'Information Systems',
+  AI: 'Artificial Intelligence',
 };
 
 function getTrackTitleLabel(trackKey: StudyTrackKey, fallbackLabel: string): string {
@@ -195,7 +197,7 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
             })}
 
           {activeTrack && currentTrack?.type === 'research' && !activeSpecialty &&
-            (['CS', 'IS'] as StudyTrackSpecialty[]).map((specialty) => {
+            studyTrackSpecialtyOrder.map((specialty) => {
               const isActive = activeSpecialty === specialty;
               const specialtyLabel = studyTrackSpecialtyLabels[specialty];
 

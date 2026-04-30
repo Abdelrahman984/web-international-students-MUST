@@ -3,10 +3,27 @@ import { Link } from "react-router-dom";
 import NewStudyPlanResources from "../../../components/NewStudyPlanResources";
 import { postgradStudyPlanConfig } from "../../../components/newStudyPlanResourcesMockData";
 import {
-  getFileUrl,
   getManyFileLinks,
   getStudyPlansRow,
 } from "../../../services/cmsApi";
+
+const mapPlanFiles = (files: unknown, idPrefix: string, titlePrefix: string) =>
+  getManyFileLinks(files, idPrefix)
+    .filter((resource) => resource.url !== "#")
+    .map((resource, index, list) => ({
+      ...resource,
+      title: list.length > 1 ? `${titlePrefix} ${index + 1}` : titlePrefix,
+    }));
+
+const combineCurriculumFiles = (
+  oldFiles: unknown,
+  newFiles: unknown,
+  idPrefix: string,
+  programLabel: string,
+) => [
+  ...mapPlanFiles(oldFiles, `${idPrefix}-old`, `${programLabel} - Old`),
+  ...mapPlanFiles(newFiles, `${idPrefix}-new`, `${programLabel} - New`),
+];
 
 export default function Postgraduate() {
   const [config, setConfig] = useState<any>(postgradStudyPlanConfig);
@@ -25,54 +42,70 @@ export default function Postgraduate() {
               type: "research",
               label: "M. SC",
               resourcesBySpecialty: {
-                CS: attrs.postgrad_cs
-                  ? [
-                      {
-                        id: "pg-msc-cs",
-                        title: "MSc Computer Science",
-                        url: getFileUrl(attrs.postgrad_cs),
-                      },
-                    ]
-                  : [],
-                IS: attrs.postgrad_ai
-                  ? [
-                      {
-                        id: "pg-msc-is",
-                        title: "MSc Artificial Intelligence",
-                        url: getFileUrl(attrs.postgrad_ai),
-                      },
-                    ]
-                  : [],
+                CS: combineCurriculumFiles(
+                  attrs.master_cs_old_curriculum,
+                  attrs.master_cs_new_curriculum,
+                  "pg-msc-cs",
+                  "MSc Computer Science",
+                ),
+                IS: combineCurriculumFiles(
+                  attrs.master_is_old_curriculum,
+                  attrs.master_is_new_curriculum,
+                  "pg-msc-is",
+                  "MSc Information Systems",
+                ),
+                AI: combineCurriculumFiles(
+                  attrs.master_ai_old_curriculum,
+                  attrs.master_ai_new_curriculum,
+                  "pg-msc-ai",
+                  "MSc Artificial Intelligence",
+                ),
               },
             },
             phd: {
               type: "research",
               label: "PH.D",
               resourcesBySpecialty: {
-                CS: attrs.postgrad_cs
-                  ? [
-                      {
-                        id: "pg-phd-cs",
-                        title: "PhD Computer Science",
-                        url: getFileUrl(attrs.postgrad_cs),
-                      },
-                    ]
-                  : [],
-                IS: attrs.postgrad_ai
-                  ? [
-                      {
-                        id: "pg-phd-is",
-                        title: "PhD Artificial Intelligence",
-                        url: getFileUrl(attrs.postgrad_ai),
-                      },
-                    ]
-                  : [],
+                CS: combineCurriculumFiles(
+                  attrs.phd_cs_old_curriculum,
+                  attrs.phd_cs_new_curriculum,
+                  "pg-phd-cs",
+                  "PhD Computer Science",
+                ),
+                IS: combineCurriculumFiles(
+                  attrs.phd_is_old_curriculum,
+                  attrs.phd_is_new_curriculum,
+                  "pg-phd-is",
+                  "PhD Information Systems",
+                ),
+                AI: combineCurriculumFiles(
+                  attrs.phd_ai_old_curriculum,
+                  attrs.phd_ai_new_curriculum,
+                  "pg-phd-ai",
+                  "PhD Artificial Intelligence",
+                ),
               },
             },
             professional: {
               type: "professional",
               label: "Professional Degrees",
-              resources: getManyFileLinks(attrs.professional_diplomas, "prof"),
+              resources: [
+                ...mapPlanFiles(
+                  attrs.diploma_big_data,
+                  "pg-prof-big-data",
+                  "Diploma - Big Data",
+                ),
+                ...mapPlanFiles(
+                  attrs.diploma_applied_ai,
+                  "pg-prof-applied-ai",
+                  "Diploma - Applied AI",
+                ),
+                ...mapPlanFiles(
+                  attrs.diploma_business_intelligence,
+                  "pg-prof-business-intelligence",
+                  "Diploma - Business Intelligence",
+                ),
+              ],
             },
           },
         });
