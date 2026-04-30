@@ -174,37 +174,54 @@ export default function NewsPage() {
               {paginatedNews.map((item) => (
                 <article
                   key={item.id}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
+                  className="group relative h-[400px] w-full overflow-hidden rounded-[16px] shadow-lg cursor-pointer"
+                  onClick={() => openDetail(item.id)}
                 >
-                  <div className="aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-slate-400">
-                        No image
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <span className="mb-3 w-fit rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
-                      News
-                    </span>
-                    <h3 className="mb-3 line-clamp-2 text-xl font-bold text-slate-900 dark:text-white">
-                      {item.title}
-                    </h3>
-                    <p className="mb-6 line-clamp-3 flex-1 text-slate-600 dark:text-slate-300">
-                      {item.description}
-                    </p>
-                    <button
-                      onClick={() => openDetail(item.id)}
-                      className="mt-auto w-fit font-semibold text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
-                    >
-                      Read more &rarr;
-                    </button>
+                  {/* Background Image */}
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-500">
+                      <i className="fa-regular fa-newspaper text-4xl" />
+                    </div>
+                  )}
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-colors duration-500 group-hover:from-[#11203d]/95 group-hover:via-[#162a52]/80 group-hover:to-[#162a52]/40" />
+
+                  {/* Content Container */}
+                  <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
+                    {/* 
+                        translate-y-[40px] hides the button (which is about 40px tall) below the bounds of the card initially,
+                        keeping the title and description perfectly visible at the bottom.
+                        On hover, translate-y-0 slides everything up so the button appears!
+                    */}
+                    <div className="flex w-full flex-col items-center transform translate-y-[44px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:translate-y-0">
+                      
+                      <span className="mb-3 w-fit rounded-full bg-blue-600/90 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur-sm">
+                        News
+                      </span>
+                      
+                      <h3 className="mb-3 text-center text-xl font-bold text-white drop-shadow-md line-clamp-2">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-center text-sm font-medium leading-relaxed text-slate-200 drop-shadow-sm line-clamp-2 w-full">
+                        {item.description}
+                      </p>
+
+                      <button
+                        type="button"
+                        className="mt-4 inline-flex items-center gap-2 text-base font-bold text-emerald-400 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:text-emerald-300 drop-shadow-md"
+                      >
+                        Read more <i className="fa-solid fa-arrow-right text-sm" />
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
