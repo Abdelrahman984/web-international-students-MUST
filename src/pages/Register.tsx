@@ -7,6 +7,7 @@ import {
 } from "../components/AuthCampusLayout";
 import { useAuth } from "../context/AuthContext";
 import { ROLES } from "../constants/roles";
+import { apiRequest } from "../services/api";
 
 type RegistrationRole = "visitor" | "student" | "advisor";
 
@@ -22,8 +23,12 @@ export function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [universityId, setUniversityId] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [otpStatus, setOtpStatus] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canSubmit = useMemo(() => {
@@ -33,7 +38,8 @@ export function Register() {
       !username.trim() ||
       !email.trim() ||
       !password.trim() ||
-      !confirmPassword.trim()
+      !confirmPassword.trim() ||
+      !otp.trim()
     ) {
       return false;
     }
@@ -49,8 +55,41 @@ export function Register() {
     email,
     password,
     confirmPassword,
+    otp,
     universityId,
   ]);
+
+  const getFullEmail = () => {
+    const trimmed = email.trim();
+    if (roleTab === "visitor") {
+      return trimmed;
+    }
+    return trimmed.includes("@") ? trimmed : `${trimmed}${EMAIL_SUFFIX}`;
+  };
+
+  const handleSendOtp = async () => {
+    setOtpError(null);
+    setOtpStatus(null);
+
+    if (!email.trim()) {
+      setOtpError("Please enter your email first.");
+      return;
+    }
+
+    setIsSendingOtp(true);
+    try {
+      await apiRequest("/api/Otp/send", {
+        method: "POST",
+        body: { email: getFullEmail() },
+        auth: false,
+      });
+      setOtpStatus("Verification code sent. Check your inbox.");
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : "Failed to send code.");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -68,13 +107,7 @@ export function Register() {
 
     setIsSubmitting(true);
     try {
-      let finalEmail = email.trim();
-      if (
-        (roleTab === "student" || roleTab === "advisor") &&
-        !finalEmail.includes("@")
-      ) {
-        finalEmail = `${finalEmail}${EMAIL_SUFFIX}`;
-      }
+      const finalEmail = getFullEmail();
 
       const displayNameValue = `${firstName.trim()} ${lastName.trim()}`.trim();
 
@@ -83,12 +116,20 @@ export function Register() {
         email: finalEmail,
         password,
         displayName: displayNameValue,
+        otp: otp.trim(),
         role: roleTab === "visitor" ? ROLES.VISITOR : ROLES.COLLEGE_MEMBER,
         universityId: roleTab !== "visitor" ? universityId.trim() : undefined,
       });
       navigate("/profile");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed.");
+      const message =
+        err instanceof Error ? err.message : "Registration failed.";
+      if (/otp/i.test(message)) {
+        setOtpError(message);
+        setError(null);
+      } else {
+        setError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -185,6 +226,8 @@ export function Register() {
               onChange={(e) => setFirstName(e.target.value)}
               className={authGlassInputClassName}
               placeholder="First name"
+              required
+              minLength={2}
             />
           </div>
           <div>
@@ -196,6 +239,8 @@ export function Register() {
               onChange={(e) => setLastName(e.target.value)}
               className={authGlassInputClassName}
               placeholder="Last name"
+              required
+              minLength={2}
             />
           </div>
         </div>
@@ -208,6 +253,11 @@ export function Register() {
             onChange={(e) => setUsername(e.target.value)}
             className={authGlassInputClassName}
             placeholder="Username"
+            required
+            minLength={3}
+            maxLength={20}
+            pattern="[A-Za-z0-9_]+"
+            title="Use 3-20 letters, numbers, or underscores."
           />
         </div>
         <div>
@@ -222,6 +272,9 @@ export function Register() {
                 className={`${authGlassInputClassName} max-w-[calc(100%-140px)]`}
                 placeholder="Enter email local part"
                 aria-label="Email local part"
+                required
+                pattern="[A-Za-z0-9._%+-]+"
+                title="Enter the email part before @must.edu.eg"
               />
               <span className="rounded-r border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white select-none">
                 {EMAIL_SUFFIX}
@@ -234,8 +287,44 @@ export function Register() {
               type="email"
               className={authGlassInputClassName}
               placeholder="Email"
+              required
             />
           )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+            Verification code
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <input
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className={`${authGlassInputClassName} flex-1 min-w-[160px]`}
+              placeholder="Enter code"
+              inputMode="numeric"
+              aria-label="Verification code"
+              required
+              minLength={4}
+              maxLength={6}
+              pattern="\d{4,6}"
+              title="Enter the 4-6 digit code from your email."
+            />
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={isSendingOtp}
+              className={`${authPrimaryButtonClassName} px-4 py-2.5 text-sm`}
+            >
+              {isSendingOtp ? "Sending..." : "Send code"}
+            </button>
+          </div>
+          {otpStatus && (
+            <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300">
+              {otpStatus}
+            </p>
+          )}
+          {otpError && <p className="mt-2 text-xs text-red-600">{otpError}</p>}
         </div>
 
         {roleTab !== "visitor" && (
@@ -248,6 +337,8 @@ export function Register() {
               onChange={(e) => setUniversityId(e.target.value)}
               className={authGlassInputClassName}
               placeholder="University ID"
+              required
+              minLength={4}
             />
           </div>
         )}
@@ -262,6 +353,8 @@ export function Register() {
             type="password"
             className={authGlassInputClassName}
             placeholder="Password"
+            required
+            minLength={6}
           />
         </div>
         <div>
@@ -274,6 +367,8 @@ export function Register() {
             type="password"
             className={authGlassInputClassName}
             placeholder="Confirm password"
+            required
+            minLength={6}
           />
         </div>
 

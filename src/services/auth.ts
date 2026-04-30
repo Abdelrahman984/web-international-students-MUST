@@ -313,6 +313,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   displayName: string;
+  otp: string;
   role: "visitor" | "college-member";
   universityId?: string;
 }
@@ -386,6 +387,7 @@ export async function register(
         data: {
           username: payload.username,
           displayName: payload.displayName,
+          otp: payload.otp,
           role: payload.role,
           universityId: payload.universityId || null,
         },

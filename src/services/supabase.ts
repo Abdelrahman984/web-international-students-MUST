@@ -575,16 +575,20 @@ export const supabase = {
             ? {
                 ...tokenUser,
                 id: responseUserId || tokenUser.id,
-                user_metadata: { 
-                  ...(tokenUser.user_metadata || {}), 
-                  ...(data?.profileMetadata ? { profileMetadata: data.profileMetadata } : {}) 
-                }
+                user_metadata: {
+                  ...(tokenUser.user_metadata || {}),
+                  ...(data?.profileMetadata
+                    ? { profileMetadata: data.profileMetadata }
+                    : {}),
+                },
               }
             : {
                 id: responseUserId || input.email,
                 email: input.email,
-                user_metadata: { 
-                  ...(data?.profileMetadata ? { profileMetadata: data.profileMetadata } : {}) 
+                user_metadata: {
+                  ...(data?.profileMetadata
+                    ? { profileMetadata: data.profileMetadata }
+                    : {}),
                 },
               });
 
@@ -620,7 +624,17 @@ export const supabase = {
               ? "advisor"
               : roleRaw;
 
-        await apiClient.post(`/api/Auth/register/${role}`, {
+        const otpValue = String(input.options?.data?.otp ?? "");
+        const otpQuery = otpValue ? `?otp=${encodeURIComponent(otpValue)}` : "";
+
+        const { data } = await apiClient.post<{
+          errorMessage?: string | null;
+          token?: string | null;
+          role?: string | null;
+          expiration?: string | null;
+          id?: string | null;
+          profileMetadata?: unknown | null;
+        }>(`/api/Auth/register/${role}${otpQuery}`, {
           email: input.email,
           password: input.password,
           fullName:
@@ -630,6 +644,10 @@ export const supabase = {
                 "",
             ).trim() || null,
         });
+
+        if (data?.errorMessage) {
+          throw new Error(data.errorMessage);
+        }
 
         return {
           data: {
