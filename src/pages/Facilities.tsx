@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PdfResourceCard } from "../components/PdfResourceCard";
+import { Pagination } from "../components/Pagination";
 import {
   getCurrentInternationalHandbookDocuments,
   getMustFacilitiesSections,
@@ -100,11 +101,10 @@ function MustFacilitiesGallerySlider({
                 type="button"
                 aria-label={`Go to image ${index + 1}`}
                 onClick={() => setActiveIndex(index)}
-                className={`h-2.5 w-2.5 rounded-full transition ${
-                  index === activeIndex
+                className={`h-2.5 w-2.5 rounded-full transition ${index === activeIndex
                     ? "bg-emerald-600"
                     : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -122,11 +122,10 @@ function MustFacilitiesGallerySlider({
               type="button"
               aria-label={`Select image ${index + 1}`}
               onClick={() => setActiveIndex(index)}
-              className={`shrink-0 overflow-hidden rounded-xl border transition ${
-                index === activeIndex
+              className={`shrink-0 overflow-hidden rounded-xl border transition ${index === activeIndex
                   ? "border-emerald-500 ring-2 ring-emerald-400/40"
                   : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
-              }`}
+                }`}
             >
               <img
                 src={url}
@@ -213,6 +212,28 @@ export function Facilities() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const ITEMS_PER_PAGE = 9;
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const handlePageChange = (page: number) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("page", page.toString());
+    setSearchParams(nextParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const paginatedMustFacilities = mustFacilitySections.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  const totalMustFacilitiesPages = Math.ceil(mustFacilitySections.length / ITEMS_PER_PAGE);
+
+  const paginatedResources = resources.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  const totalResourcesPages = Math.ceil(resources.length / ITEMS_PER_PAGE);
+
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
@@ -270,7 +291,7 @@ export function Facilities() {
         ) : isMustFacilitiesTab ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {mustFacilitySections.map((section) => (
+              {paginatedMustFacilities.map((section) => (
                 <article
                   key={section.id}
                   className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
@@ -305,11 +326,17 @@ export function Facilities() {
                 </article>
               ))}
             </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalMustFacilitiesPages}
+              onPageChange={handlePageChange}
+            />
           </section>
         ) : (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-              {resources.map((resource) => (
+              {paginatedResources.map((resource) => (
                 <PdfResourceCard
                   key={resource.id}
                   title={resource.title}
@@ -317,6 +344,12 @@ export function Facilities() {
                 />
               ))}
             </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalResourcesPages}
+              onPageChange={handlePageChange}
+            />
           </section>
         )}
       </div>
