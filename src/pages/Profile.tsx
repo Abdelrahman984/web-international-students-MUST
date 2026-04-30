@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyProfile, type MyProfile } from "../services/profileApi";
+import { authNetService } from "../services/authNetService";
 
 export function Profile() {
   const [profile, setProfile] = useState<MyProfile | null>(null);
@@ -170,8 +171,7 @@ export function Profile() {
                 Your core identity and contact details.
               </p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {detailItem("User ID", profile?.id)}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {detailItem("Username", profile?.userName)}
               {detailItem("Email", profile?.email)}
               {detailItem("Phone", profile?.phoneNumber)}
@@ -238,6 +238,18 @@ export function Profile() {
             </section>
           )}
 
+          <section className="rounded-3xl border border-slate-200 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-900/40">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                Security
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Manage your password and account security.
+              </p>
+            </div>
+            <ChangePasswordForm />
+          </section>
+
           {!profile?.studentProfile && !profile?.advisorProfile && (
             <section className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
               No nested profile details were returned for this account.
@@ -255,5 +267,105 @@ export function Profile() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ChangePasswordForm() {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: "error", text: "New passwords do not match." });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setMessage({ type: "error", text: "Password must be at least 6 characters." });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await authNetService.changePassword({ oldPassword, newPassword });
+      setMessage({ type: "success", text: "Password changed successfully." });
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Failed to change password." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+      {message && (
+        <div className={`rounded-xl p-4 text-sm font-medium ${
+          message.type === "success" 
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" 
+            : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400"
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Current Password
+        </label>
+        <input
+          type="password"
+          required
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          New Password
+        </label>
+        <input
+          type="password"
+          required
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Confirm New Password
+        </label>
+        <input
+          type="password"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+      >
+        {isSubmitting ? "Updating..." : "Update Password"}
+      </button>
+    </form>
   );
 }

@@ -7,6 +7,7 @@ import {
 } from "../components/AuthCampusLayout";
 import { ROLES } from "../constants/roles";
 import { useAuth } from "../context/AuthContext";
+import { authNetService } from "../services/authNetService";
 
 type LoginPortalTab = "student" | "visitor" | "advisor";
 
@@ -20,6 +21,7 @@ export function Login() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const EMAIL_SUFFIX = "@must.edu.eg";
 
   const onSubmit = async (e: FormEvent) => {
@@ -235,8 +237,24 @@ export function Login() {
             Register
           </Link>
         </p>
-        <p>Forgot password? Please contact support.</p>
+        <p>
+          Forgot password?{" "}
+          <button
+            type="button"
+            onClick={() => setIsForgotPassword(true)}
+            className="font-medium text-emerald-700 underline-offset-2 hover:text-emerald-800 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+          >
+            Reset it here
+          </button>
+        </p>
       </div>
+
+      {isForgotPassword && (
+        <ForgotPasswordModal
+          onClose={() => setIsForgotPassword(false)}
+          emailSuffix={EMAIL_SUFFIX}
+        />
+      )}
       <ScrollToHash />
     </AuthCampusLayout>
   );
@@ -281,4 +299,165 @@ function ScrollToHash() {
   }, [location.hash, location.pathname]);
 
   return null;
+}
+
+function ForgotPasswordModal({ onClose, emailSuffix }: { onClose: () => void; emailSuffix: string }) {
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState<1 | 2>(1); // 1: Email/OTP, 2: New Password
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleRequestOtp = async () => {
+    if (!email) {
+      setError("Email is required.");
+      return;
+    }
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const fullEmail = email.includes("@") ? email : `${email}${emailSuffix}`;
+      await authNetService.requestOtp(fullEmail);
+      setSuccess("OTP sent to your email!");
+      setStep(2);
+    } catch (err: any) {
+      // If request-otp doesn't exist, we might just proceed to step 2 and let user try
+      if (err.message?.includes("404")) {
+         setStep(2);
+         setSuccess("Please enter the OTP sent to your email.");
+      } else {
+        setError(err.message || "Failed to send OTP.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const fullEmail = email.includes("@") ? email : `${email}${emailSuffix}`;
+      await authNetService.forgotPassword({ email: fullEmail, otp, newPassword });
+      setSuccess("Password reset successfully! You can now login.");
+      setTimeout(() => onClose(), 2000);
+    } catch (err: any) {
+      setError(err.message || "Failed to reset password.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/90 p-8 shadow-2xl backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/90">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Reset Password</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+            <i className="fa-solid fa-xmark text-xl" />
+          </button>
+        </div>
+
+        {error && <p className="mb-4 text-sm text-rose-600 font-medium">{error}</p>}
+        {success && <p className="mb-4 text-sm text-emerald-600 font-medium">{success}</p>}
+
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">University Email</label>
+            <div className="flex items-center">
+              <input
+                disabled={step === 2}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`${authGlassInputClassName} flex-1`}
+                placeholder="Student ID"
+              />
+              {!email.includes("@") && (
+                <span className="rounded-r border border-stone-200/90 bg-white/85 px-3 py-2.5 text-sm text-stone-900 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white">
+                  {emailSuffix}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {step === 2 && (
+            <>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">OTP Code</label>
+                <input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className={authGlassInputClassName}
+                  placeholder="Enter the 6-digit code"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className={authGlassInputClassName}
+                  placeholder="At least 6 characters"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={authGlassInputClassName}
+                  placeholder="Re-type new password"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div className="pt-2">
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={handleRequestOtp}
+                disabled={isSubmitting || !email}
+                className={`${authPrimaryButtonClassName} w-full`}
+              >
+                {isSubmitting ? "Sending..." : "Send Reset Code"}
+              </button>
+            ) : (
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Back
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`${authPrimaryButtonClassName} flex-[2]`}
+                >
+                  {isSubmitting ? "Resetting..." : "Reset Password"}
+                </button>
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
