@@ -12,7 +12,10 @@ interface PdfResource {
 interface ResearchTrackData {
   type: "research";
   label: string;
-  resourcesBySpecialty: Record<StudyTrackSpecialty, PdfResource[]>;
+  resourcesBySpecialty: Record<
+    StudyTrackSpecialty,
+    Record<CurriculumKey, PdfResource[]>
+  >;
 }
 
 interface ProfessionalTrackData {
@@ -125,84 +128,102 @@ export const postgradStudyPlanConfig: StudyPlanResourceConfigUnion = {
       type: "research",
       label: "M. SC",
       resourcesBySpecialty: {
-        CS: [
-          {
-            id: "pg-msc-cs-1",
-            title: "MSc Computer Science Coursework Structure",
-            url: "/accademics/study-plans/pg-msc-cs-coursework.pdf",
-          },
-          {
-            id: "pg-msc-cs-2",
-            title: "MSc Computer Science Thesis Timeline",
-            url: "/accademics/study-plans/pg-msc-cs-thesis-timeline.pdf",
-          },
-        ],
-        IS: [
-          {
-            id: "pg-msc-is-1",
-            title: "MSc IS Coursework Structure",
-            url: "/accademics/study-plans/pg-msc-is-coursework.pdf",
-          },
-          {
-            id: "pg-msc-is-2",
-            title: "MSc Information System Thesis Timeline",
-            url: "/accademics/study-plans/pg-msc-is-thesis-timeline.pdf",
-          },
-        ],
-        AI: [
-          {
-            id: "pg-msc-ai-1",
-            title: "MSc AI Coursework Structure",
-            url: "/accademics/study-plans/pg-msc-ai-coursework.pdf",
-          },
-          {
-            id: "pg-msc-ai-2",
-            title: "MSc AI Thesis Timeline",
-            url: "/accademics/study-plans/pg-msc-ai-thesis-timeline.pdf",
-          },
-        ],
+        CS: {
+          old: [],
+          new: [
+            {
+              id: "pg-msc-cs-new-1",
+              title: "MSc Computer Science Coursework Structure",
+              url: "/accademics/study-plans/pg-msc-cs-coursework.pdf",
+            },
+            {
+              id: "pg-msc-cs-new-2",
+              title: "MSc Computer Science Thesis Timeline",
+              url: "/accademics/study-plans/pg-msc-cs-thesis-timeline.pdf",
+            },
+          ],
+        },
+        IS: {
+          old: [],
+          new: [
+            {
+              id: "pg-msc-is-new-1",
+              title: "MSc IS Coursework Structure",
+              url: "/accademics/study-plans/pg-msc-is-coursework.pdf",
+            },
+            {
+              id: "pg-msc-is-new-2",
+              title: "MSc Information System Thesis Timeline",
+              url: "/accademics/study-plans/pg-msc-is-thesis-timeline.pdf",
+            },
+          ],
+        },
+        AI: {
+          old: [],
+          new: [
+            {
+              id: "pg-msc-ai-new-1",
+              title: "MSc AI Coursework Structure",
+              url: "/accademics/study-plans/pg-msc-ai-coursework.pdf",
+            },
+            {
+              id: "pg-msc-ai-new-2",
+              title: "MSc AI Thesis Timeline",
+              url: "/accademics/study-plans/pg-msc-ai-thesis-timeline.pdf",
+            },
+          ],
+        },
       },
     },
     phd: {
       type: "research",
       label: "PH.D",
       resourcesBySpecialty: {
-        CS: [
-          {
-            id: "pg-phd-cs-1",
-            title: "PhD CS Milestones and Qualifier Plan",
-            url: "/accademics/study-plans/pg-phd-cs-milestones.pdf",
-          },
-          {
-            id: "pg-phd-cs-2",
-            title: "PhD CS Publication Requirements",
-            url: "/accademics/study-plans/pg-phd-cs-publications.pdf",
-          },
-        ],
-        IS: [
-          {
-            id: "pg-phd-is-1",
-            title: "PhD Information System Milestones and Qualifier Plan",
-            url: "/accademics/study-plans/pg-phd-is-milestones.pdf",
-          },
-          {
-            id: "pg-phd-is-2",
-            title: "PhD Information System Publication Requirements",
-            url: "/accademics/study-plans/pg-phd-is-publications.pdf",
-          },
-        ],
-        AI: [
-          {
-            id: "pg-phd-ai-1",
-            title: "PhD AI Milestones and Qualifier Plan",
-            url: "/accademics/study-plans/pg-phd-ai-milestones.pdf",
-          },
-          {
-            id: "pg-phd-ai-2",
-            title: "PhD AI Publication Requirements",
-            url: "/accademics/study-plans/pg-phd-ai-publications.pdf",
-          },
-        ],
+        CS: {
+          old: [],
+          new: [
+            {
+              id: "pg-phd-cs-new-1",
+              title: "PhD CS Milestones and Qualifier Plan",
+              url: "/accademics/study-plans/pg-phd-cs-milestones.pdf",
+            },
+            {
+              id: "pg-phd-cs-new-2",
+              title: "PhD CS Publication Requirements",
+              url: "/accademics/study-plans/pg-phd-cs-publications.pdf",
+            },
+          ],
+        },
+        IS: {
+          old: [],
+          new: [
+            {
+              id: "pg-phd-is-new-1",
+              title: "PhD Information System Milestones and Qualifier Plan",
+              url: "/accademics/study-plans/pg-phd-is-milestones.pdf",
+            },
+            {
+              id: "pg-phd-is-new-2",
+              title: "PhD Information System Publication Requirements",
+              url: "/accademics/study-plans/pg-phd-is-publications.pdf",
+            },
+          ],
+        },
+        AI: {
+          old: [],
+          new: [
+            {
+              id: "pg-phd-ai-new-1",
+              title: "PhD AI Milestones and Qualifier Plan",
+              url: "/accademics/study-plans/pg-phd-ai-milestones.pdf",
+            },
+            {
+              id: "pg-phd-ai-new-2",
+              title: "PhD AI Publication Requirements",
+              url: "/accademics/study-plans/pg-phd-ai-publications.pdf",
+            },
+          ],
+        },
       },
     },
     professional: {

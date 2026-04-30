@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NewStudyPlanResources from "../../../components/NewStudyPlanResources";
 import { postgradStudyPlanConfig } from "../../../components/newStudyPlanResourcesMockData";
-import {
-  getManyFileLinks,
-  getStudyPlansRow,
-} from "../../../services/cmsApi";
+import { getManyFileLinks, getStudyPlansRow } from "../../../services/cmsApi";
 
 const mapPlanFiles = (files: unknown, idPrefix: string, titlePrefix: string) =>
   getManyFileLinks(files, idPrefix)
@@ -20,10 +17,10 @@ const combineCurriculumFiles = (
   newFiles: unknown,
   idPrefix: string,
   programLabel: string,
-) => [
-  ...mapPlanFiles(oldFiles, `${idPrefix}-old`, `${programLabel} - Old`),
-  ...mapPlanFiles(newFiles, `${idPrefix}-new`, `${programLabel} - New`),
-];
+) => ({
+  old: mapPlanFiles(oldFiles, `${idPrefix}-old`, `${programLabel} - Old`),
+  new: mapPlanFiles(newFiles, `${idPrefix}-new`, `${programLabel} - New`),
+});
 
 export default function Postgraduate() {
   const [config, setConfig] = useState<any>(postgradStudyPlanConfig);

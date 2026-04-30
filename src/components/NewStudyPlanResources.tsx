@@ -86,8 +86,8 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
       return [];
     }
 
-    if (currentTrack.type === 'research' && activeSpecialty) {
-      return currentTrack.resourcesBySpecialty[activeSpecialty];
+    if (currentTrack.type === 'research' && activeSpecialty && activeCurriculum) {
+      return currentTrack.resourcesBySpecialty[activeSpecialty][activeCurriculum];
     }
 
     if (currentTrack.type === 'research') {
@@ -124,6 +124,10 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
     if (activeTrack) {
       const parentLabel = getTrackTitleLabel(activeTrack, config.tracks[activeTrack].label);
 
+      if (activeSpecialty && curriculumLabel) {
+        return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]} ${curriculumLabel})`;
+      }
+
       if (activeSpecialty) {
         return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]})`;
       }
@@ -137,7 +141,7 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
   const canGoBack =
     config.mode === 'undergrad-specialties'
       ? Boolean(activeUndergradSpecialty || activeCurriculum)
-      : Boolean(activeTrack || activeSpecialty);
+      : Boolean(activeTrack || activeSpecialty || activeCurriculum);
 
   const handleGoBack = () => {
     if (activeCurriculum) {
@@ -150,6 +154,7 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
     }
     setActiveTrack(null);
     setActiveUndergradSpecialty(null);
+    setActiveCurriculum(null);
   };
 
   const tileButtonBase = 'group flex flex-col items-center justify-center gap-4 rounded-xl border border-slate-100 bg-white p-10 text-center shadow-[0px_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0px_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 dark:border-slate-800 dark:bg-slate-900/50 dark:shadow-[0px_4px_20px_rgba(0,0,0,0.2)] dark:hover:border-slate-700 dark:hover:bg-slate-800 w-full sm:w-[320px]';
@@ -187,6 +192,7 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                   onClick={() => {
                     setActiveTrack(trackKey);
                     setActiveSpecialty(null);
+                    setActiveCurriculum(null);
                   }}
                   className={tileButtonBase}
                 >
@@ -205,7 +211,10 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                 <button
                   key={specialty}
                   type="button"
-                  onClick={() => setActiveSpecialty(specialty)}
+                  onClick={() => {
+                    setActiveSpecialty(specialty);
+                    setActiveCurriculum(null);
+                  }}
                   aria-pressed={isActive}
                   className={`${tileButtonBase} ${
                     isActive
@@ -215,6 +224,29 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                 >
                   <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
                   <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{specialtyLabel}</p>
+                </button>
+              );
+            })}
+
+          {activeTrack && currentTrack?.type === 'research' && activeSpecialty && !activeCurriculum &&
+            curriculumOrder.map((curriculum) => {
+              const isActive = activeCurriculum === curriculum;
+              const label = curriculum === 'old' ? 'Old Curriculum' : 'New Curriculum';
+
+              return (
+                <button
+                  key={curriculum}
+                  type="button"
+                  onClick={() => setActiveCurriculum(curriculum)}
+                  aria-pressed={isActive}
+                  className={`${tileButtonBase} ${
+                    isActive
+                      ? 'ring-2 ring-[#00A152] bg-slate-50 dark:bg-slate-800/80'
+                      : ''
+                  }`}
+                >
+                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
+                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{label}</p>
                 </button>
               );
             })}
