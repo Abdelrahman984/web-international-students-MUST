@@ -133,55 +133,80 @@ export default function EventsPage() {
             No events available at this time.
           </div>
         ) : selectedItem ? (
-          <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <button
-              type="button"
-              onClick={closeDetail}
-              className="mb-6 inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-600 dark:border-slate-600 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-            >
-              Back to Events
-            </button>
-
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-              {selectedItem.title}
-            </h3>
-
-            {selectedItem.imageUrl && (
-              <img
-                src={selectedItem.imageUrl}
-                alt={selectedItem.title}
-                className="mb-8 max-h-[500px] w-full object-cover rounded-xl"
-              />
-            )}
-
-            <div className="mb-6 flex gap-4 border-b border-slate-200 pb-4 dark:border-slate-700">
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <i className="fa-regular fa-calendar text-emerald-600 dark:text-emerald-400" />
-                <span>{selectedItem.day} {selectedItem.month}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <i className="fa-regular fa-clock text-emerald-600 dark:text-emerald-400" />
-                <span>{selectedItem.timeRange}</span>
-              </div>
+          <section className="relative rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/50 animate-in fade-in duration-500 slide-in-from-bottom-4">
+            {/* Sticky Back Button */}
+            <div className="sticky top-28 z-40 mb-10 flex justify-start">
+              <button
+                type="button"
+                onClick={closeDetail}
+                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-6 py-3.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
+              >
+                <i className="fa-solid fa-arrow-left text-lg" /> Back to Events
+              </button>
             </div>
 
-            <div
-              className="prose mt-6 max-w-none text-slate-700 dark:prose-invert dark:text-slate-300"
-              dangerouslySetInnerHTML={{
-                __html: selectedItem.content || selectedItem.description,
-              }}
-            />
+            <div className="mx-auto max-w-4xl">
+              <h3 className="text-center text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
+                {selectedItem.title}
+              </h3>
+
+              <div className="mb-10 flex flex-wrap justify-center gap-6">
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-5 py-2.5 text-lg font-bold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 shadow-sm">
+                  <i className="fa-regular fa-calendar" /> {selectedItem.day} {selectedItem.month}
+                </span>
+                {selectedItem.timeRange && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-5 py-2.5 text-lg font-bold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 shadow-sm">
+                    <i className="fa-regular fa-clock" /> {selectedItem.timeRange}
+                  </span>
+                )}
+              </div>
+
+              {selectedItem.imageUrl && (
+                <img
+                  src={selectedItem.imageUrl}
+                  alt={selectedItem.title}
+                  className="mb-12 max-h-[550px] w-full object-cover rounded-[20px] shadow-lg"
+                />
+              )}
+
+              {selectedItem.content || selectedItem.description ? (
+                <div
+                  className="prose prose-xl mt-8 max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                  dangerouslySetInnerHTML={{
+                    __html: selectedItem.content || selectedItem.description,
+                  }}
+                />
+              ) : (
+                <p className="mt-6 text-center text-xl text-slate-600 dark:text-slate-300">
+                  No additional details available for this event.
+                </p>
+              )}
+            </div>
 
             {selectedItem.imageUrls && selectedItem.imageUrls.length > 1 && (
-              <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
-                {selectedItem.imageUrls.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`${selectedItem.title} ${i + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                ))}
+              <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
+                <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
+                  Gallery
+                </h4>
+                
+                {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
+                <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {selectedItem.imageUrls.map((url, i) => (
+                    <div 
+                      key={i} 
+                      className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
+                    >
+                      <div className="aspect-[16/10] w-full overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`${selectedItem.title} gallery ${i + 1}`}
+                          className="h-full w-full object-cover pointer-events-none"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </section>

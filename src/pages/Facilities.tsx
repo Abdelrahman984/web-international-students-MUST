@@ -255,38 +255,63 @@ export function Facilities() {
             {status}
           </div>
         ) : isMustFacilitiesTab && selectedSection ? (
-          <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <button
-              type="button"
-              onClick={closeMustFacilitySection}
-              className="mb-6 inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-600 dark:border-slate-600 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-            >
-              Back to MUST Facilities
-            </button>
+          <section className="relative rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/50 animate-in fade-in duration-500 slide-in-from-bottom-4">
+            {/* Sticky Back Button */}
+            <div className="sticky top-28 z-40 mb-10 flex justify-start">
+              <button
+                type="button"
+                onClick={closeMustFacilitySection}
+                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-6 py-3.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
+              >
+                <i className="fa-solid fa-arrow-left text-lg" /> Back to Facilities
+              </button>
+            </div>
 
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {selectedSection.title}
-            </h3>
+            <div className="mx-auto max-w-4xl">
+              <h3 className="text-center text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-10 mt-4">
+                {selectedSection.title}
+              </h3>
 
-            {selectedSection.contentHtml ? (
-              <div
-                className="prose mt-6 max-w-none text-slate-700 dark:prose-invert dark:text-slate-300"
-                dangerouslySetInnerHTML={{
-                  __html: renderRichText(selectedSection.contentHtml),
-                }}
-              />
-            ) : (
-              <p className="mt-6 text-slate-600 dark:text-slate-300">
-                No content available for this section.
-              </p>
+              {selectedSection.contentHtml ? (
+                <div
+                  className="prose prose-xl mt-8 max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                  dangerouslySetInnerHTML={{
+                    __html: renderRichText(selectedSection.contentHtml),
+                  }}
+                />
+              ) : (
+                <p className="mt-6 text-center text-xl text-slate-600 dark:text-slate-300">
+                  No content available for this section.
+                </p>
+              )}
+            </div>
+
+            {selectedSection.gallery_paths && selectedSection.gallery_paths.length > 0 && (
+              <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
+                <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
+                  Gallery
+                </h4>
+                
+                {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
+                <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {selectedSection.gallery_paths.map((url, i) => (
+                    <div 
+                      key={i} 
+                      className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
+                    >
+                      <div className="aspect-[16/10] w-full overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`${selectedSection.title} gallery ${i + 1}`}
+                          className="h-full w-full object-cover pointer-events-none"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
-
-            {selectedSection.gallery_paths.length > 0 ? (
-              <MustFacilitiesGallerySlider
-                imageUrls={selectedSection.gallery_paths}
-                title={selectedSection.title}
-              />
-            ) : null}
           </section>
         ) : isMustFacilitiesTab ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
