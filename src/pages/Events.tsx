@@ -188,12 +188,12 @@ export default function EventsPage() {
                 <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
                   Gallery
                 </h4>
-                
+
                 {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
                 <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {selectedItem.imageUrls.map((url, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
                     >
                       <div className="aspect-[16/10] w-full overflow-hidden">
@@ -255,11 +255,11 @@ export default function EventsPage() {
                   <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
                     {/* translate-y-[44px] perfectly hides the "Read more" button below the card bound. */}
                     <div className="flex w-full flex-col items-center transform translate-y-[44px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:translate-y-0">
-                      
+
                       <span className="mb-3 w-fit rounded-full bg-emerald-600/90 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur-sm">
                         Event
                       </span>
-                      
+
                       <h3 className="mb-3 text-center text-xl font-bold text-white drop-shadow-md line-clamp-2">
                         {item.title}
                       </h3>

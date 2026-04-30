@@ -102,8 +102,8 @@ function MustFacilitiesGallerySlider({
                 aria-label={`Go to image ${index + 1}`}
                 onClick={() => setActiveIndex(index)}
                 className={`h-2.5 w-2.5 rounded-full transition ${index === activeIndex
-                    ? "bg-emerald-600"
-                    : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
+                  ? "bg-emerald-600"
+                  : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500"
                   }`}
               />
             ))}
@@ -123,8 +123,8 @@ function MustFacilitiesGallerySlider({
               aria-label={`Select image ${index + 1}`}
               onClick={() => setActiveIndex(index)}
               className={`shrink-0 overflow-hidden rounded-xl border transition ${index === activeIndex
-                  ? "border-emerald-500 ring-2 ring-emerald-400/40"
-                  : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
+                ? "border-emerald-500 ring-2 ring-emerald-400/40"
+                : "border-slate-200 hover:border-emerald-400 dark:border-slate-700"
                 }`}
             >
               <img
@@ -291,12 +291,12 @@ export function Facilities() {
                 <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
                   Gallery
                 </h4>
-                
+
                 {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
                 <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                   {selectedSection.gallery_paths.map((url, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
                     >
                       <div className="aspect-[16/10] w-full overflow-hidden">
@@ -345,9 +345,9 @@ export function Facilities() {
 
                     {/* Content Container */}
                     <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
-                      
+
                       {/* Icon that appears on hover (if we wanted to hardcode an icon, but we don't have it in DB, so we'll just show the title) */}
-                      
+
                       <div className="flex w-full flex-col items-center transform translate-y-[80px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:-translate-y-8">
                         <h3 className="text-center text-2xl font-black uppercase tracking-wider text-white drop-shadow-md transition-transform duration-500">
                           {section.title}
