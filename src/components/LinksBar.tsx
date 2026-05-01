@@ -101,12 +101,12 @@ export function LinksBar({ className = "" }: LinksBarProps) {
             </NavLink>
 
             {hasDropdown && isOpen && (
-              <div className="absolute left-0 top-full z-40 mt-2 min-w-[250px] rounded-xl border border-white/20 bg-[#1f3769]/95 p-2 shadow-xl backdrop-blur">
+              <div className="absolute left-0 top-full z-40 mt-2 w-max min-w-[300px] rounded-xl border border-white/20 bg-[#1f3769]/95 p-3 shadow-xl backdrop-blur">
                 {item.children?.map((child) => (
                   <Link
                     key={child.label}
                     to={child.to}
-                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-white/10 hover:text-green-400"
+                    className="block whitespace-nowrap rounded-lg px-4 py-3 text-base font-semibold text-white no-underline transition-colors hover:bg-white/10 hover:text-green-400"
                     onClick={() => setOpenMenu(null)}
                   >
                     {child.label}

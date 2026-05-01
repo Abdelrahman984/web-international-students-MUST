@@ -15,7 +15,7 @@ $header-height: 105px;
   background-color: $must-blue;
   z-index: 1050;
   font-family: 'Tajawal', 'Segoe UI', Arial, Helvetica, sans-serif;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 
   .header-container {
     margin: 0 auto;
@@ -24,7 +24,7 @@ $header-height: 105px;
     align-items: center;
     justify-content: space-between;
     padding: 0 40px;
-    
+
     @media (max-width: 991px) {
       padding: 0 15px;
     }
@@ -34,6 +34,7 @@ $header-height: 105px;
     display: flex;
     align-items: center;
     text-decoration: none;
+
     .logo-img {
       height: 65px;
       width: auto;
@@ -44,6 +45,7 @@ $header-height: 105px;
         height: 45px;
       }
     }
+
     &:hover .logo-img {
       opacity: 0.8;
     }
@@ -52,11 +54,11 @@ $header-height: 105px;
   .desktop-nav {
     display: none;
     height: 100%;
-    
+
     @media (min-width: 992px) {
       display: block; // Visible on desktop
     }
-    
+
     .nav-list {
       display: flex;
       align-items: center;
@@ -75,15 +77,16 @@ $header-height: 105px;
           display: flex;
           align-items: center;
           height: 100%;
-          padding: 0 14px; 
+          padding: 0 14px;
           color: $text-white;
-          font-size: 15px; 
-          font-weight: 700; 
+          font-size: 15px;
+          font-weight: 700;
           text-decoration: none;
           transition: all 0.2s ease;
-          text-transform: uppercase; 
+          text-transform: uppercase;
 
-          &:hover, &.active {
+          &:hover,
+          &.active {
             color: $must-green;
           }
         }
@@ -94,7 +97,7 @@ $header-height: 105px;
           top: 100%;
           left: 0;
           width: max-content; // Dynamic width based on visible panels
-          min-width: 280px;   // Minimum width for just the left panel
+          min-width: 280px; // Minimum width for just the left panel
           opacity: 0;
           visibility: hidden;
           transition: opacity 0.2s ease, visibility 0.2s ease;
@@ -108,7 +111,7 @@ $header-height: 105px;
           .mega-menu-container {
             display: flex;
             min-height: 400px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             border-radius: 0;
             background-color: $must-blue;
 
@@ -121,11 +124,12 @@ $header-height: 105px;
 
               .left-panel-list {
                 list-style: none;
-                margin: 0; padding: 0;
+                margin: 0;
+                padding: 0;
 
                 .left-panel-item {
                   position: relative; // Anchor for the right panel submenu
-                  
+
                   .left-panel-link {
                     display: flex;
                     align-items: center;
@@ -135,13 +139,14 @@ $header-height: 105px;
                     font-weight: 700;
                     text-decoration: none;
                     transition: color 0.1s ease;
-                    
+
                     .icon-chevron {
                       margin-left: auto;
                       font-size: 13px;
                     }
 
-                    &:hover, &.active {
+                    &:hover,
+                    &.active {
                       color: $must-green;
                     }
                   }
@@ -149,12 +154,12 @@ $header-height: 105px;
                   /* DYNAMIC RIGHT PANEL (Anchored Vertically to the Hovered Item) */
                   .mega-right-panel {
                     position: absolute;
-                    top: -15px; 
+                    top: -15px;
                     left: 100%;
-                    width: 320px; 
+                    width: 320px;
                     background-color: $right-panel-bg;
                     padding: 20px 30px;
-                    box-shadow: 4px 4px 20px rgba(0,0,0,0.35); // Re-apply shadow directly onto the floating child
+                    box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.35); // Re-apply shadow directly onto the floating child
                     z-index: 105; // Ensure it floats above nearby sections
                     border-radius: 0;
 
@@ -163,13 +168,14 @@ $header-height: 105px;
 
                       .right-panel-list {
                         list-style: none;
-                        margin: 0; padding: 0;
+                        margin: 0;
+                        padding: 0;
                         display: flex;
                         flex-direction: column;
 
                         .right-panel-item {
-                          margin-bottom: 24px; 
-                          
+                          margin-bottom: 24px;
+
                           .right-panel-link {
                             display: inline-block;
                             color: $text-white;
@@ -189,14 +195,18 @@ $header-height: 105px;
                             padding: 0;
                             background-color: transparent;
                             border-radius: 0;
-                            
+
                             li {
                               margin-bottom: 8px;
+
                               .deep-panel-link {
-                                color: rgba(255,255,255,0.85);
+                                color: rgba(255, 255, 255, 0.85);
                                 font-size: 14px;
                                 text-decoration: none;
-                                &:hover { color: $must-green; }
+
+                                &:hover {
+                                  color: $must-green;
+                                }
                               }
                             }
                           }
@@ -224,7 +234,7 @@ $header-height: 105px;
           visibility: hidden;
           transition: opacity 0.2s ease, visibility 0.2s ease;
           z-index: 100;
-          box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 
           &.show {
             opacity: 1;
@@ -270,11 +280,12 @@ $header-height: 105px;
   .header-controls {
     display: flex;
     align-items: center;
-    gap: 10px; 
+    gap: 10px;
 
     @media (max-width: 768px) {
       gap: 8px;
     }
+
     .icon-toggle {
       background: none;
       border: none;
@@ -286,13 +297,13 @@ $header-height: 105px;
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       &.lang-toggle {
         font-size: 22px;
         font-weight: 800;
         font-family: inherit;
       }
-      
+
       &:hover {
         color: $must-green;
         transform: scale(1.1);
@@ -300,7 +311,7 @@ $header-height: 105px;
     }
 
     .control-divider {
-      color: rgba(255,255,255,0.4);
+      color: rgba(255, 255, 255, 0.4);
       margin: 0 5px;
       font-size: 24px;
       font-weight: 300;
@@ -318,12 +329,13 @@ $header-height: 105px;
       padding: 8px;
       cursor: pointer;
       transition: all 0.2s;
-      
+
       &:hover {
         color: $must-green;
         transform: scale(1.1);
       }
     }
+
     .btn-auth {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -343,6 +355,7 @@ $header-height: 105px;
           display: none;
         }
       }
+
       i {
         font-size: 16px;
       }
@@ -363,15 +376,22 @@ $header-height: 105px;
       }
     }
 
-    .btn-auth + .btn-auth {
+    .btn-auth+.btn-auth {
       margin-inline-start: 4px !important;
     }
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateX(-5px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* --- Mobile Menu Overlay --- */
@@ -388,7 +408,7 @@ $header-height: 105px;
     background-color: #0c1935;
     overflow-y: auto;
     z-index: 1040;
-    
+
     // Default hidden state
     opacity: 0;
     visibility: hidden;
@@ -400,15 +420,17 @@ $header-height: 105px;
       visibility: visible;
       transform: translateY(0);
     }
-    
+
     .mobile-nav-container {
       padding: 20px;
-      
+
       .mobile-nav-list {
-        list-style: none; padding: 0; margin: 0;
-        
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
         .mobile-nav-item {
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
           .mobile-nav-link {
             display: flex;
@@ -419,7 +441,7 @@ $header-height: 105px;
             font-size: 16px;
             font-weight: 700;
             text-decoration: none;
-            
+
             &:hover {
               color: $must-green;
             }
@@ -429,7 +451,7 @@ $header-height: 105px;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
-            
+
             &.show {
               max-height: 1500px;
             }
@@ -444,11 +466,11 @@ $header-height: 105px;
                   display: flex;
                   justify-content: space-between;
                   padding: 12px 0;
-                  color: rgba(255,255,255,0.85);
+                  color: rgba(255, 255, 255, 0.85);
                   font-size: 15px;
                   font-weight: 600;
                   text-decoration: none;
-                  border-bottom: 1px solid rgba(255,255,255,0.03);
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 
                   &:hover {
                     color: $must-green;
@@ -459,11 +481,11 @@ $header-height: 105px;
                   max-height: 0;
                   overflow: hidden;
                   transition: max-height 0.3s ease;
-                  
+
                   &.show {
                     max-height: 500px;
                   }
-                  
+
                   list-style: none;
                   padding-left: 15px;
                   margin: 0;
@@ -472,10 +494,10 @@ $header-height: 105px;
                     .deep-link-item {
                       display: block;
                       padding: 10px 0;
-                      color: rgba(255,255,255,0.6);
+                      color: rgba(255, 255, 255, 0.6);
                       font-size: 14px;
                       text-decoration: none;
-                      
+
                       &:hover {
                         color: $must-green;
                       }
@@ -498,23 +520,33 @@ $header-height: 105px;
       .mega-menu-overlay {
         left: auto;
         right: 0;
+
         .mega-menu-container .mega-left-panel .left-panel-item {
           .left-panel-link .icon-chevron {
             margin-left: 0;
             margin-right: auto;
-            &.fa-chevron-right { transform: rotate(180deg); }
+
+            &.fa-chevron-right {
+              transform: rotate(180deg);
+            }
           }
+
           .mega-right-panel {
             left: auto;
             right: 100%;
-            box-shadow: -4px 4px 20px rgba(0,0,0,0.35);
+            box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.35);
+
             .right-content-wrapper .right-panel-list .right-panel-item .deep-panel-list {
               margin: 8px 10px 0 0;
             }
           }
         }
       }
-      .simple-dropdown { left: auto; right: 0; }
+
+      .simple-dropdown {
+        left: auto;
+        right: 0;
+      }
     }
   }
 }
