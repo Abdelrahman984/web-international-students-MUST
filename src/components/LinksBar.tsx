@@ -19,14 +19,10 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
     children: [
       { label: "Academic Staff", to: "/academics" },
       { label: "Educational Programs", to: "/educational-programs" },
-      { label: "Admission", to: "/admission" },
-      { label: "Honor List", to: "/honor-list" },
-      // { label: "Academic Advising", to: "/academic-advising" },
-      // { label: "Registeration", to: "/Registeration" },
-      // { label: "Schedules", to: "/schedules" },
-      { label: "Calendar", to: "/calendar" },
+      { label: "Academic Calendar", to: "/calendar" },
       { label: "E-Learning", to: "/e-learning" },
-      // { label: "How To Apply", to: "/how-to-apply" },
+      { label: "Honor List", to: "/honor-list" },
+      { label: "Admission", to: "/admission" },
     ],
   },
   {
@@ -97,8 +93,7 @@ export function LinksBar({ className = "" }: LinksBarProps) {
             <NavLink
               to={item.to}
               className={({ isActive }) =>
-                `text-white text-base font-bold transition-colors duration-300 px-3 py-2 no-underline ${
-                  isActive ? "text-green-400" : "hover:text-green-400"
+                `text-white text-base font-bold transition-colors duration-300 px-3 py-2 no-underline ${isActive ? "text-green-400" : "hover:text-green-400"
                 }`
               }
             >
@@ -106,12 +101,12 @@ export function LinksBar({ className = "" }: LinksBarProps) {
             </NavLink>
 
             {hasDropdown && isOpen && (
-              <div className="absolute left-0 top-full z-40 mt-2 min-w-[250px] rounded-xl border border-white/20 bg-[#1f3769]/95 p-2 shadow-xl backdrop-blur">
+              <div className="absolute left-0 top-full z-40 mt-2 w-max min-w-[300px] rounded-xl border border-white/20 bg-[#1f3769]/95 p-3 shadow-xl backdrop-blur">
                 {item.children?.map((child) => (
                   <Link
                     key={child.label}
                     to={child.to}
-                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-white/10 hover:text-green-400"
+                    className="block whitespace-nowrap rounded-lg px-4 py-3 text-base font-semibold text-white no-underline transition-colors hover:bg-white/10 hover:text-green-400"
                     onClick={() => setOpenMenu(null)}
                   >
                     {child.label}
