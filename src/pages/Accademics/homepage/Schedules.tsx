@@ -131,6 +131,7 @@ export default function Schedules() {
                 <i className="fa-solid fa-arrow-left text-lg" />
                 Back to categories
               </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
