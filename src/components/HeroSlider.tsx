@@ -502,19 +502,6 @@ export function HeroSlider() {
           </button>
         </div>
       </motion.div>
-
-      {/* DOTS */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-        {slides.map((slide, index) => (
-          <button
-            key={slide.id}
-            onClick={() => goToSlide(index)}
-            className={`w-2.5 h-2.5 rounded-full transition ${
-              index === currentIndex ? "bg-[#00AC5C] scale-125" : "bg-white/60"
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
