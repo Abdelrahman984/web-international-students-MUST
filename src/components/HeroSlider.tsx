@@ -198,11 +198,21 @@ export function HeroSlider() {
     const fetchSlides = async () => {
       try {
         const mappedSlides = await getHeroSlides();
+
+        // MOCK DATA: Inject custom titles for the slides if they exist
+        const mockTitles = [
+          "Experience World-Class Education in the Heart of Egypt",
+          "Join a Diverse Community of Global Innovators",
+          "Unlock Your Potential with Top-Tier Facilities",
+          "Your Pathway to International Excellence",
+          "Building Leaders for a Connected World",
+        ];
+
         setSlides(
-          mappedSlides.map((slide) => ({
+          mappedSlides.map((slide, index) => ({
             id: slide.id,
             src: slide.src,
-            title: slide.title,
+            title: mockTitles[index] || slide.title || "Discover MUST Campus",
           })),
         );
         setCurrentIndex(0);
@@ -379,72 +389,202 @@ export function HeroSlider() {
 
   if (isLoading) {
     return (
-      <div className="relative w-full mt-20 md:mt-24 h-[60vh] md:h-[86vh] overflow-hidden bg-gray-800">
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800" />
+      <div className="relative w-full mt-20 md:mt-24 h-[auto] min-h-[500px] lg:h-[75vh] lg:min-h-[600px] lg:max-h-[800px] bg-slate-50 dark:bg-slate-900 flex flex-col lg:flex-row overflow-hidden">
+        <div className="w-full lg:w-[33.333333%] p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
+          <div className="h-6 w-40 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse mb-4" />
+          <div className="h-12 w-full bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse mb-3" />
+          <div className="h-12 w-3/4 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse mb-6" />
+          <div className="h-10 w-full max-w-sm bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse" />
+        </div>
+        <div className="w-full lg:w-[66.666667%] p-4 lg:p-6 lg:pl-0 h-[350px] lg:h-auto flex flex-col">
+          <div className="w-full h-full bg-slate-200 dark:bg-slate-800 rounded-3xl animate-pulse flex-1" />
+        </div>
       </div>
     );
   }
 
+  const currentSlide = slides[currentIndex];
+
   return (
-    <div className="relative w-full mt-20 md:mt-24 h-[60vh] md:h-[86vh] overflow-visible">
-      {/* IMAGE */}
-      <div className="absolute inset-0 overflow-hidden z-0">
-        {slides.map((slide, index) => (
-          <motion.img
-            key={slide.id}
-            src={slide.src}
-            alt={slide.title}
-            className="absolute inset-0 w-full h-full object-fill"
-            initial={false}
-            animate={{
-              opacity:
-                index === currentIndex &&
-                (loadedImages[index] || index === currentIndex)
-                  ? 1
-                  : 0,
-            }}
-            transition={{ duration: 1.1, ease: "easeInOut" }}
-          />
-        ))}
+    <div className="relative w-full mt-20 md:mt-24 h-[auto] min-h-[500px] lg:h-[75vh] lg:min-h-[600px] lg:max-h-[800px] bg-slate-50 dark:bg-slate-900 flex flex-col lg:flex-row overflow-hidden">
+      {/* BACKGROUND BLOBS FOR LEFT SIDE */}
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#00AC5C]/5 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 left-[15%] w-[300px] h-[300px] bg-[#1f3769]/5 rounded-full blur-[80px] translate-y-1/2 pointer-events-none" />
+
+      {/* LEFT SECTION - CONTENT */}
+      <div className="w-full lg:w-[33.333333%] flex flex-col justify-center px-6 py-8 sm:px-8 lg:px-12 lg:py-10 z-10">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-2xl"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-200 text-xs md:text-sm font-bold mb-6 tracking-wide">
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AC5C] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AC5C]"></span>
+            </div>
+            MUST International Portal
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight mb-5">
+            Your Global <br className="hidden lg:block" />
+            Journey Begins <br className="hidden lg:block" />
+            <span className="relative whitespace-nowrap">
+              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#00AC5C] to-[#0b9a55]">
+                At MUST
+              </span>
+              <svg
+                className="absolute -bottom-1.5 left-0 w-full h-2 text-[#00AC5C]/20 z-0"
+                viewBox="0 0 100 10"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 5 Q 50 10 100 5"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="transparent"
+                />
+              </svg>
+            </span>
+          </h1>
+
+          <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 mb-8 max-w-sm leading-relaxed font-medium">
+            Explore world-class programs, dedicated advising, and a vibrant
+            campus life tailored for international students.
+          </p>
+
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-6">
+            <Link
+              to="/admission"
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#00AC5C] text-white font-bold text-center hover:bg-[#0b9a55] transition-all shadow-[0_8px_20px_rgba(0,172,92,0.25)] hover:shadow-[0_12px_25px_rgba(0,172,92,0.35)] hover:-translate-y-1 flex items-center justify-center gap-2 text-sm"
+            >
+              Start Admission
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/contact-us"
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:-translate-y-1 shadow-sm text-sm"
+            >
+              Contact Support
+            </Link>
+          </div>
+
+          {/* Quick Stats / Info Row */}
+          <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5">
+            <div>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">
+                50+
+              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                Nationalities
+              </p>
+            </div>
+            <div className="w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
+            <div>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">
+                100%
+              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                Support
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
-      {/* DARK OVERLAY */}
-      <div className="absolute inset-0 bg-black/60 z-10" />
+      {/* RIGHT SECTION - IMAGES */}
+      <div className="w-full lg:w-[66.666667%] relative min-h-[350px] lg:min-h-0 p-4 lg:p-6 lg:pl-0 z-10 flex flex-col">
+        <div className="w-full h-full relative rounded-3xl overflow-hidden shadow-2xl bg-slate-200 dark:bg-slate-800 flex-1">
+          {slides.map((slide, index) => (
+            <motion.img
+              key={slide.id}
+              src={slide.src}
+              alt={slide.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={false}
+              animate={{
+                opacity:
+                  index === currentIndex &&
+                  (loadedImages[index] || index === currentIndex)
+                    ? 1
+                    : 0,
+                scale: index === currentIndex ? 1.05 : 1,
+              }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+            />
+          ))}
 
-      {/* PHOTO ARROWS */}
-      {slides.length > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={goToPrevSlide}
-            aria-label="Previous slide"
-            className="absolute left-8 md:left-14 lg:left-20 top-1/2 -translate-y-1/2 z-40 h-9 w-9 md:h-10 md:w-10 rounded-full border border-white/35 bg-black/25 text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-black/45 hover:border-white/70"
-          >
-            <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
-          </button>
+          {/* INNER OVERLAY FOR SLIDE TITLE */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1f3769]/90 via-[#1f3769]/20 to-transparent z-10" />
 
-          <button
-            type="button"
-            onClick={goToNextSlide}
-            aria-label="Next slide"
-            className="absolute z-[998] right-8 md:right-10 lg:right-20 top-1/2 -translate-y-1/2 h-9 w-9 md:h-10 md:w-10 rounded-full border border-white/35 bg-black/25 text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-black/45 hover:border-white/70"
-          >
-            <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
-          </button>
-        </>
-      )}
+          {/* UNIFIED BOTTOM CONTROL BAR */}
+          <div className="absolute bottom-6 left-6 right-6 z-30 flex flex-col md:flex-row items-center justify-between gap-4 bg-black/40 backdrop-blur-xl border border-white/20 p-4 md:py-3 md:px-6 rounded-3xl md:rounded-full shadow-2xl">
+            {/* SLIDE TITLE */}
+            {currentSlide && (
+              <motion.div
+                key={`title-${currentIndex}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="flex flex-col items-center md:items-start text-center md:text-left flex-1 min-w-0"
+              >
+                <p className="text-[10px] tracking-[0.2em] uppercase text-[#00AC5C] font-extrabold mb-0.5">
+                  Highlight
+                </p>
+                <h3 className="text-white text-sm md:text-base font-bold leading-snug truncate w-full">
+                  {currentSlide.title}
+                </h3>
+              </motion.div>
+            )}
 
-      {/* CONTENT */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="absolute inset-x-0 top-[64%] md:top-[68%] -translate-y-1/2 z-30 flex flex-col items-center justify-center text-center text-white px-4"
-      >
-        {/* TITLE */}
-        <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold">
-          International Students Platform
-        </h1>
-      </motion.div>
+            {/* SLIDER CONTROLS */}
+            {slides.length > 1 && (
+              <div className="flex items-center gap-4 md:gap-6 shrink-0">
+                {/* Dots */}
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  {slides.map((slide, index) => {
+                    const isActive = index === currentIndex;
+                    return (
+                      <button
+                        key={slide.id}
+                        type="button"
+                        onClick={() => goToSlide(index)}
+                        aria-label={`Go to slide ${index + 1}`}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          isActive
+                            ? "w-6 md:w-8 bg-[#00AC5C]"
+                            : "w-2 bg-white/40 hover:bg-white/70"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Arrows */}
+                <div className="flex items-center gap-1.5 md:gap-2 border-l border-white/20 pl-4 md:pl-6">
+                  <button
+                    type="button"
+                    onClick={goToPrevSlide}
+                    aria-label="Previous slide"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/25 text-white transition-colors border border-white/10"
+                  >
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToNextSlide}
+                    aria-label="Next slide"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/25 text-white transition-colors border border-white/10"
+                  >
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
