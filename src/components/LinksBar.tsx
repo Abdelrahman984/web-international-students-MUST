@@ -19,14 +19,10 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
     children: [
       { label: "Academic Staff", to: "/academics" },
       { label: "Educational Programs", to: "/educational-programs" },
-      { label: "Admission", to: "/admission" },
-      { label: "Honor List", to: "/honor-list" },
-      // { label: "Academic Advising", to: "/academic-advising" },
-      // { label: "Registeration", to: "/Registeration" },
-      // { label: "Schedules", to: "/schedules" },
-      { label: "Calendar", to: "/calendar" },
+      { label: "Academic Calendar", to: "/calendar" },
       { label: "E-Learning", to: "/e-learning" },
-      // { label: "How To Apply", to: "/how-to-apply" },
+      { label: "Honor List", to: "/honor-list" },
+      { label: "Admission", to: "/admission" },
     ],
   },
   {
@@ -97,8 +93,7 @@ export function LinksBar({ className = "" }: LinksBarProps) {
             <NavLink
               to={item.to}
               className={({ isActive }) =>
-                `text-white text-base font-bold transition-colors duration-300 px-3 py-2 no-underline ${
-                  isActive ? "text-green-400" : "hover:text-green-400"
+                `text-white text-base font-bold transition-colors duration-300 px-3 py-2 no-underline ${isActive ? "text-green-400" : "hover:text-green-400"
                 }`
               }
             >

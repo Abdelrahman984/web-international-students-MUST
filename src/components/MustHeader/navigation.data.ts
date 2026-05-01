@@ -168,24 +168,9 @@ export const MENU_ITEMS: MenuItem[] = [
         routerLink: "/academics",
       },
       {
-        label: "Schedules",
-        translationKey: "schedules",
-        routerLink: "/schedules",
-      },
-      {
         label: "Educational Programs",
         translationKey: "undergraduateStudies",
         routerLink: "/educational-programs",
-      },
-      {
-        label: "Admission",
-        translationKey: "admission",
-        routerLink: "/admission",
-      },
-      {
-        label: "Honor List",
-        translationKey: "honorList",
-        routerLink: "/honor-list",
       },
       {
         label: "Academic Calendar",
@@ -193,10 +178,19 @@ export const MENU_ITEMS: MenuItem[] = [
         externalUrl: "https://must.edu.eg/academic-calendar/",
       },
       {
-        label: "International Students Affairs Sector",
-        translationKey: "intlAffairsSector",
-        externalUrl:
-          "https://must.edu.eg/sectors/international-students-affairs-sector/",
+        label: "E-Learning",
+        translationKey: "eLearning",
+        routerLink: "/e-learning",
+      },
+      {
+        label: "Honor List",
+        translationKey: "honorList",
+        routerLink: "/honor-list",
+      },
+      {
+        label: "Admission",
+        translationKey: "admission",
+        routerLink: "/admission",
       },
     ],
   },
