@@ -14,7 +14,7 @@ interface NewStudyPlanResourcesProps {
 }
 
 const trackOrder: StudyTrackKey[] = ['msc', 'phd', 'professional'];
-const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['cs', 'general', 'is', 'ai'];
+const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['general', 'cs', 'is', 'ai'];
 const curriculumOrder: CurriculumKey[] = ['old', 'new'];
 const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ['CS', 'IS', 'AI'];
 
