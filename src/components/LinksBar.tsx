@@ -25,7 +25,7 @@ export const STATIC_MENU_ITEMS: MenuItem[] = [
       // { label: "Registeration", to: "/Registeration" },
       // { label: "Schedules", to: "/schedules" },
       { label: "Calendar", to: "/calendar" },
-      // { label: "E-Learning", to: "/e-learning" },
+      { label: "E-Learning", to: "/e-learning" },
       // { label: "How To Apply", to: "/how-to-apply" },
     ],
   },
