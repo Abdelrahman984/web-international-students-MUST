@@ -39,14 +39,15 @@ export default function FormationOfCollegeCouncil() {
   return (
     <div className="min-h-screen bg-[#f9f9f9] py-24 dark:bg-[#070d19]">
       <div className="mx-auto max-w-[1000px] px-4 sm:px-6">
-        <p className="mb-6 text-sm">
+        <div className="sticky top-28 z-40 mb-10 flex justify-start">
           <Link
             to="/undergraduate"
-            className="text-emerald-700 underline-offset-2 hover:underline dark:text-emerald-400"
+            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
           >
-            ← Undergraduate Studies
+            <i className="fa-solid fa-arrow-left text-lg" />
+            Back to Undergraduate Studies
           </Link>
-        </p>
+        </div>
 
         <div className="bg-white p-6 shadow-md dark:bg-comfortDark-card sm:p-10">
           <header className="mb-8 flex flex-col gap-4 border-b-4 border-[#0d47a1] pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">

@@ -262,11 +262,11 @@ export function Facilities() {
         ) : isMustFacilitiesTab && selectedSection ? (
           <section className="relative rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/50 animate-in fade-in duration-500 slide-in-from-bottom-4">
             {/* Sticky Back Button */}
-            <div className="sticky top-28 z-40 mb-10 flex justify-start">
+            <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
               <button
                 type="button"
                 onClick={closeMustFacilitySection}
-                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-6 py-3.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
+                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
               >
                 <i className="fa-solid fa-arrow-left text-lg" /> Back to
                 Facilities

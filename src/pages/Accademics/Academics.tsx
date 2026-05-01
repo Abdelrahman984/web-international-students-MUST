@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AcademicStaffProfileCardProps } from "../../components/AcademicStaffProfileCard";
 import StaffAccordion from "../../components/StaffAccordion";
@@ -101,6 +102,15 @@ export function Academics() {
 
   return (
     <div className="mx-auto min-h-screen max-w-[1400px] px-4 py-16 pt-32">
+      <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+        >
+          <i className="fa-solid fa-arrow-left text-lg" />
+          Back to Home
+        </Link>
+      </div>
       <h1 className="mb-12 text-center text-4xl font-bold text-emerald-700 dark:text-emerald-400 sm:text-left">
         Academic Staff
       </h1>

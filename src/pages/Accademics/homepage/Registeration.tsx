@@ -90,13 +90,15 @@ export default function Registeration() {
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
-        <Link
-          to="/advising?tab=resources"
-          className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline shadow-sm transition-colors hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
-        >
-          <span aria-hidden="true">←</span>
-          Back to Advising Resources
-        </Link>
+        <div className="sticky top-28 z-40 mb-10 flex justify-start">
+          <Link
+            to="/advising?tab=resources"
+            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+          >
+            <i className="fa-solid fa-arrow-left text-lg" />
+            Back to Advising Resources
+          </Link>
+        </div>
         <h1 className="mb-8 text-4xl font-bold text-slate-900 dark:text-slate-100">
           Registration Guides
         </h1>

@@ -3,7 +3,7 @@ import { ContentBlocks } from './ContentBlocks';
 import { useCmsData } from '../hooks/useCmsData';
 import { CmsPage } from '../types/strapi';
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 interface CmsSingleTypePageData extends Pick<CmsPage, 'id' | 'title' | 'slug' | 'subtitle' | 'accessRole' | 'seo' | 'blocks'> {}
 
@@ -94,6 +94,15 @@ export function CmsSingleTypePage<T extends CmsSingleTypePageData>({
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
+        <Link
+          to="/academics"
+          className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+        >
+          <i className="fa-solid fa-arrow-left text-lg" />
+          Back to Academics
+        </Link>
+      </div>
       <header className="mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
           {data?.title || fallbackTitle}
