@@ -346,7 +346,7 @@ export function HeroSlider() {
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 7000); //  كل 7 ثواني
+    }, 5000); //  كل 5 ثواني
 
     return () => clearInterval(interval);
   }, [isAutoPlay, slides.length]);
@@ -444,63 +444,6 @@ export function HeroSlider() {
         <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold">
           International Students Platform
         </h1>
-
-        {/* SPACE */}
-        <div className="h-10 md:h-10" />
-
-        {/* HERO NAV */}
-        <div className="w-full flex items-center justify-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={() => scrollHeroNav("left")}
-            disabled={!canScrollHeroNavLeft}
-            aria-label="Scroll menus left"
-            className="h-10 w-10 md:h-11 md:w-11 rounded-full border border-white/30 bg-white/15 backdrop-blur-xl text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-white/30 hover:border-white/60 disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <div
-            ref={heroNavViewportRef}
-            className="w-[75vw] md:w-[65vw] lg:w-[60vw] max-w-4xl overflow-x-clip overflow-y-visible"
-            style={{ marginInline: "max(16px, 2vw)" }}
-          >
-            <ul
-              ref={heroNavTrackRef}
-              className="flex min-w-[max-content] flex-nowrap justify-start gap-2 sm:gap-3 md:gap-4 px-2 py-2"
-              style={{
-                transform: `translateX(-${heroNavOffset}px)`,
-                transition: "transform 300ms ease",
-              }}
-              onMouseLeave={resetHeroNavPath}
-            >
-              {visibleHeroNavTree.map((item) => (
-                <HeroNavMenuNode
-                  key={`${item.title}-${item.url}`}
-                  item={item}
-                  path={[]}
-                  activePath={activeHeroNavPath}
-                  onActivatePath={activateHeroNavPath}
-                />
-              ))}
-              {/* Spacer strictly for scroll bounding allowance */}
-              <li
-                className="shrink-0 w-24 md:w-32 invisible h-px pointer-events-none"
-                aria-hidden="true"
-              ></li>
-            </ul>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => scrollHeroNav("right")}
-            disabled={!canScrollHeroNavRight}
-            aria-label="Scroll menus right"
-            className="h-10 w-10 md:h-11 md:w-11 rounded-full border border-white/30 bg-white/15 backdrop-blur-xl text-white inline-flex items-center justify-center transition-all duration-300 hover:bg-white/30 hover:border-white/60 disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
       </motion.div>
     </div>
   );

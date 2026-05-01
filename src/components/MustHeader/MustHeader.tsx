@@ -22,6 +22,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
   );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(
+    () => window.innerWidth > 991,
+  );
   const [mobileActiveItem, setMobileActiveItem] = useState<MenuItem | null>(
     null,
   );
@@ -78,6 +81,23 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       isMounted = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const large = window.innerWidth > 991;
+      setIsLargeScreen(large);
+      if (large) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Desktop hover logic
   const onMouseEnter = (item: MenuItem) => {
@@ -141,10 +161,14 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       <header className="must-header">
         <div className="header-container">
           {/* Left Logo */}
-          <Link to="/" className="logo-link" title="Home">
+          <Link
+            to="https://must.edu.eg/"
+            className="logo-link"
+            title="Go to the main MUST website"
+          >
             <img
               src="/assets/1740307130_140_87669_group1000004290.svg"
-              alt="MUST Logo"
+              alt="Go to the main MUST website"
               className="logo-img"
             />
           </Link>
@@ -419,15 +443,17 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
             )}
 
             {/* Mobile Toggle */}
-            <button
-              className="mobile-toggle ms-2"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle menu"
-            >
-              <i
-                className={`fas ${!isMobileMenuOpen ? "fa-bars" : "fa-times"}`}
-              ></i>
-            </button>
+            {!isLargeScreen && (
+              <button
+                className="mobile-toggle ms-2"
+                onClick={toggleMobileMenu}
+                aria-label="Toggle menu"
+              >
+                <i
+                  className={`fas ${!isMobileMenuOpen ? "fa-bars" : "fa-times"}`}
+                ></i>
+              </button>
+            )}
           </div>
         </div>
       </header>
