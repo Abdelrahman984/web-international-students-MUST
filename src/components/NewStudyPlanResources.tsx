@@ -14,7 +14,7 @@ interface NewStudyPlanResourcesProps {
 }
 
 const trackOrder: StudyTrackKey[] = ['msc', 'phd', 'professional'];
-const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['general', 'cs', 'is', 'ai'];
+const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['general', 'cs', 'ai', 'is'];
 const curriculumOrder: CurriculumKey[] = ['old', 'new'];
 const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ['CS', 'IS', 'AI'];
 
@@ -254,26 +254,60 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
       )}
 
       {config.mode === 'undergrad-specialties' && (
-        <div className="mt-8 flex flex-wrap justify-center gap-5">
-          {!activeUndergradSpecialty &&
-            undergradSpecialtyOrder.map((specialtyKey) => {
-              const specialty = config.specialties[specialtyKey];
+        <div className="mt-8 flex flex-col items-center gap-6">
+          {!activeUndergradSpecialty && (
+            <>
+              {/* First row: General */}
+              <div className="flex justify-center w-full">
+                {undergradSpecialtyOrder
+                  .filter((k) => k === 'general')
+                  .map((specialtyKey) => {
+                    const specialty = config.specialties[specialtyKey];
+                    return (
+                      <button
+                        key={specialtyKey}
+                        type="button"
+                        onClick={() => {
+                          setActiveUndergradSpecialty(specialtyKey);
+                          setActiveCurriculum(null);
+                        }}
+                        className={tileButtonBase}
+                      >
+                        <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
+                        <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">
+                          {specialty.label}
+                        </p>
+                      </button>
+                    );
+                  })}
+              </div>
 
-              return (
-                <button
-                  key={specialtyKey}
-                  type="button"
-                  onClick={() => {
-                    setActiveUndergradSpecialty(specialtyKey);
-                    setActiveCurriculum(null);
-                  }}
-                  className={tileButtonBase}
-                >
-                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{specialty.label}</p>
-                </button>
-              );
-            })}
+              {/* Second row: CS, AI, IS */}
+              <div className="flex flex-wrap justify-center gap-5 w-full">
+                {undergradSpecialtyOrder
+                  .filter((k) => k !== 'general')
+                  .map((specialtyKey) => {
+                    const specialty = config.specialties[specialtyKey];
+                    return (
+                      <button
+                        key={specialtyKey}
+                        type="button"
+                        onClick={() => {
+                          setActiveUndergradSpecialty(specialtyKey);
+                          setActiveCurriculum(null);
+                        }}
+                        className={tileButtonBase}
+                      >
+                        <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
+                        <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">
+                          {specialty.label}
+                        </p>
+                      </button>
+                    );
+                  })}
+              </div>
+            </>
+          )}
 
           {activeUndergradSpecialty && !activeCurriculum &&
             curriculumOrder.map((curriculum) => {
