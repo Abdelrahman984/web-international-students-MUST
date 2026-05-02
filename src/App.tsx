@@ -91,7 +91,11 @@ function AppContent() {
     >
       <MustHeader darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-      <HeroSlider />
+      {/* Show HeroSlider only on the home page */}
+      {(location.pathname === "/" || location.pathname === "/home") && (
+        <HeroSlider />
+      )}
+
       <main className="flex-1">
         <AnimatePresence mode="wait" key={location.pathname}>
           <motion.div
