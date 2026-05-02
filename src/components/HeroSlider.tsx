@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Plane } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getHeroSlides, type HeroNavTreeItem } from "../services/cmsApi";
 import { STATIC_MENU_ITEMS } from "./LinksBar";
@@ -400,6 +400,32 @@ export function HeroSlider() {
       {/* BACKGROUND BLOBS FOR LEFT SIDE */}
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#00AC5C]/5 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-[15%] w-[300px] h-[300px] bg-[#1f3769]/5 rounded-full blur-[80px] translate-y-1/2 pointer-events-none" />
+
+      {/* FLYING AIRPLANE ANIMATION (Improved Trajectory & Smoothness) */}
+      <motion.div
+        className="absolute z-[100] pointer-events-none"
+        initial={{ x: "-15vw", y: "85vh", rotate: 30, scale: 0.3, opacity: 0 }}
+        animate={{
+          x: ["-15vw", "20vw", "55vw", "85vw", "115vw"],
+          y: ["85vh", "50vh", "35vh", "15vh", "-15vh"],
+          rotate: [30, 25, 20, 15, 10],
+          scale: [0.3, 0.6, 0.8, 1, 0.7],
+          opacity: [0, 0.3, 0.4, 0.3, 0],
+        }}
+        transition={{
+          duration: 22,
+          ease: [0.4, 0, 0.2, 1], // Smooth cubic-bezier curve for flight path
+          times: [0, 0.25, 0.5, 0.75, 1], // Timing of each keyframe
+          repeat: Infinity,
+          repeatDelay: 8,
+        }}
+      >
+        <div className="relative">
+          <Plane className="w-16 h-16 md:w-20 md:h-20 text-[#00AC5C] fill-[#00AC5C] drop-shadow-[0_4px_8px_rgba(0,172,92,0.4)]" />
+          {/* Subtle contrail effect */}
+          <div className="absolute top-1/2 right-full h-[2px] w-24 -translate-y-1/2 bg-gradient-to-r from-transparent to-[#00AC5C]/30 blur-[1px]" />
+        </div>
+      </motion.div>
 
       {/* LEFT SECTION - CONTENT */}
       <div className="w-full lg:w-[33.333333%] flex flex-col justify-center px-6 py-8 sm:px-8 lg:px-12 lg:py-10 z-10">
