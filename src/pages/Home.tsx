@@ -361,8 +361,6 @@ export default function HomePage() {
   const [aboutVisible, setAboutVisible] = useState(false);
   const aboutRef = useRef<HTMLElement | null>(null);
   const aboutContentRef = useRef<HTMLDivElement | null>(null);
-  const [missionOpen, setMissionOpen] = useState(false);
-  const [visionOpen, setVisionOpen] = useState(false);
 
   const aboutSectorImage = resolveMediaUrl(
     homeSections.aboutSector?.image_path || null,
@@ -625,7 +623,7 @@ export default function HomePage() {
               {homeSections.aboutSector && (
                 <article
                   ref={aboutRef}
-                  className={`rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] sm:p-8 transform transition-all duration-700 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+                  className={`rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] sm:p-8 transform transition-all duration-700`}
                 >
                   <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <div>
@@ -645,7 +643,7 @@ export default function HomePage() {
                       />
                     </div>
 
-                    <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
+                    <div className="mx-auto flex h-full w-full max-w-[320px] flex-col items-center justify-center text-center">
                       {aboutSectorImage ? (
                         <img
                           src={aboutSectorImage}
@@ -668,47 +666,30 @@ export default function HomePage() {
                 </article>
               )}
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {homeSections.mission && (
-                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] transition-shadow duration-200 hover:shadow-lg">
-                    <details
-                      className="group"
-                      onToggle={(e) =>
-                        setMissionOpen(
-                          (e.currentTarget as HTMLDetailsElement).open,
-                        )
-                      }
-                    >
-                      <summary className="flex items-center gap-4 cursor-pointer list-none">
-                        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-300">
-                          <Target className="h-5 w-5" />
+                  <article className="rounded-3xl border border-slate-200/60 bg-white/60 backdrop-blur-xl p-8 shadow-xl shadow-slate-200/40 dark:border-slate-700/60 dark:bg-slate-800/40 dark:shadow-none transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-blue-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                      <Target className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
+                          <Target className="h-6 w-6" />
                         </span>
-
-                        <div className="flex-1">
-                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400 mb-1">
+                            Our Purpose
+                          </p>
+                          <h3 className="text-3xl font-black text-slate-900 dark:text-white">
                             Mission
                           </h3>
                         </div>
+                      </div>
 
-                        <svg
-                          className={`h-4 w-4 transition-transform duration-200 ${missionOpen ? "rotate-180" : ""}`}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
-                      </summary>
-
-                      <div
-                        className={`overflow-hidden transition-all duration-300 ${missionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
-                      >
+                      <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60">
                         <div
-                          className="prose text-[40px] mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          className="prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
                           dangerouslySetInnerHTML={{
                             __html:
                               missionHtml ||
@@ -718,50 +699,33 @@ export default function HomePage() {
                           }}
                         />
                       </div>
-                    </details>
+                    </div>
                   </article>
                 )}
 
                 {homeSections.vision && (
-                  <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-[#08132e] transition-shadow duration-200 hover:shadow-lg">
-                    <details
-                      className="group"
-                      onToggle={(e) =>
-                        setVisionOpen(
-                          (e.currentTarget as HTMLDetailsElement).open,
-                        )
-                      }
-                    >
-                      <summary className="flex items-center gap-4 cursor-pointer list-none">
-                        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300">
-                          <Globe2 className="h-5 w-5" />
+                  <article className="rounded-3xl border border-slate-200/60 bg-white/60 backdrop-blur-xl p-8 shadow-xl shadow-slate-200/40 dark:border-slate-700/60 dark:bg-slate-800/40 dark:shadow-none transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-cyan-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                      <Globe2 className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-teal-500 text-white shadow-lg shadow-cyan-500/30">
+                          <Globe2 className="h-6 w-6" />
                         </span>
-
-                        <div className="flex-1">
-                          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-500 dark:text-cyan-400 mb-1">
+                            Our Future
+                          </p>
+                          <h3 className="text-3xl font-black text-slate-900 dark:text-white">
                             Vision
                           </h3>
                         </div>
+                      </div>
 
-                        <svg
-                          className={`h-4 w-4 transition-transform duration-200 ${visionOpen ? "rotate-180" : ""}`}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
-                      </summary>
-
-                      <div
-                        className={`overflow-hidden transition-all duration-300 ${visionOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
-                      >
+                      <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60">
                         <div
-                          className="prose text-[40px] mt-3 max-w-none leading-7 text-slate-600 dark:prose-invert dark:text-slate-300"
+                          className="prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
                           dangerouslySetInnerHTML={{
                             __html:
                               visionHtml ||
@@ -771,7 +735,7 @@ export default function HomePage() {
                           }}
                         />
                       </div>
-                    </details>
+                    </div>
                   </article>
                 )}
               </div>
