@@ -401,29 +401,27 @@ export function HeroSlider() {
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#00AC5C]/5 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-[15%] w-[300px] h-[300px] bg-[#1f3769]/5 rounded-full blur-[80px] translate-y-1/2 pointer-events-none" />
 
-      {/* FLYING AIRPLANE ANIMATION (Improved Trajectory & Smoothness) */}
+      {/* FLYING AIRPLANE ANIMATION (Dynamic Banking & Rotation) */}
       <motion.div
         className="absolute z-[100] pointer-events-none"
-        initial={{ x: "-15vw", y: "85vh", rotate: 30, scale: 0.3, opacity: 0 }}
+        initial={{ x: "-15vw", y: "85vh", rotate: 45, scale: 0.3, opacity: 0 }}
         animate={{
-          x: ["-15vw", "20vw", "55vw", "85vw", "115vw"],
-          y: ["85vh", "50vh", "35vh", "15vh", "-15vh"],
-          rotate: [30, 25, 20, 15, 10],
-          scale: [0.3, 0.6, 0.8, 1, 0.7],
-          opacity: [0, 0.3, 0.4, 0.3, 0],
+          x: ["-15vw", "25vw", "50vw", "85vw", "115vw"],
+          y: ["85vh", "30vh", "60vh", "15vh", "-15vh"],
+          rotate: [45, 0, 75, -15, 30], // Significant rotation shifts to simulate loops/banking
+          scale: [0.3, 0.6, 0.9, 0.7, 1.1],
+          opacity: [0, 0.5, 0.7, 0.5, 0],
         }}
         transition={{
           duration: 22,
-          ease: [0.4, 0, 0.2, 1], // Smooth cubic-bezier curve for flight path
-          times: [0, 0.25, 0.5, 0.75, 1], // Timing of each keyframe
+          ease: "easeInOut",
+          times: [0, 0.25, 0.5, 0.75, 1],
           repeat: Infinity,
-          repeatDelay: 8,
+          repeatDelay: 6,
         }}
       >
         <div className="relative">
           <Plane className="w-16 h-16 md:w-20 md:h-20 text-[#00AC5C] fill-[#00AC5C] drop-shadow-[0_4px_8px_rgba(0,172,92,0.4)]" />
-          {/* Subtle contrail effect */}
-          <div className="absolute top-1/2 right-full h-[2px] w-24 -translate-y-1/2 bg-gradient-to-r from-transparent to-[#00AC5C]/30 blur-[1px]" />
         </div>
       </motion.div>
 
@@ -490,7 +488,7 @@ export function HeroSlider() {
           <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5 flex-wrap">
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                10+
+                +10
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Nationalities
@@ -499,16 +497,16 @@ export function HeroSlider() {
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                3.4
+                +100
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
-                Avg GPA
+                Students
               </p>
             </div>
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                25+
+                +25
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Advisors
