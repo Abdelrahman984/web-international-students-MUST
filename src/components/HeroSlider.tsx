@@ -198,21 +198,11 @@ export function HeroSlider() {
     const fetchSlides = async () => {
       try {
         const mappedSlides = await getHeroSlides();
-
-        // MOCK DATA: Inject custom titles for the slides if they exist
-        const mockTitles = [
-          "Experience World-Class Education in the Heart of Egypt",
-          "Join a Diverse Community of Global Innovators",
-          "Unlock Your Potential with Top-Tier Facilities",
-          "Your Pathway to International Excellence",
-          "Building Leaders for a Connected World",
-        ];
-
         setSlides(
-          mappedSlides.map((slide, index) => ({
+          mappedSlides.map((slide) => ({
             id: slide.id,
             src: slide.src,
-            title: mockTitles[index] || slide.title || "Discover MUST Campus",
+            title: slide.title,
           })),
         );
         setCurrentIndex(0);
@@ -471,17 +461,35 @@ export function HeroSlider() {
           </div>
 
           {/* Quick Stats / Info Row */}
-          <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5">
-            <div>
+          <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5 flex-wrap">
+            <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                50+
+                10+
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Nationalities
               </p>
             </div>
-            <div className="w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
-            <div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-slate-900 dark:text-white">
+                3.4
+              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                Avg GPA
+              </p>
+            </div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-slate-900 dark:text-white">
+                25+
+              </p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                Advisors
+              </p>
+            </div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
+            <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
                 100%
               </p>
@@ -533,7 +541,7 @@ export function HeroSlider() {
                   Highlight
                 </p>
                 <h3 className="text-white text-sm md:text-base font-bold leading-snug truncate w-full">
-                  {currentSlide.title}
+                  {currentSlide.title || "MUST Campus Life"}
                 </h3>
               </motion.div>
             )}
