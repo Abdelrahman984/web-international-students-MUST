@@ -43,7 +43,7 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
       </div>
 
       <div className={`relative z-0 w-full ${maxWidthClass}`}>
-        <div className="rounded-[1.75rem] border border-white/60 bg-white/55 p-[1px] shadow-[0_25px_80px_-20px_rgba(30,58,90,0.28)] backdrop-blur-md dark:border-white/10 dark:bg-slate-950/40 dark:shadow-[0_28px_90px_-24px_rgba(0,0,0,0.55)]">
+        <div className="rounded-[1.75rem] border border-white/60 bg-white/55 p-[1px] shadow-[0_25px_80px_-20px_rgba(30,58,90,0.28)] backdrop-blur-md dark:border-white/10 dark:bg-slate-950/40 dark:shadow-[0_28px_90px_-24px_rgba(0,0,0,0.55)] mt-[15%]">
           <div className="rounded-[1.6875rem] border border-stone-200/70 bg-white/75 p-8 shadow-inner shadow-white/40 backdrop-blur-xl backdrop-saturate-150 dark:border-slate-600/50 dark:bg-slate-900/70 dark:shadow-inner dark:shadow-slate-950/40">
             {children}
           </div>
