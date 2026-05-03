@@ -112,7 +112,17 @@ export default function Schedules() {
           </div>
         ) : openCategory && selectedCard ? (
           <div className="space-y-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className=" gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="sticky top-28 z-40 mb-10 flex justify-start">
+                <button
+                  type="button"
+                  onClick={() => setOpenCategory(null)}
+                  className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+                >
+                  <i className="fa-solid fa-arrow-left text-lg" />
+                  Back to categories
+                </button>
+              </div>
               <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
                   {selectedCard.title}
@@ -121,20 +131,9 @@ export default function Schedules() {
                   {selectedCard.description}
                 </p>
               </div>
-
-            <div className="sticky top-28 z-40 mb-10 flex justify-start">
-              <button
-                type="button"
-                onClick={() => setOpenCategory(null)}
-                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
-              >
-                <i className="fa-solid fa-arrow-left text-lg" />
-                Back to categories
-              </button>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {selectedItems.length ? (
                 selectedItems.map((item) => (
                   <a
