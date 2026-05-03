@@ -82,7 +82,7 @@ const translations: Record<Language, Record<string, string>> = {
     our_future: "Our Future",
     vision: "Vision",
     sector_plan: "Sector Plan",
-    open_plan_file: "Open Plan File",
+    open_plan_file: "View Plan",
     no_plan_file: "No plan file available yet.",
     loading_sections: "Loading home sections...",
     sector_head_name: "Asst. Lect. / Ayman S. Abdelaziz",

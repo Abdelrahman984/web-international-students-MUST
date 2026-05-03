@@ -42,8 +42,9 @@ export default function AcademicStaffProfileCard({
   bio,
   department,
 }: AcademicStaffProfileCardProps) {
-  const displayName =
-    [title, firstName, lastName].filter(Boolean).join(" ").trim() || name;
+  const fullName =
+    [firstName, lastName].filter(Boolean).join(" ").trim() || name;
+  const displayName = title ? `${title} / ${fullName}` : fullName;
   const displayPosition = position || role || "N/A";
 
   return (
