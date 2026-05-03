@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { GoogleDriveLinkCard } from "../components/GoogleDriveLinkCard";
 import { InternationalStudentsData } from "./InternationalStudentsData";
 import { Reports } from "./Reports";
@@ -244,8 +245,13 @@ export default function AdvisingPage() {
             </div>
 
             {isLoadingAnnouncements ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                Loading announcements...
+              <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+                  <p className="animate-pulse font-medium text-emerald-600 dark:text-emerald-400">
+                    Loading announcements...
+                  </p>
+                </div>
               </div>
             ) : announcementsError ? (
               <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
@@ -256,30 +262,40 @@ export default function AdvisingPage() {
                 No announcements available at the moment.
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {announcements.map((item) => (
                   <article
                     key={item.id}
-                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/60"
+                    className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-emerald-900/50 dark:hover:shadow-emerald-900/20"
                   >
-                    <div className="relative h-56 overflow-hidden bg-slate-200 dark:bg-slate-800">
+                    <div className="relative h-60 overflow-hidden bg-slate-100 dark:bg-slate-800">
                       <img
                         src={item.imageUrl}
                         alt={item.imageAlt}
-                        className="h-full w-full object-fit transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute left-4 top-4 rounded-full bg-emerald-600 px-4 py-1 text-sm font-semibold text-white shadow-lg">
+                      <div className="absolute left-4 top-4 rounded-full bg-emerald-600/90 px-4 py-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-md">
                         {item.date}
                       </div>
                     </div>
 
-                    <div className="space-y-3 p-6">
-                      <h3 className="text-2xl font-semibold text-slate-900 transition-colors group-hover:text-emerald-600 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    <div className="flex flex-1 flex-col p-6 sm:p-8">
+                      <h3 className="text-xl font-bold text-slate-900 transition-colors group-hover:text-emerald-600 dark:text-slate-100 dark:group-hover:text-emerald-400 line-clamp-2">
                         {item.title}
                       </h3>
-                      <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                      <p className="mt-3 line-clamp-3 text-base text-slate-600 dark:text-slate-400">
                         {item.description}
                       </p>
+
+                      <div className="mt-8 flex items-center justify-between mt-auto">
+                        <Link
+                          to={`/announcements/${item.id}`}
+                          className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+                        >
+                          Read More
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                      </div>
                     </div>
                   </article>
                 ))}

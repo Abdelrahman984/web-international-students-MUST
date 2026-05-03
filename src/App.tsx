@@ -24,6 +24,7 @@ import Questionnaires from "./pages/Questionnaires";
 import { Resources } from "./pages/Resources";
 import { Facilities } from "./pages/Facilities";
 import { Announcements } from "./pages/Announcements";
+import { AnnouncementDetail } from "./pages/AnnouncementDetail";
 import { Notifications } from "./pages/Notifications";
 import { ContactUs } from "./pages/ContactUs";
 import { Profile } from "./pages/Profile";
@@ -150,6 +151,10 @@ function AppContent() {
               <Route path="/resources" element={<Resources />} />
               <Route path="/facilities" element={<Facilities />} />
               <Route path="/announcements" element={<Announcements />} />
+              <Route
+                path="/announcements/:id"
+                element={<AnnouncementDetail />}
+              />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/contactus" element={<ContactUs />} />
               <Route path="/contact-us" element={<ContactUs />} />
