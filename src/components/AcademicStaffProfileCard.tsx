@@ -54,7 +54,7 @@ export default function AcademicStaffProfileCard({
           <img
             src={imageUrl}
             alt={imageAlt || name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-fit transition-transform duration-500 group-hover:scale-105"
           />
         </div>
 
