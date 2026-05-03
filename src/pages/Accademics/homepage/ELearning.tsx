@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import { LinkResourceCard } from "../../../components/LinkResourceCard";
 import { apiClient } from "../../../services/api";
 import { getPublicBaseUrl } from "../../../lib/api";
-
-const E_LEARNING_URL = "https://smartlearning.must.edu.eg/";
 
 type StudentResource = {
   id: string;
@@ -86,25 +85,44 @@ export default function ELearning() {
   }, []);
 
   return (
-    <section className="min-h-screen bg-slate-50 py-24 pt-32 dark:bg-[#070d19]">
-      <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-8">
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
-          E-Learning
-        </h1>
-        <p className="mt-3 text-lg text-slate-600 dark:text-slate-300">
-          Access the university Smart Learning portal.
-        </p>
+    <section className="min-h-screen bg-slate-50/50 py-24 pt-32 dark:bg-[#070d19]">
+      <div className="mx-auto w-full max-w-[1024px] px-4 sm:px-8">
+        <div className="sticky top-28 z-[100] mb-8 flex justify-start">
+          <Link
+            to="/academics"
+            className="group inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-2.5 text-sm font-semibold tracking-wide text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:shadow-md hover:text-slate-900 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white no-underline"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to Academics
+          </Link>
+        </div>
+
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
+            E-Learning
+          </h1>
+          <p className="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+            Access the university Smart Learning portal and associated online
+            resources.
+          </p>
+        </div>
+
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-            Loading e-learning resources...
+          <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-10 dark:border-slate-800 dark:bg-slate-900/50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+              <p className="animate-pulse font-medium text-emerald-600 dark:text-emerald-400">
+                Loading e-learning resources...
+              </p>
+            </div>
           </div>
         ) : error ? (
-          <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
-            {error}
+          <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <AlertCircle className="h-6 w-6 shrink-0" />
+            <p className="font-medium">{error}</p>
           </div>
         ) : (
-          <div className="mt-8 grid max-w-3xl grid-cols-1 gap-4">
-            <LinkResourceCard title="E-Learning" href={E_LEARNING_URL} />
+          <div className="grid gap-6 sm:grid-cols-2">
             {resources.map((resource, index) => (
               <LinkResourceCard
                 key={resource.id || `${resource.url}-${index}`}
