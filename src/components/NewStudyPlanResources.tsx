@@ -425,18 +425,6 @@ export default function NewStudyPlanResources({
           })}
         </div>
       )}
-
-      {canGoBack && (
-        <div className="mt-12 flex justify-center border-t border-slate-100 pt-8 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={handleGoBack}
-            className={backButtonClass}
-          >
-            Go Back
-          </button>
-        </div>
-      )}
     </section>
   );
 }
