@@ -30,15 +30,7 @@ export default function Calendar() {
   return (
     <section className="w-full min-h-screen bg-slate-50 py-20 px-6 pt-32 lg:px-24 dark:bg-[#0b132b]">
       <div className="max-w-7xl mx-auto">
-        <div className="sticky top-28 z-40 mb-10 flex justify-start">
-          <Link
-            to="/academics"
-            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
-          >
-            <i className="fa-solid fa-arrow-left text-lg" />
-            Back to Academics
-          </Link>
-        </div>
+        {" "}
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="text-slate-900 text-4xl lg:text-5xl font-bold mb-6 dark:text-white">
             Academic Calendar
@@ -47,7 +39,6 @@ export default function Calendar() {
             Browse calendar files published from the backend API.
           </p>
         </div>
-
         {isLoading ? (
           <div className="animate-pulse text-emerald-700 text-xl font-bold text-center p-12 dark:text-emerald-400">
             Loading calendars from API...

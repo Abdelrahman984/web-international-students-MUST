@@ -88,22 +88,12 @@ export default function ELearning() {
   return (
     <section className="min-h-screen bg-slate-50 py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-8">
-        <div className="sticky top-28 z-40 mb-10 flex justify-start">
-          <Link
-            to="/academics"
-            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
-          >
-            <i className="fa-solid fa-arrow-left text-lg" />
-            Back to Academics
-          </Link>
-        </div>
         <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
           E-Learning
         </h1>
         <p className="mt-3 text-lg text-slate-600 dark:text-slate-300">
           Access the university Smart Learning portal.
         </p>
-
         {loading ? (
           <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
             Loading e-learning resources...
