@@ -55,12 +55,10 @@ export default function AcademicStaff() {
   ): [string, AcademicStaffProfileCardProps[]][] => {
     const titleOrder = [
       "Professor",
-      "Associate Professor",
       "Assistant Professor",
       "Lecturer",
       "Assistant Lecturer",
       "Teaching Assistant",
-      "Demonstrator",
     ];
 
     const groupedStaff = list.reduce(

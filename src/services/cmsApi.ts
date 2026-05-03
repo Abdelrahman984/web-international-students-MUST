@@ -226,6 +226,7 @@ export type AcademicStaffItem = {
   cvLabel?: string;
   avatarUrl: string;
   cvUrl: string;
+  displayOrder?: number;
 };
 
 type HeroNavTarget = "_self" | "_blank";
@@ -1112,37 +1113,45 @@ export async function getAcademicStaffList(): Promise<AcademicStaffItem[]> {
     throw new Error(error.message);
   }
 
-  return (data || []).map((raw) => {
-    const row = unwrapRow(raw) as Record<string, unknown>;
-    const title = pickString(row.title);
-    const firstName = pickString(row.first_name, row.firstName);
-    const lastName = pickString(row.last_name, row.lastName);
-    const position = pickString(row.position, row.role) || "";
-    const fullName = [title, firstName, lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim();
+  return (data || [])
+    .map((raw) => {
+      const row = unwrapRow(raw) as Record<string, unknown>;
+      const title = pickString(row.title);
+      const firstName = pickString(row.first_name, row.firstName);
+      const lastName = pickString(row.last_name, row.lastName);
+      const position = pickString(row.position, row.role) || "";
+      const fullName = [title, firstName, lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
 
-    return {
-      title,
-      firstName,
-      lastName,
-      position,
-      name: fullName || pickString(row.name) || "Unknown",
-      role: position,
-      specialty: pickString(row.speciality, row.specialty),
-      department: pickString(row.department, row.position),
-      email: pickString(row.email),
-      bio: pickString(row.bio),
-      googleScholarLink: pickString(
-        row.google_scholar_link,
-        row.googleScholarLink,
-      ),
-      cvLabel: pickString(row.cvLabel, row.cvlabel) || "Download CV (PDF)",
-      avatarUrl: getFileUrl(row.image_path || row.avatar_url || row.avatar),
-      cvUrl: getFileUrl(row.cv_path || row.cv_url || row.cvDocument || row.cv),
-    };
-  });
+      return {
+        title,
+        firstName,
+        lastName,
+        position,
+        name: fullName || pickString(row.name) || "Unknown",
+        role: position,
+        specialty: pickString(row.speciality, row.specialty),
+        department: pickString(row.department, row.position),
+        email: pickString(row.email),
+        bio: pickString(row.bio),
+        googleScholarLink: pickString(
+          row.google_scholar_link,
+          row.googleScholarLink,
+        ),
+        cvLabel: pickString(row.cvLabel, row.cvlabel) || "Download CV (PDF)",
+        avatarUrl: getFileUrl(row.image_path || row.avatar_url || row.avatar),
+        cvUrl: getFileUrl(
+          row.cv_path || row.cv_url || row.cvDocument || row.cv,
+        ),
+        displayOrder:
+          typeof row.display_order === "number"
+            ? row.display_order
+            : Number(row.display_order) || 0,
+      };
+    })
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 }
 
 export async function getEventsList(): Promise<EventCardItem[]> {
