@@ -103,7 +103,7 @@ export default function Undergraduate() {
         <div className="sticky top-28 z-[100] mb-8 flex justify-start">
           <Link
             to="/educational-programs"
-            className="group inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-2.5 text-sm font-semibold tracking-wide text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:shadow-md hover:text-slate-900 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white no-underline"
+            className="group inline-flex items-center gap-2 rounded-full bg-[#002147] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-md backdrop-blur-md transition-all hover:bg-[#003366] hover:shadow-lg active:scale-95 dark:bg-blue-900 dark:hover:bg-blue-800 no-underline"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Back to Programs

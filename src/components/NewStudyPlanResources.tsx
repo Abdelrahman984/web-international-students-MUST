@@ -187,9 +187,12 @@ export default function NewStudyPlanResources({
   };
 
   const tileButtonBase =
-    "group flex flex-col items-center justify-center gap-5 rounded-2xl border border-slate-100 bg-white p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-emerald-900/50 dark:hover:shadow-emerald-900/20 w-full sm:w-[300px]";
+    "group flex flex-col items-center justify-center gap-5 rounded-2xl border border-slate-100 bg-white p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-emerald-900/50 dark:hover:shadow-emerald-900/20 w-full sm:w-[260px]";
   const tileButtonActive =
     "ring-2 ring-emerald-500 bg-emerald-50/30 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800";
+
+  const backButtonClass =
+    "inline-flex items-center gap-2 rounded-full bg-[#002147] px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#003366] hover:shadow-lg active:scale-95 dark:bg-blue-900 dark:hover:bg-blue-800";
 
   const TileIcon = ({
     Icon,
@@ -216,7 +219,7 @@ export default function NewStudyPlanResources({
             <button
               type="button"
               onClick={handleGoBack}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/80"
+              className={backButtonClass}
             >
               Go Back
             </button>
@@ -284,31 +287,34 @@ export default function NewStudyPlanResources({
           {activeTrack &&
             currentTrack?.type === "research" &&
             activeSpecialty &&
-            !activeCurriculum &&
-            curriculumOrder.map((curriculum) => {
-              const isActive = activeCurriculum === curriculum;
-              const label =
-                curriculum === "old" ? "Old Curriculum" : "New Curriculum";
-              return (
-                <button
-                  key={curriculum}
-                  type="button"
-                  onClick={() => setActiveCurriculum(curriculum)}
-                  aria-pressed={isActive}
-                  className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
-                >
-                  <TileIcon Icon={BookText} isActive={isActive} />
-                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                    {label}
-                  </p>
-                </button>
-              );
-            })}
+            !activeCurriculum && (
+              <div className="flex flex-wrap justify-center gap-6 w-full">
+                {curriculumOrder.map((curriculum) => {
+                  const isActive = activeCurriculum === curriculum;
+                  const label =
+                    curriculum === "old" ? "Old Curriculum" : "New Curriculum";
+                  return (
+                    <button
+                      key={curriculum}
+                      type="button"
+                      onClick={() => setActiveCurriculum(curriculum)}
+                      aria-pressed={isActive}
+                      className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
+                    >
+                      <TileIcon Icon={BookText} isActive={isActive} />
+                      <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                        {label}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
         </div>
       )}
 
       {config.mode === "undergrad-specialties" && (
-        <div className="mt-10 flex flex-col items-center gap-6">
+        <div className="mt-10 flex flex-col items-center gap-8">
           {!activeUndergradSpecialty && (
             <>
               {/* First row: General */}
@@ -338,8 +344,8 @@ export default function NewStudyPlanResources({
                   })}
               </div>
 
-              {/* Second row: CS, AI, IS */}
-              <div className="flex flex-wrap justify-center gap-6 w-full">
+              {/* Second row: CS, AI, IS in order */}
+              <div className="flex flex-wrap justify-center gap-6 w-full max-w-5xl">
                 {undergradSpecialtyOrder
                   .filter((k) => k !== "general")
                   .map((specialtyKey) => {
@@ -367,28 +373,30 @@ export default function NewStudyPlanResources({
             </>
           )}
 
-          {activeUndergradSpecialty &&
-            !activeCurriculum &&
-            curriculumOrder.map((curriculum) => {
-              const isActive = activeCurriculum === curriculum;
-              const label =
-                curriculum === "old" ? "Old Curriculum" : "New Curriculum";
+          {activeUndergradSpecialty && !activeCurriculum && (
+            <div className="flex flex-wrap justify-center gap-6 w-full">
+              {curriculumOrder.map((curriculum) => {
+                const isActive = activeCurriculum === curriculum;
+                const label =
+                  curriculum === "old" ? "Old Curriculum" : "New Curriculum";
 
-              return (
-                <button
-                  key={curriculum}
-                  type="button"
-                  onClick={() => setActiveCurriculum(curriculum)}
-                  aria-pressed={isActive}
-                  className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
-                >
-                  <TileIcon Icon={BookText} isActive={isActive} />
-                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                    {label}
-                  </p>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={curriculum}
+                    type="button"
+                    onClick={() => setActiveCurriculum(curriculum)}
+                    aria-pressed={isActive}
+                    className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
+                  >
+                    <TileIcon Icon={BookText} isActive={isActive} />
+                    <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                      {label}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -415,6 +423,18 @@ export default function NewStudyPlanResources({
               />
             );
           })}
+        </div>
+      )}
+
+      {canGoBack && (
+        <div className="mt-12 flex justify-center border-t border-slate-100 pt-8 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={handleGoBack}
+            className={backButtonClass}
+          >
+            Go Back
+          </button>
         </div>
       )}
     </section>
