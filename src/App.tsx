@@ -50,6 +50,7 @@ import { ProfileProvider } from "./contexts/ProfileContext";
 import { RequestsProvider } from "./contexts/RequestsContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ChatStoreProvider } from "./context/ChatContext";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Links from "./pages/links";
 import { AutoScrollManager } from "./components/AutoScrollManager";
@@ -67,6 +68,7 @@ export type PageType =
   | "my-requests";
 
 function AppContent() {
+  const { language } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
 
@@ -87,7 +89,8 @@ function AppContent() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? "dark bg-comfortDark-bg text-comfortDark-text" : "bg-white text-gray-900"}`}
+      dir={language === "ar" ? "rtl" : "ltr"}
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? "dark bg-comfortDark-bg text-comfortDark-text" : "bg-white text-gray-900"} ${language === "ar" ? "font-tajawal" : ""}`}
     >
       <MustHeader darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
@@ -195,17 +198,19 @@ function AppContent() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <ChatStoreProvider>
-        <ProfileProvider>
-          <RequestsProvider>
-            <BrowserRouter>
-              <AutoScrollManager />
-              <AppContent />
-            </BrowserRouter>
-          </RequestsProvider>
-        </ProfileProvider>
-      </ChatStoreProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <ChatStoreProvider>
+          <ProfileProvider>
+            <RequestsProvider>
+              <BrowserRouter>
+                <AutoScrollManager />
+                <AppContent />
+              </BrowserRouter>
+            </RequestsProvider>
+          </ProfileProvider>
+        </ChatStoreProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

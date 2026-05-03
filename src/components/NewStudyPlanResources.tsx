@@ -17,6 +17,7 @@ import type {
 } from "./newStudyPlanResourcesMockData";
 import { PdfResourceCard } from "./PdfResourceCard";
 import { LinkResourceCard } from "./LinkResourceCard";
+import { useLanguage } from "../context/LanguageContext";
 
 interface NewStudyPlanResourcesProps {
   config: StudyPlanResourceConfigUnion;
@@ -32,62 +33,10 @@ const undergradSpecialtyOrder: UndergradSpecialtyKey[] = [
 const curriculumOrder: CurriculumKey[] = ["old", "new"];
 const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ["CS", "IS", "AI"];
 
-const studyTrackSpecialtyLabels: Record<StudyTrackSpecialty, string> = {
-  CS: "Computer Science",
-  IS: "Information Systems",
-  AI: "Artificial Intelligence",
-};
-
-function getTrackTitleLabel(
-  trackKey: StudyTrackKey,
-  fallbackLabel: string,
-): string {
-  if (trackKey === "msc") return "MSc.";
-  if (trackKey === "phd") return "Ph.D";
-  return fallbackLabel;
-}
-
-function getIconForSpecialty(specialtyKey: string | StudyTrackSpecialty) {
-  const key = specialtyKey.toLowerCase();
-  if (key === "cs") return MonitorPlay;
-  if (key === "ai") return Cpu;
-  if (key === "is") return Network;
-  if (key === "general") return Library;
-  return Library;
-}
-
-function getIconForTrack(trackKey: string) {
-  if (trackKey === "professional") return Briefcase;
-  return GraduationCap;
-}
-
-function isSharePointVideoLink(url: string): boolean {
-  return url.startsWith("https://mustedueg.sharepoint.com/");
-}
-
-function parseSharePointVideoLink(url: string): {
-  href: string;
-  title: string | null;
-} {
-  const titleMatch = url.match(/\(([^()]+)\)\s*$/);
-  let title = titleMatch?.[1]?.trim() || null;
-  const href = url.replace(/\([^()]+\)\s*$/, "").replace(/%28.*%29\s*$/i, "");
-
-  if (!title) {
-    try {
-      const decoded = decodeURIComponent(url);
-      title = decoded.match(/\(([^()]+)\)\s*$/)?.[1]?.trim() || null;
-    } catch {
-      title = null;
-    }
-  }
-
-  return { href, title };
-}
-
 export default function NewStudyPlanResources({
   config,
 }: NewStudyPlanResourcesProps) {
+  const { t, language } = useLanguage();
   const [activeTrack, setActiveTrack] = useState<StudyTrackKey | null>(null);
   const [activeSpecialty, setActiveSpecialty] =
     useState<StudyTrackSpecialty | null>(null);
@@ -95,6 +44,22 @@ export default function NewStudyPlanResources({
     useState<UndergradSpecialtyKey | null>(null);
   const [activeCurriculum, setActiveCurriculum] =
     useState<CurriculumKey | null>(null);
+
+  const studyTrackSpecialtyLabels: Record<StudyTrackSpecialty, string> = {
+    CS: t("computer_science"),
+    IS: t("information_systems"),
+    AI: t("artificial_intelligence"),
+  };
+
+  const getTrackTitleLabel = (
+    trackKey: StudyTrackKey,
+    fallbackLabel: string,
+  ): string => {
+    if (trackKey === "msc") return t("msc");
+    if (trackKey === "phd") return t("phd");
+    if (trackKey === "professional") return t("professional_degrees");
+    return fallbackLabel;
+  };
 
   const currentTrack = useMemo(() => {
     if (config.mode !== "degree-tracks" || !activeTrack) return null;
@@ -130,22 +95,23 @@ export default function NewStudyPlanResources({
 
   const undergradSpecialtyLabel =
     config.mode === "undergrad-specialties" && activeUndergradSpecialty
-      ? config.specialties[activeUndergradSpecialty].label
+      ? t(activeUndergradSpecialty)
       : null;
 
   const curriculumLabel = activeCurriculum
     ? activeCurriculum === "old"
-      ? "Old Curriculum"
-      : "New Curriculum"
+      ? t("old_curriculum")
+      : t("new_curriculum")
     : null;
 
   const currentTitle = useMemo(() => {
     if (config.mode === "undergrad-specialties") {
+      const baseTitle = t(config.title.toLowerCase().replace(/[\s-]/g, "_")) || config.title;
       if (undergradSpecialtyLabel && curriculumLabel)
-        return `Study Plans (${undergradSpecialtyLabel} ${curriculumLabel})`;
+        return `${baseTitle} (${undergradSpecialtyLabel} ${curriculumLabel})`;
       if (undergradSpecialtyLabel)
-        return `Study Plans (${undergradSpecialtyLabel})`;
-      return config.title;
+        return `${baseTitle} (${undergradSpecialtyLabel})`;
+      return baseTitle;
     }
     if (activeTrack) {
       const parentLabel = getTrackTitleLabel(
@@ -153,18 +119,19 @@ export default function NewStudyPlanResources({
         config.tracks[activeTrack].label,
       );
       if (activeSpecialty && curriculumLabel)
-        return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]} ${curriculumLabel})`;
+        return `${t("study_plans")} (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]} ${curriculumLabel})`;
       if (activeSpecialty)
-        return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]})`;
-      return `Study Plans (${parentLabel})`;
+        return `${t("study_plans")} (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]})`;
+      return `${t("study_plans")} (${parentLabel})`;
     }
-    return config.title;
+    return t(config.title.toLowerCase().replace(/[\s-]/g, "_")) || config.title;
   }, [
     config,
     activeTrack,
     activeSpecialty,
     undergradSpecialtyLabel,
     curriculumLabel,
+    t,
   ]);
 
   const canGoBack =
@@ -211,6 +178,44 @@ export default function NewStudyPlanResources({
     </div>
   );
 
+  const getIconForSpecialty = (specialtyKey: string | StudyTrackSpecialty) => {
+    const key = specialtyKey.toLowerCase();
+    if (key === "cs") return MonitorPlay;
+    if (key === "ai") return Cpu;
+    if (key === "is") return Network;
+    if (key === "general") return Library;
+    return Library;
+  };
+
+  const getIconForTrack = (trackKey: string) => {
+    if (trackKey === "professional") return Briefcase;
+    return GraduationCap;
+  };
+
+  const isSharePointVideoLink = (url: string): boolean => {
+    return url.startsWith("https://mustedueg.sharepoint.com/");
+  };
+
+  const parseSharePointVideoLink = (url: string): {
+    href: string;
+    title: string | null;
+  } => {
+    const titleMatch = url.match(/\(([^()]+)\)\s*$/);
+    let title = titleMatch?.[1]?.trim() || null;
+    const href = url.replace(/\([^()]+\)\s*$/, "").replace(/%28.*%29\s*$/i, "");
+
+    if (!title) {
+      try {
+        const decoded = decodeURIComponent(url);
+        title = decoded.match(/\(([^()]+)\)\s*$/)?.[1]?.trim() || null;
+      } catch {
+        title = null;
+      }
+    }
+
+    return { href, title };
+  };
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-10 dark:border-slate-800 dark:bg-slate-900/50">
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 md:gap-8 border-b border-slate-100 pb-6 dark:border-slate-800">
@@ -221,7 +226,7 @@ export default function NewStudyPlanResources({
               onClick={handleGoBack}
               className={backButtonClass}
             >
-              Go Back
+              {t("go_back")}
             </button>
           )}
         </div>
@@ -251,7 +256,7 @@ export default function NewStudyPlanResources({
                 >
                   <TileIcon Icon={Icon} />
                   <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                    {track.label}
+                    {getTrackTitleLabel(trackKey, track.label)}
                   </p>
                 </button>
               );
@@ -292,7 +297,7 @@ export default function NewStudyPlanResources({
                 {curriculumOrder.map((curriculum) => {
                   const isActive = activeCurriculum === curriculum;
                   const label =
-                    curriculum === "old" ? "Old Curriculum" : "New Curriculum";
+                    curriculum === "old" ? t("old_curriculum") : t("new_curriculum");
                   return (
                     <button
                       key={curriculum}
@@ -337,7 +342,7 @@ export default function NewStudyPlanResources({
                       >
                         <TileIcon Icon={Icon} />
                         <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                          {specialty.label}
+                          {t("general")}
                         </p>
                       </button>
                     );
@@ -364,7 +369,7 @@ export default function NewStudyPlanResources({
                       >
                         <TileIcon Icon={Icon} />
                         <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                          {specialty.label}
+                          {t(specialtyKey)}
                         </p>
                       </button>
                     );
@@ -378,7 +383,7 @@ export default function NewStudyPlanResources({
               {curriculumOrder.map((curriculum) => {
                 const isActive = activeCurriculum === curriculum;
                 const label =
-                  curriculum === "old" ? "Old Curriculum" : "New Curriculum";
+                  curriculum === "old" ? t("old_curriculum") : t("new_curriculum");
 
                 return (
                   <button
@@ -409,7 +414,7 @@ export default function NewStudyPlanResources({
                 <LinkResourceCard
                   key={resource.id}
                   href={href}
-                  title={title || "Video"}
+                  title={title || (language === "ar" ? "فيديو" : "Video")}
                   className="w-full sm:w-[400px]"
                 />
               );
@@ -423,6 +428,18 @@ export default function NewStudyPlanResources({
               />
             );
           })}
+        </div>
+      )}
+
+      {canGoBack && (
+        <div className="mt-12 flex justify-center border-t border-slate-100 pt-8 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={handleGoBack}
+            className={backButtonClass}
+          >
+            {t("go_back")}
+          </button>
         </div>
       )}
     </section>
