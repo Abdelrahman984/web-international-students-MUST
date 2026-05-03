@@ -40,6 +40,7 @@ import ActivitiesPage from "./pages/Activities";
 import ActivityDetail from "./pages/ActivityDetail";
 import AdvisingPage from "./pages/Advising";
 
+// Custom Pages
 // Custom Collection Pages
 import News from "./pages/News";
 import Events from "./pages/Events";
