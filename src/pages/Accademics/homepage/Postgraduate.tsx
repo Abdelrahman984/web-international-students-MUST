@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import NewStudyPlanResources from "../../../components/NewStudyPlanResources";
 import { postgradStudyPlanConfig } from "../../../components/newStudyPlanResourcesMockData";
 import { getManyFileLinks, getStudyPlansRow } from "../../../services/cmsApi";
@@ -117,25 +118,35 @@ export default function Postgraduate() {
   }, []);
 
   return (
-    <div className="py-24 bg-white min-h-screen dark:bg-[#070d19]">
-      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
-        <div className="mb-8 flex flex-col gap-4">
-          <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
-            <Link
-              to="/educational-programs"
-              className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
-            >
-              <i className="fa-solid fa-arrow-left text-lg" />
-              Back
-            </Link>
-          </div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen bg-slate-50/50 py-24 pt-32 dark:bg-[#070d19]">
+      <div className="mx-auto w-full max-w-[1024px] px-4 sm:px-8">
+        <div className="sticky top-28 z-[100] mb-8 flex justify-start">
+          <Link
+            to="/educational-programs"
+            className="group inline-flex items-center gap-2 rounded-full bg-white/80 px-5 py-2.5 text-sm font-semibold tracking-wide text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:shadow-md hover:text-slate-900 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white no-underline"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to Programs
+          </Link>
+        </div>
+
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
             Postgraduate Programs
           </h1>
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
+            Advance your career with our Master's, Ph.D., and Professional Degree programs.
+          </p>
         </div>
+
         {isLoading ? (
-          <div className="animate-pulse text-emerald-600 dark:text-emerald-400">
-            Loading Plans...
+          <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-10 dark:border-slate-800 dark:bg-slate-900/50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+              <p className="animate-pulse text-emerald-600 font-medium dark:text-emerald-400">
+                Loading study plans...
+              </p>
+            </div>
           </div>
         ) : (
           <NewStudyPlanResources config={config} />

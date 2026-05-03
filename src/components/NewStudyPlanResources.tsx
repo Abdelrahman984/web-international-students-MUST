@@ -1,51 +1,77 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
+import {
+  GraduationCap,
+  BookText,
+  Library,
+  MonitorPlay, // For CS
+  Cpu, // For AI
+  Network, // For IS
+  Briefcase, // For Professional
+} from "lucide-react";
 import type {
   CurriculumKey,
   StudyPlanResourceConfigUnion,
   StudyTrackKey,
   StudyTrackSpecialty,
   UndergradSpecialtyKey,
-} from './newStudyPlanResourcesMockData';
-import { PdfResourceCard } from './PdfResourceCard';
-import { LinkResourceCard } from './LinkResourceCard';
+} from "./newStudyPlanResourcesMockData";
+import { PdfResourceCard } from "./PdfResourceCard";
+import { LinkResourceCard } from "./LinkResourceCard";
 
 interface NewStudyPlanResourcesProps {
   config: StudyPlanResourceConfigUnion;
 }
 
-const trackOrder: StudyTrackKey[] = ['msc', 'phd', 'professional'];
-const undergradSpecialtyOrder: UndergradSpecialtyKey[] = ['general', 'cs', 'ai', 'is'];
-const curriculumOrder: CurriculumKey[] = ['old', 'new'];
-const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ['CS', 'IS', 'AI'];
+const trackOrder: StudyTrackKey[] = ["msc", "phd", "professional"];
+const undergradSpecialtyOrder: UndergradSpecialtyKey[] = [
+  "general",
+  "cs",
+  "ai",
+  "is",
+];
+const curriculumOrder: CurriculumKey[] = ["old", "new"];
+const studyTrackSpecialtyOrder: StudyTrackSpecialty[] = ["CS", "IS", "AI"];
 
 const studyTrackSpecialtyLabels: Record<StudyTrackSpecialty, string> = {
-  CS: 'Computer Science',
-  IS: 'Information Systems',
-  AI: 'Artificial Intelligence',
+  CS: "Computer Science",
+  IS: "Information Systems",
+  AI: "Artificial Intelligence",
 };
 
-function getTrackTitleLabel(trackKey: StudyTrackKey, fallbackLabel: string): string {
-  if (trackKey === 'msc') {
-    return 'MSc.';
-  }
-
-  if (trackKey === 'phd') {
-    return 'Ph.D';
-  }
-
+function getTrackTitleLabel(
+  trackKey: StudyTrackKey,
+  fallbackLabel: string,
+): string {
+  if (trackKey === "msc") return "MSc.";
+  if (trackKey === "phd") return "Ph.D";
   return fallbackLabel;
 }
 
-function isSharePointVideoLink(url: string): boolean {
-  return url.startsWith('https://mustedueg.sharepoint.com/');
+function getIconForSpecialty(specialtyKey: string | StudyTrackSpecialty) {
+  const key = specialtyKey.toLowerCase();
+  if (key === "cs") return MonitorPlay;
+  if (key === "ai") return Cpu;
+  if (key === "is") return Network;
+  if (key === "general") return Library;
+  return Library;
 }
 
-function parseSharePointVideoLink(url: string): { href: string; title: string | null } {
+function getIconForTrack(trackKey: string) {
+  if (trackKey === "professional") return Briefcase;
+  return GraduationCap;
+}
+
+function isSharePointVideoLink(url: string): boolean {
+  return url.startsWith("https://mustedueg.sharepoint.com/");
+}
+
+function parseSharePointVideoLink(url: string): {
+  href: string;
+  title: string | null;
+} {
   const titleMatch = url.match(/\(([^()]+)\)\s*$/);
   let title = titleMatch?.[1]?.trim() || null;
-  const href = url
-    .replace(/\([^()]+\)\s*$/, '')
-    .replace(/%28.*%29\s*$/i, '');
+  const href = url.replace(/\([^()]+\)\s*$/, "").replace(/%28.*%29\s*$/i, "");
 
   if (!title) {
     try {
@@ -59,87 +85,90 @@ function parseSharePointVideoLink(url: string): { href: string; title: string | 
   return { href, title };
 }
 
-export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesProps) {
+export default function NewStudyPlanResources({
+  config,
+}: NewStudyPlanResourcesProps) {
   const [activeTrack, setActiveTrack] = useState<StudyTrackKey | null>(null);
-  const [activeSpecialty, setActiveSpecialty] = useState<StudyTrackSpecialty | null>(null);
-  const [activeUndergradSpecialty, setActiveUndergradSpecialty] = useState<UndergradSpecialtyKey | null>(null);
-  const [activeCurriculum, setActiveCurriculum] = useState<CurriculumKey | null>(null);
+  const [activeSpecialty, setActiveSpecialty] =
+    useState<StudyTrackSpecialty | null>(null);
+  const [activeUndergradSpecialty, setActiveUndergradSpecialty] =
+    useState<UndergradSpecialtyKey | null>(null);
+  const [activeCurriculum, setActiveCurriculum] =
+    useState<CurriculumKey | null>(null);
 
   const currentTrack = useMemo(() => {
-    if (config.mode !== 'degree-tracks' || !activeTrack) {
-      return null;
-    }
-
+    if (config.mode !== "degree-tracks" || !activeTrack) return null;
     return config.tracks[activeTrack];
   }, [config, activeTrack]);
 
   const resources = useMemo(() => {
-    if (config.mode === 'undergrad-specialties') {
-      if (!activeUndergradSpecialty || !activeCurriculum) {
-        return [];
-      }
-
-      return config.specialties[activeUndergradSpecialty].resourcesByCurriculum[activeCurriculum];
+    if (config.mode === "undergrad-specialties") {
+      if (!activeUndergradSpecialty || !activeCurriculum) return [];
+      return config.specialties[activeUndergradSpecialty].resourcesByCurriculum[
+        activeCurriculum
+      ];
     }
-
-    if (!currentTrack) {
-      return [];
+    if (!currentTrack) return [];
+    if (
+      currentTrack.type === "research" &&
+      activeSpecialty &&
+      activeCurriculum
+    ) {
+      return currentTrack.resourcesBySpecialty[activeSpecialty][
+        activeCurriculum
+      ];
     }
-
-    if (currentTrack.type === 'research' && activeSpecialty && activeCurriculum) {
-      return currentTrack.resourcesBySpecialty[activeSpecialty][activeCurriculum];
-    }
-
-    if (currentTrack.type === 'research') {
-      return [];
-    }
-
+    if (currentTrack.type === "research") return [];
     return currentTrack.resources;
-  }, [config, currentTrack, activeSpecialty, activeUndergradSpecialty, activeCurriculum]);
+  }, [
+    config,
+    currentTrack,
+    activeSpecialty,
+    activeUndergradSpecialty,
+    activeCurriculum,
+  ]);
 
   const undergradSpecialtyLabel =
-    config.mode === 'undergrad-specialties' && activeUndergradSpecialty
+    config.mode === "undergrad-specialties" && activeUndergradSpecialty
       ? config.specialties[activeUndergradSpecialty].label
       : null;
 
   const curriculumLabel = activeCurriculum
-    ? activeCurriculum === 'old'
-      ? 'Old Curriculum'
-      : 'New Curriculum'
+    ? activeCurriculum === "old"
+      ? "Old Curriculum"
+      : "New Curriculum"
     : null;
 
   const currentTitle = useMemo(() => {
-    if (config.mode === 'undergrad-specialties') {
-      if (undergradSpecialtyLabel && curriculumLabel) {
+    if (config.mode === "undergrad-specialties") {
+      if (undergradSpecialtyLabel && curriculumLabel)
         return `Study Plans (${undergradSpecialtyLabel} ${curriculumLabel})`;
-      }
-
-      if (undergradSpecialtyLabel) {
+      if (undergradSpecialtyLabel)
         return `Study Plans (${undergradSpecialtyLabel})`;
-      }
-
       return config.title;
     }
-
     if (activeTrack) {
-      const parentLabel = getTrackTitleLabel(activeTrack, config.tracks[activeTrack].label);
-
-      if (activeSpecialty && curriculumLabel) {
+      const parentLabel = getTrackTitleLabel(
+        activeTrack,
+        config.tracks[activeTrack].label,
+      );
+      if (activeSpecialty && curriculumLabel)
         return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]} ${curriculumLabel})`;
-      }
-
-      if (activeSpecialty) {
+      if (activeSpecialty)
         return `Study Plans (${parentLabel} ${studyTrackSpecialtyLabels[activeSpecialty]})`;
-      }
-
       return `Study Plans (${parentLabel})`;
     }
-
     return config.title;
-  }, [config, activeTrack, activeSpecialty, undergradSpecialtyLabel, curriculumLabel]);
+  }, [
+    config,
+    activeTrack,
+    activeSpecialty,
+    undergradSpecialtyLabel,
+    curriculumLabel,
+  ]);
 
   const canGoBack =
-    config.mode === 'undergrad-specialties'
+    config.mode === "undergrad-specialties"
       ? Boolean(activeUndergradSpecialty || activeCurriculum)
       : Boolean(activeTrack || activeSpecialty || activeCurriculum);
 
@@ -157,33 +186,54 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
     setActiveCurriculum(null);
   };
 
-  const tileButtonBase = 'group flex flex-col items-center justify-center gap-4 rounded-xl border border-slate-100 bg-white p-10 text-center shadow-[0px_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0px_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 dark:border-slate-800 dark:bg-slate-900/50 dark:shadow-[0px_4px_20px_rgba(0,0,0,0.2)] dark:hover:border-slate-700 dark:hover:bg-slate-800 w-full sm:w-[320px]';
+  const tileButtonBase =
+    "group flex flex-col items-center justify-center gap-5 rounded-2xl border border-slate-100 bg-white p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-emerald-900/50 dark:hover:shadow-emerald-900/20 w-full sm:w-[300px]";
+  const tileButtonActive =
+    "ring-2 ring-emerald-500 bg-emerald-50/30 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800";
+
+  const TileIcon = ({
+    Icon,
+    isActive,
+  }: {
+    Icon: React.ElementType;
+    isActive?: boolean;
+  }) => (
+    <div
+      className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors duration-300 ${isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400" : "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:group-hover:bg-emerald-900/50"}`}
+    >
+      <Icon
+        className="h-8 w-8 transition-transform duration-300 group-hover:scale-110"
+        strokeWidth={1.5}
+      />
+    </div>
+  );
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:p-10 dark:border-slate-700 dark:bg-slate-900">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
-        <div className="flex justify-start">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-10 dark:border-slate-800 dark:bg-slate-900/50">
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 md:gap-8 border-b border-slate-100 pb-6 dark:border-slate-800">
+        <div className="flex justify-start min-w-[100px]">
           {canGoBack && (
             <button
               type="button"
               onClick={handleGoBack}
-              className="shrink-0 rounded-xl border border-slate-300 px-6 py-3 text-base font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/80"
             >
               Go Back
             </button>
           )}
         </div>
-        <h3 className="text-center text-2xl font-bold text-slate-900 md:text-3xl dark:text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis">
+        <h3 className="text-center text-xl font-bold text-slate-800 md:text-2xl dark:text-slate-100 truncate">
           {currentTitle}
         </h3>
-        <div></div>
+        <div className="min-w-[100px]"></div>
       </div>
 
-      {config.mode === 'degree-tracks' && (
-        <div className="mt-8 flex flex-wrap justify-center gap-5">
+      {config.mode === "degree-tracks" && (
+        <div className="mt-10 flex flex-wrap justify-center gap-6">
           {!activeTrack &&
             trackOrder.map((trackKey) => {
               const track = config.tracks[trackKey];
+              const Icon = getIconForTrack(trackKey);
 
               return (
                 <button
@@ -196,16 +246,21 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                   }}
                   className={tileButtonBase}
                 >
-                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{track.label}</p>
+                  <TileIcon Icon={Icon} />
+                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    {track.label}
+                  </p>
                 </button>
               );
             })}
 
-          {activeTrack && currentTrack?.type === 'research' && !activeSpecialty &&
+          {activeTrack &&
+            currentTrack?.type === "research" &&
+            !activeSpecialty &&
             studyTrackSpecialtyOrder.map((specialty) => {
               const isActive = activeSpecialty === specialty;
               const specialtyLabel = studyTrackSpecialtyLabels[specialty];
+              const Icon = getIconForSpecialty(specialty);
 
               return (
                 <button
@@ -216,53 +271,54 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                     setActiveCurriculum(null);
                   }}
                   aria-pressed={isActive}
-                  className={`${tileButtonBase} ${
-                    isActive
-                      ? 'ring-2 ring-[#00A152] bg-slate-50 dark:bg-slate-800/80'
-                      : ''
-                  }`}
+                  className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
                 >
-                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{specialtyLabel}</p>
+                  <TileIcon Icon={Icon} isActive={isActive} />
+                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    {specialtyLabel}
+                  </p>
                 </button>
               );
             })}
 
-          {activeTrack && currentTrack?.type === 'research' && activeSpecialty && !activeCurriculum &&
+          {activeTrack &&
+            currentTrack?.type === "research" &&
+            activeSpecialty &&
+            !activeCurriculum &&
             curriculumOrder.map((curriculum) => {
               const isActive = activeCurriculum === curriculum;
-              const label = curriculum === 'old' ? 'Old Curriculum' : 'New Curriculum';
-
+              const label =
+                curriculum === "old" ? "Old Curriculum" : "New Curriculum";
               return (
                 <button
                   key={curriculum}
                   type="button"
                   onClick={() => setActiveCurriculum(curriculum)}
                   aria-pressed={isActive}
-                  className={`${tileButtonBase} ${
-                    isActive
-                      ? 'ring-2 ring-[#00A152] bg-slate-50 dark:bg-slate-800/80'
-                      : ''
-                  }`}
+                  className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
                 >
-                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{label}</p>
+                  <TileIcon Icon={BookText} isActive={isActive} />
+                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    {label}
+                  </p>
                 </button>
               );
             })}
         </div>
       )}
 
-      {config.mode === 'undergrad-specialties' && (
-        <div className="mt-8 flex flex-col items-center gap-6">
+      {config.mode === "undergrad-specialties" && (
+        <div className="mt-10 flex flex-col items-center gap-6">
           {!activeUndergradSpecialty && (
             <>
               {/* First row: General */}
               <div className="flex justify-center w-full">
                 {undergradSpecialtyOrder
-                  .filter((k) => k === 'general')
+                  .filter((k) => k === "general")
                   .map((specialtyKey) => {
                     const specialty = config.specialties[specialtyKey];
+                    const Icon = getIconForSpecialty(specialtyKey);
+
                     return (
                       <button
                         key={specialtyKey}
@@ -273,8 +329,8 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                         }}
                         className={tileButtonBase}
                       >
-                        <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                        <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">
+                        <TileIcon Icon={Icon} />
+                        <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
                           {specialty.label}
                         </p>
                       </button>
@@ -283,11 +339,13 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
               </div>
 
               {/* Second row: CS, AI, IS */}
-              <div className="flex flex-wrap justify-center gap-5 w-full">
+              <div className="flex flex-wrap justify-center gap-6 w-full">
                 {undergradSpecialtyOrder
-                  .filter((k) => k !== 'general')
+                  .filter((k) => k !== "general")
                   .map((specialtyKey) => {
                     const specialty = config.specialties[specialtyKey];
+                    const Icon = getIconForSpecialty(specialtyKey);
+
                     return (
                       <button
                         key={specialtyKey}
@@ -298,8 +356,8 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                         }}
                         className={tileButtonBase}
                       >
-                        <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                        <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">
+                        <TileIcon Icon={Icon} />
+                        <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
                           {specialty.label}
                         </p>
                       </button>
@@ -309,10 +367,12 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
             </>
           )}
 
-          {activeUndergradSpecialty && !activeCurriculum &&
+          {activeUndergradSpecialty &&
+            !activeCurriculum &&
             curriculumOrder.map((curriculum) => {
               const isActive = activeCurriculum === curriculum;
-              const label = curriculum === 'old' ? 'Old Curriculum' : 'New Curriculum';
+              const label =
+                curriculum === "old" ? "Old Curriculum" : "New Curriculum";
 
               return (
                 <button
@@ -320,14 +380,12 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
                   type="button"
                   onClick={() => setActiveCurriculum(curriculum)}
                   aria-pressed={isActive}
-                  className={`${tileButtonBase} ${
-                    isActive
-                      ? 'ring-2 ring-[#00A152] bg-slate-50 dark:bg-slate-800/80'
-                      : ''
-                  }`}
+                  className={`${tileButtonBase} ${isActive ? tileButtonActive : ""}`}
                 >
-                  <i className="fa-brands fa-google-drive text-[40px] text-[#00A152] transition-transform duration-300 group-hover:scale-110 dark:text-[#00c968]"></i>
-                  <p className="mt-2 text-xl font-bold text-[#0A2540] transition-colors duration-300 group-hover:text-[#00A152] dark:text-white dark:group-hover:text-[#00c968]">{label}</p>
+                  <TileIcon Icon={BookText} isActive={isActive} />
+                  <p className="text-lg font-bold text-slate-800 transition-colors duration-300 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    {label}
+                  </p>
                 </button>
               );
             })}
@@ -335,21 +393,19 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
       )}
 
       {resources.length > 0 && (
-        <div className="mt-8 flex flex-wrap justify-center gap-6">
+        <div className="mt-10 flex flex-wrap justify-center gap-6">
           {resources.map((resource) => {
             if (isSharePointVideoLink(resource.url)) {
               const { href, title } = parseSharePointVideoLink(resource.url);
-
               return (
                 <LinkResourceCard
                   key={resource.id}
                   href={href}
-                  title={title || 'Video'}
+                  title={title || "Video"}
                   className="w-full sm:w-[400px]"
                 />
               );
             }
-
             return (
               <PdfResourceCard
                 key={resource.id}
@@ -364,5 +420,3 @@ export default function NewStudyPlanResources({ config }: NewStudyPlanResourcesP
     </section>
   );
 }
-
-
