@@ -10,6 +10,7 @@ import {
   ClipboardList,
   FileCheck,
   FileText,
+  ExternalLink,
 } from "lucide-react";
 import {
   getAdmissionSectionByKey,
@@ -94,14 +95,27 @@ export default function Admission() {
   return (
     <section className="min-h-screen bg-slate-50/50 py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1024px] px-4 sm:px-8">
-        <div className="mb-12 text-center md:text-left">
-          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
-            Admission
-          </h1>
-          <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
-            Explore application steps and required admission documents. Find
-            everything you need to start your journey with us.
-          </p>
+        <div className="mb-12 flex flex-col items-center justify-between gap-6 md:flex-row md:items-end">
+          <div className="text-center md:text-left">
+            <h1 className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
+              Admission
+            </h1>
+            <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
+              Explore application steps and required admission documents. Find
+              everything you need to start your journey with us.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <a
+              href="https://admission.must.edu.eg/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-1 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/30 no-underline"
+            >
+              <span>Apply Now</span>
+              <ExternalLink className="h-5 w-5" />
+            </a>
+          </div>
         </div>
 
         {isLoading ? (
