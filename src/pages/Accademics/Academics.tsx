@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AcademicStaffProfileCardProps } from "../../components/AcademicStaffProfileCard";
 import StaffAccordion from "../../components/StaffAccordion";

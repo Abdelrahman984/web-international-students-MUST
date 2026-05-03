@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./MustHeader.scss";
 import { MENU_ITEMS, MenuItem } from "./navigation.data";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { ROLES } from "../../constants/roles";
 import { getMyProfile, type MyProfile } from "../../services/profileApi";
 
@@ -15,6 +16,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
   darkMode,
   onToggleDarkMode,
 }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [activeDropdown, setActiveDropdown] = useState<MenuItem | null>(null);
   const [activeLeftItem, setActiveLeftItem] = useState<MenuItem | null>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(
@@ -22,6 +24,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
   );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(
+    () => window.innerWidth > 991,
+  );
   const [mobileActiveItem, setMobileActiveItem] = useState<MenuItem | null>(
     null,
   );
@@ -42,7 +47,15 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
     profile?.studentProfile?.fullName ||
     profile?.userName ||
     user?.username ||
-    "User";
+    (language === "ar" ? "مستخدم" : "User");
+
+  // Helper to translate labels
+  const getLabel = (item: MenuItem) => {
+    // If translationKey is available, use it, otherwise format label as key
+    const key =
+      item.translationKey || item.label.toLowerCase().replace(/[\s-]/g, "_");
+    return t(key);
+  };
 
   // Close menus on route change
   useEffect(() => {
@@ -78,6 +91,23 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       isMounted = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const large = window.innerWidth > 991;
+      setIsLargeScreen(large);
+      if (large) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Desktop hover logic
   const onMouseEnter = (item: MenuItem) => {
@@ -130,6 +160,10 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
     onToggleDarkMode();
   };
 
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "ar" : "en");
+  };
+
   const handleLogout = async () => {
     await logout();
     closeMenus();
@@ -141,7 +175,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       <header className="must-header">
         <div className="header-container">
           {/* Left Logo */}
-          <Link to="/" className="logo-link" title="Home">
+          <Link to="/" className="logo-link" title={t("home")}>
             <img
               src="/assets/1740307130_140_87669_group1000004290.svg"
               alt="MUST Logo"
@@ -166,7 +200,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                       className="nav-link"
                       onClick={closeMenus}
                     >
-                      {item.label}
+                      {getLabel(item)}
                     </Link>
                   ) : (
                     <a
@@ -175,7 +209,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                       rel={item.externalUrl ? "noopener noreferrer" : undefined}
                       className={`nav-link ${activeDropdown === item ? "active" : ""}`}
                     >
-                      {item.label}
+                      {getLabel(item)}
                     </a>
                   )}
 
@@ -199,7 +233,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                     className="left-panel-link"
                                     onClick={closeMenus}
                                   >
-                                    {child.label}
+                                    {getLabel(child)}
                                   </Link>
                                 ) : (
                                   <a
@@ -214,11 +248,11 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                     }
                                     className={`left-panel-link ${activeLeftItem === child ? "active" : ""}`}
                                   >
-                                    {child.label}
+                                    {getLabel(child)}
                                     {child.children &&
                                       child.children.length > 0 && (
                                         <i
-                                          className={`fas icon-chevron ${activeLeftItem === child ? "fa-chevron-right" : "fa-chevron-down"}`}
+                                          className={`fas icon-chevron ${activeLeftItem === child ? (language === "ar" ? "fa-chevron-left" : "fa-chevron-right") : "fa-chevron-down"}`}
                                         ></i>
                                       )}
                                   </a>
@@ -243,7 +277,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                                     className="right-panel-link"
                                                     onClick={closeMenus}
                                                   >
-                                                    {subChild.label}
+                                                    {getLabel(subChild)}
                                                   </Link>
                                                 ) : (
                                                   <a
@@ -263,7 +297,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                                     }
                                                     className="right-panel-link"
                                                   >
-                                                    {subChild.label}
+                                                    {getLabel(subChild)}
                                                   </a>
                                                 )}
 
@@ -292,7 +326,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                                               }
                                                               className="deep-panel-link"
                                                             >
-                                                              {deepChild.label}
+                                                              {getLabel(deepChild)}
                                                             </a>
                                                           </li>
                                                         ),
@@ -328,7 +362,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                 className="simple-dropdown-link"
                                 onClick={closeMenus}
                               >
-                                {child.label}
+                                {getLabel(child)}
                               </Link>
                             ) : (
                               <a
@@ -343,7 +377,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                 }
                                 className="simple-dropdown-link"
                               >
-                                {child.label}
+                                {getLabel(child)}
                               </a>
                             )}
                           </li>
@@ -358,10 +392,20 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
 
           {/* Right Controls */}
           <div className="header-controls">
+            {/* Language Toggle Button */}
+            <button
+              className="icon-toggle lang-toggle"
+              onClick={toggleLanguage}
+              title={language === "en" ? t("translate_to_ar") : t("translate_to_en")}
+              style={{ fontSize: "16px", minWidth: "40px" }}
+            >
+              {language === "en" ? "AR" : "EN"}
+            </button>
+
             <button
               className="icon-toggle"
               onClick={toggleTheme}
-              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              title={darkMode ? t("switch_to_light") : t("switch_to_dark")}
             >
               <i className={`fas ${!darkMode ? "fa-sun" : "fa-moon"}`}></i>
             </button>
@@ -375,7 +419,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                 style={{ textDecoration: "none" }}
               >
                 <i className="fas fa-gauge-high"></i>
-                <span>Dashboard</span>
+                <span>{t("dashboard")}</span>
               </a>
             )}
 
@@ -387,7 +431,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   style={{ textDecoration: "none" }}
                 >
                   <i className="fas fa-user-circle"></i>
-                  <span>Sign In</span>
+                  <span>{t("sign_in")}</span>
                 </Link>
                 <Link
                   to="/register#auth"
@@ -395,7 +439,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   style={{ textDecoration: "none" }}
                 >
                   <i className="fas fa-user-plus"></i>
-                  <span>Register</span>
+                  <span>{t("register")}</span>
                 </Link>
               </>
             ) : (
@@ -413,21 +457,23 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   onClick={handleLogout}
                 >
                   <i className="fas fa-sign-out-alt"></i>
-                  <span>Sign Out</span>
+                  <span>{t("sign_out")}</span>
                 </button>
               </>
             )}
 
             {/* Mobile Toggle */}
-            <button
-              className="mobile-toggle ms-2"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle menu"
-            >
-              <i
-                className={`fas ${!isMobileMenuOpen ? "fa-bars" : "fa-times"}`}
-              ></i>
-            </button>
+            {!isLargeScreen && (
+              <button
+                className="mobile-toggle ms-2"
+                onClick={toggleMobileMenu}
+                aria-label="Toggle menu"
+              >
+                <i
+                  className={`fas ${!isMobileMenuOpen ? "fa-bars" : "fa-times"}`}
+                ></i>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -446,7 +492,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                       className="mobile-nav-link"
                       onClick={closeMenus}
                     >
-                      {item.label}
+                      {getLabel(item)}
                     </Link>
                   ) : (
                     <a
@@ -456,7 +502,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                       className="mobile-nav-link"
                       onClick={closeMenus}
                     >
-                      {item.label}
+                      {getLabel(item)}
                     </a>
                   ))}
 
@@ -468,7 +514,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                       className="mobile-nav-link"
                       onClick={(e) => toggleMobileItem(item, e)}
                     >
-                      {item.label}
+                      {getLabel(item)}
                       <i
                         className={`fas ${mobileActiveItem !== item ? "fa-chevron-down" : "fa-chevron-up"}`}
                       ></i>
@@ -488,7 +534,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                   className="mobile-submenu-link"
                                   onClick={closeMenus}
                                 >
-                                  {child.label}
+                                  {getLabel(child)}
                                 </Link>
                               ) : (
                                 <a
@@ -504,7 +550,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                   className="mobile-submenu-link"
                                   onClick={closeMenus}
                                 >
-                                  {child.label}
+                                  {getLabel(child)}
                                 </a>
                               ))}
 
@@ -516,7 +562,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                   className="mobile-submenu-link"
                                   onClick={(e) => toggleMobileSubItem(child, e)}
                                 >
-                                  {child.label}
+                                  {getLabel(child)}
                                   <i
                                     className={`fas ${mobileActiveSubItem !== child ? "fa-chevron-down" : "fa-chevron-up"}`}
                                   ></i>
@@ -532,7 +578,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                           className="deep-link-item"
                                           onClick={closeMenus}
                                         >
-                                          {sub.label}
+                                          {getLabel(sub)}
                                         </Link>
                                       ) : (
                                         <a
@@ -550,7 +596,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                           className="deep-link-item"
                                           onClick={closeMenus}
                                         >
-                                          {sub.label}
+                                          {getLabel(sub)}
                                         </a>
                                       )}
                                     </li>
@@ -583,7 +629,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                 className="mobile-nav-link"
                 onClick={closeMenus}
               >
-                Dashboard
+                {t("dashboard")}
               </a>
             )}
             {!user ? (
@@ -593,14 +639,14 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   className="mobile-nav-link"
                   onClick={closeMenus}
                 >
-                  Login
+                  {t("sign_in")}
                 </Link>
                 <Link
                   to="/register#auth"
                   className="mobile-nav-link"
                   onClick={closeMenus}
                 >
-                  Register
+                  {t("register")}
                 </Link>
               </div>
             ) : (
@@ -623,7 +669,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                     border: "none",
                   }}
                 >
-                  Logout
+                  {t("sign_out")}
                 </button>
               </div>
             )}

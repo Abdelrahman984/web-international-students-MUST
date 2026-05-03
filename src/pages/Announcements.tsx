@@ -84,13 +84,16 @@ export function Announcements() {
           </div>
         ) : selectedItem ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <button
-              type="button"
-              onClick={closeDetail}
-              className="mb-6 inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-600 dark:border-slate-600 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-            >
-              Back to Announcements
-            </button>
+            {/* Sticky Back Button */}
+            <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
+              <button
+                type="button"
+                onClick={closeDetail}
+                className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30"
+              >
+                <i className="fa-solid fa-arrow-left text-lg" /> Back to Announcements
+              </button>
+            </div>
 
             <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-6">
               {selectedItem.title}

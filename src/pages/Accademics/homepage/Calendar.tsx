@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getCalendarsList, type CalendarItem } from "../../../services/cmsApi";
 
@@ -29,6 +30,7 @@ export default function Calendar() {
   return (
     <section className="w-full min-h-screen bg-slate-50 py-20 px-6 pt-32 lg:px-24 dark:bg-[#0b132b]">
       <div className="max-w-7xl mx-auto">
+        {" "}
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="text-slate-900 text-4xl lg:text-5xl font-bold mb-6 dark:text-white">
             Academic Calendar
@@ -37,7 +39,6 @@ export default function Calendar() {
             Browse calendar files published from the backend API.
           </p>
         </div>
-
         {isLoading ? (
           <div className="animate-pulse text-emerald-700 text-xl font-bold text-center p-12 dark:text-emerald-400">
             Loading calendars from API...

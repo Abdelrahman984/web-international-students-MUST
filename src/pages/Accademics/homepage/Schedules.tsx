@@ -83,13 +83,15 @@ export default function Schedules() {
   return (
     <section className="w-full min-h-screen bg-slate-50 py-20 px-6 pt-32 lg:px-24 dark:bg-[#0b132b]">
       <div className="max-w-7xl mx-auto">
-        <Link
-          to="/advising?tab=resources"
-          className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline shadow-sm transition-colors hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
-        >
-          <span aria-hidden="true">←</span>
-          Back to Advising Resources
-        </Link>
+        <div className="sticky top-28 z-40 mb-10 flex justify-start">
+          <Link
+            to="/advising?tab=resources"
+            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+          >
+            <i className="fa-solid fa-arrow-left text-lg" />
+            Back to Advising Resources
+          </Link>
+        </div>
         <div className="text-center mb-16 max-w-3xl mx-auto">
           <h2 className="text-slate-900 text-4xl lg:text-5xl font-bold mb-6 dark:text-white">
             Academic Schedules
@@ -110,7 +112,17 @@ export default function Schedules() {
           </div>
         ) : openCategory && selectedCard ? (
           <div className="space-y-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className=" gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="sticky top-28 z-40 mb-10 flex justify-start">
+                <button
+                  type="button"
+                  onClick={() => setOpenCategory(null)}
+                  className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+                >
+                  <i className="fa-solid fa-arrow-left text-lg" />
+                  Back to categories
+                </button>
+              </div>
               <div>
                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
                   {selectedCard.title}
@@ -119,18 +131,9 @@ export default function Schedules() {
                   {selectedCard.description}
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setOpenCategory(null)}
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline shadow-sm transition-colors hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
-              >
-                <span aria-hidden="true">←</span>
-                Back to categories
-              </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {selectedItems.length ? (
                 selectedItems.map((item) => (
                   <a

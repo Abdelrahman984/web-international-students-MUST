@@ -1,4 +1,11 @@
-import React from 'react';
+import React from "react";
+import {
+  Building2,
+  BookOpen,
+  GraduationCap,
+  FileText,
+  Mail,
+} from "lucide-react";
 
 export interface AcademicStaffProfileCardProps {
   title?: string;
@@ -35,113 +42,112 @@ export default function AcademicStaffProfileCard({
   bio,
   department,
 }: AcademicStaffProfileCardProps) {
-  const displayName = [title, firstName, lastName].filter(Boolean).join(' ').trim() || name;
-  const displayPosition = position || role || 'N/A';
+  const fullName =
+    [firstName, lastName].filter(Boolean).join(" ").trim() || name;
+  const displayName = title ? `${title} / ${fullName}` : fullName;
+  const displayPosition = position || role || "N/A";
 
   return (
-    <article className="w-full rounded-xl border border-slate-200 bg-white p-6 md:p-8 dark:border-slate-700 dark:bg-slate-800">
-      <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="flex gap-4">
+    <article className="group flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-emerald-200 hover:shadow-md sm:flex-row sm:p-8 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-emerald-900/50">
+      {/* Avatar Section */}
+      <div className="flex shrink-0 flex-col items-center gap-4 sm:w-36 sm:items-start">
+        <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <img
             src={imageUrl}
             alt={imageAlt || name}
-            className="h-24 w-24 rounded-lg object-fit border border-blue-400/30"
+            className="h-full w-full object-fit transition-transform duration-500 group-hover:scale-105"
           />
-
-          <div className="flex flex-col justify-center">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{displayName}</h2>
-            <p className="mt-1 text-base font-medium text-slate-600 dark:text-slate-300">{displayPosition}</p>
-          </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          {/* <a
-            href={cvUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-fit items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-blue-700 transition-colors hover:bg-blue-100 dark:border-blue-500/40 dark:bg-blue-900/20 dark:text-blue-200 dark:hover:bg-blue-800/40"
+        {/* Email Quick Action */}
+        {email && email !== "#" && (
+          <a
+            href={`mailto:${email}`}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
+            title="Send Email"
           >
-            <PdfIcon className="h-5 w-5" />
-            <span className="font-medium">{cvLabel}</span>
-          </a> */}
+            <Mail className="h-4 w-4" />
+            <span>Email</span>
+          </a>
+        )}
+      </div>
 
-          {googleScholarLink && (
-            <a
-              href={googleScholarLink}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-fit items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-900/20 dark:text-emerald-200 dark:hover:bg-emerald-800/40"
-            >
-              <ScholarIcon className="h-5 w-5" />
-              <span className="font-medium">Google Scholar</span>
-            </a>
-          )}
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col justify-between gap-6">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="text-center sm:text-left">
+            <h2 className="text-2xl font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+              {displayName}
+            </h2>
+            <p className="mt-1 text-sm font-semibold tracking-wide text-emerald-600 dark:text-emerald-500">
+              {displayPosition}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
+            {cvUrl && cvUrl !== "#" && (
+              <a
+                href={cvUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-semibold text-blue-700 transition-all hover:bg-blue-100 hover:shadow-sm dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40"
+              >
+                <FileText className="h-4 w-4" />
+                <span>{cvLabel || "CV"}</span>
+              </a>
+            )}
+
+            {googleScholarLink && googleScholarLink !== "#" && (
+              <a
+                href={googleScholarLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+              >
+                <GraduationCap className="h-4 w-4" />
+                <span>Google Scholar</span>
+              </a>
+            )}
+          </div>
+        </header>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <InfoItem
+            icon={Building2}
+            label="Department"
+            value={department || role || "N/A"}
+          />
+          <InfoItem
+            icon={BookOpen}
+            label="Research Direction"
+            value={specialty || "N/A"}
+          />
         </div>
-      </header>
-
-      <div className="mt-8 space-y-5">
-        <SectionCard title="Department">
-          <p className="text-lg leading-8 text-slate-700 dark:text-slate-300">{department || role || 'N/A'}</p>
-        </SectionCard>
-
-        <SectionCard title="Research Direction">
-          <p className="text-lg leading-8 text-slate-700 dark:text-slate-300">{specialty || 'N/A'}</p>
-        </SectionCard>
       </div>
     </article>
   );
 }
 
-interface SectionCardProps {
-  title: string;
-  children: React.ReactNode;
+interface InfoItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
 }
 
-function SectionCard({ title, children }: SectionCardProps) {
+function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-slate-50 p-5 md:p-6 dark:border-slate-700 dark:bg-slate-900/50">
-      <h3 className="text-2xl font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">{title}</h3>
-      <div className="my-3 h-px w-full bg-slate-200 dark:bg-slate-700" />
-      {children}
-    </section>
-  );
-}
-
-function PdfIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className={className}
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.5 3.75H7.5A1.5 1.5 0 0 0 6 5.25v13.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V8.25L14.5 3.75Z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 3.75v4.5h4.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.75 14.25h6.5M8.75 16.75h4M8.75 11.75h6.5" />
-    </svg>
-  );
-}
-
-function ScholarIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className={className}
-      aria-hidden="true"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="m3 10.5 9-6 9 6-9 6-9-6Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12.75v3.75c0 1.25 2.35 2.25 5.25 2.25s5.25-1 5.25-2.25v-3.75" />
-    </svg>
+    <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-4 transition-colors group-hover:bg-emerald-50/50 dark:bg-slate-800/50 dark:group-hover:bg-emerald-900/10">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-slate-800">
+        <Icon className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
+      </div>
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+        <p className="mt-1 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200 line-clamp-3">
+          {value}
+        </p>
+      </div>
+    </div>
   );
 }

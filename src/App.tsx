@@ -24,6 +24,7 @@ import Questionnaires from "./pages/Questionnaires";
 import { Resources } from "./pages/Resources";
 import { Facilities } from "./pages/Facilities";
 import { Announcements } from "./pages/Announcements";
+import { AnnouncementDetail } from "./pages/AnnouncementDetail";
 import { Notifications } from "./pages/Notifications";
 import { ContactUs } from "./pages/ContactUs";
 import { Profile } from "./pages/Profile";
@@ -51,6 +52,7 @@ import { ProfileProvider } from "./contexts/ProfileContext";
 import { RequestsProvider } from "./contexts/RequestsContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ChatStoreProvider } from "./context/ChatContext";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Links from "./pages/links";
 import { AutoScrollManager } from "./components/AutoScrollManager";
@@ -68,6 +70,7 @@ export type PageType =
   | "my-requests";
 
 function AppContent() {
+  const { language } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
 
@@ -88,11 +91,16 @@ function AppContent() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? "dark bg-comfortDark-bg text-comfortDark-text" : "bg-white text-gray-900"}`}
+      dir={language === "ar" ? "rtl" : "ltr"}
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? "dark bg-comfortDark-bg text-comfortDark-text" : "bg-white text-gray-900"} ${language === "ar" ? "font-tajawal" : ""}`}
     >
       <MustHeader darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-      <HeroSlider />
+      {/* Show HeroSlider only on the home page */}
+      {(location.pathname === "/" || location.pathname === "/home") && (
+        <HeroSlider />
+      )}
+
       <main className="flex-1">
         <AnimatePresence mode="wait" key={location.pathname}>
           <motion.div
@@ -144,6 +152,10 @@ function AppContent() {
               <Route path="/resources" element={<Resources />} />
               <Route path="/facilities" element={<Facilities />} />
               <Route path="/announcements" element={<Announcements />} />
+              <Route
+                path="/announcements/:id"
+                element={<AnnouncementDetail />}
+              />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/contactus" element={<ContactUs />} />
               <Route path="/contact-us" element={<ContactUs />} />
@@ -192,17 +204,19 @@ function AppContent() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <ChatStoreProvider>
-        <ProfileProvider>
-          <RequestsProvider>
-            <BrowserRouter>
-              <AutoScrollManager />
-              <AppContent />
-            </BrowserRouter>
-          </RequestsProvider>
-        </ProfileProvider>
-      </ChatStoreProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <ChatStoreProvider>
+          <ProfileProvider>
+            <RequestsProvider>
+              <BrowserRouter>
+                <AutoScrollManager />
+                <AppContent />
+              </BrowserRouter>
+            </RequestsProvider>
+          </ProfileProvider>
+        </ChatStoreProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

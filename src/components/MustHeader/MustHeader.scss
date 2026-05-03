@@ -12,14 +12,14 @@ $header-height: 105px;
   top: 0;
   left: 0;
   width: 100%;
-  height: $header-height;
+  // height: $header-height;
   background-color: $must-blue;
   z-index: 1050;
   font-family: 'Tajawal', 'Segoe UI', Arial, Helvetica, sans-serif;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 
   .header-container {
-    margin: 0 auto;
+    margin: 10px auto;
     height: 100%;
     display: flex;
     align-items: center;

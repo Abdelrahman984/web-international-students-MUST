@@ -17,6 +17,7 @@ import {
   Trash2Icon,
   X,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 // ---------------------------------------------------------------------------
@@ -69,9 +70,8 @@ interface ChatPopupProps {
 
 export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const currentUserId = user?.id || "";
-  const currentUserName = user?.displayName || user?.username || "You";
-
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -240,34 +240,64 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
     }
   };
 
-  // ── Guard: no identity ────────────────────────────────────────────
-  // if (!currentUserId) {
-  //   return (
-  //     <div className="flex items-center justify-center h-full">
-  //       <div className="text-center text-gray-500 dark:text-gray-400">
-  //         <MessageSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-  //         <p className="font-medium mb-1">Identity not found</p>
-  //         <p className="text-sm">Please log in again to use the chat system.</p>
-  //         <button
-  //           onClick={onClose}
-  //           className="mt-4 px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 transition-colors"
-  //         >
-  //           Close
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // ── Get the active conversation object for the header ──────────────────
+  // Get the active conversation object for the header
   const activeConv = conversations.find((c) => c.id === activeConvId);
 
   if (!isOpen) return null;
+  if (!currentUserId) {
+    return (
+      <>
+        <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />
+        <div className="fixed bottom-4 right-20 z-[999] max-w-[calc(100vw-2rem)] flex">
+          <div className="flex h-[280px] w-[384px] bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-2xl flex-col">
+            <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+                  <MessageSquareIcon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                  Messages
+                </span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-slate-700 transition-all duration-200"
+                title="Close chat"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="text-center text-gray-500 dark:text-gray-400">
+                <MessageSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p className="font-medium mb-1 text-gray-900 dark:text-white">
+                  Login required
+                </p>
+                <p className="text-sm">
+                  Please log in to start chatting with students, advisors, and
+                  admins.
+                </p>
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate("/login");
+                  }}
+                  className="mt-4 px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700 transition-colors"
+                >
+                  Go to Login
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 z-[998]" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />
 
       {/* Modal */}
       <div

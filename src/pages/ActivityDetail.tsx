@@ -67,12 +67,15 @@ export default function ActivityDetail() {
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1000px] px-6 sm:px-12">
-        <Link
-          to="/activities"
-          className="mb-6 inline-block text-emerald-700 dark:text-emerald-400"
-        >
-          ← Back to activities
-        </Link>
+        <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
+          <Link
+            to="/activities"
+            className="inline-flex items-center gap-3 rounded-xl bg-[#11203d] px-5 py-2.5 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-[#1a305e] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#11203d]/30 no-underline"
+          >
+            <i className="fa-solid fa-arrow-left text-lg" />
+            Back to activities
+          </Link>
+        </div>
 
         <h1 className="mb-4 text-4xl font-extrabold text-slate-900 dark:text-white">
           {activity.title}
