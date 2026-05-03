@@ -161,18 +161,19 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       <header className="must-header">
         <div className="header-container">
           {/* Left Logo */}
-          <Link
-            to="https://must.edu.eg/"
+          <a
+            href="https://must.edu.eg/"
             className="logo-link"
             title="Go to the main MUST website"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <img
               src="/assets/1740307130_140_87669_group1000004290.svg"
               alt="Go to the main MUST website"
               className="logo-img"
             />
-          </Link>
-
+          </a>
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
             <ul className="nav-list">
