@@ -19,8 +19,12 @@ const DEFAULT_ANNOUNCEMENT_IMAGE = "/must-announcement-default.png";
 const toStringValue = (value: unknown): string =>
   typeof value === "string" ? value : "";
 
-const getNestedObject = (value: unknown): Record<string, unknown> | undefined => {
-  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+const getNestedObject = (
+  value: unknown,
+): Record<string, unknown> | undefined => {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : undefined;
 };
 
 const getImageUrl = (item: Record<string, unknown>): string => {
@@ -36,7 +40,9 @@ const getImageUrl = (item: Record<string, unknown>): string => {
   const imageUrl = image
     ? toStringValue(image.url) ||
       toStringValue(getNestedObject(image.data)?.url) ||
-      toStringValue(getNestedObject(getNestedObject(image.data)?.attributes)?.url)
+      toStringValue(
+        getNestedObject(getNestedObject(image.data)?.attributes)?.url,
+      )
     : "";
 
   return imageUrl || DEFAULT_ANNOUNCEMENT_IMAGE;
@@ -56,7 +62,9 @@ const formatAnnouncementDate = (dateValue: string): string => {
 
 export function AnnouncementDetail() {
   const { id } = useParams<{ id: string }>();
-  const [announcement, setAnnouncement] = useState<AnnouncementDetail | null>(null);
+  const [announcement, setAnnouncement] = useState<AnnouncementDetail | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -68,12 +76,12 @@ export function AnnouncementDetail() {
       setError("");
 
       try {
-        // Fetching all announcements and finding the specific one 
+        // Fetching all announcements and finding the specific one
         // This is a fallback if the API doesn't support fetching by ID directly
         const response = await apiClient.get("/api/advising_announcements");
-        
+
         let items: Record<string, unknown>[] = [];
-        
+
         const payload = response.data;
         if (Array.isArray(payload)) {
           items = payload;
@@ -83,26 +91,37 @@ export function AnnouncementDetail() {
             if (Array.isArray(asObject.data)) items = asObject.data;
             else {
               const nestedData = getNestedObject(asObject.data);
-              if (nestedData && Array.isArray(nestedData.items)) items = nestedData.items;
+              if (nestedData && Array.isArray(nestedData.items))
+                items = nestedData.items;
               else if (Array.isArray(asObject.items)) items = asObject.items;
             }
           }
         }
 
-        const foundItem = items.find(item => 
-          toStringValue(item.id) === id || 
-          toStringValue(item.documentId) === id
+        const foundItem = items.find(
+          (item) =>
+            toStringValue(item.id) === id ||
+            toStringValue(item.documentId) === id,
         );
 
         if (!foundItem) {
           throw new Error("Announcement not found.");
         }
 
-        const title = toStringValue(foundItem.title) || toStringValue(foundItem.name) || "Advising Announcement";
-        const rawDate = toStringValue(foundItem.date) || toStringValue(foundItem.publishedAt) || toStringValue(foundItem.createdAt);
-        
+        const title =
+          toStringValue(foundItem.title) ||
+          toStringValue(foundItem.name) ||
+          "Advising Announcement";
+        const rawDate =
+          toStringValue(foundItem.date) ||
+          toStringValue(foundItem.publishedAt) ||
+          toStringValue(foundItem.createdAt);
+
         // Use full content if available, fallback to description
-        const content = toStringValue(foundItem.content) || toStringValue(foundItem.body) || toStringValue(foundItem.description);
+        const content =
+          toStringValue(foundItem.content) ||
+          toStringValue(foundItem.body) ||
+          toStringValue(foundItem.description);
 
         if (!cancelled) {
           setAnnouncement({
@@ -113,12 +132,16 @@ export function AnnouncementDetail() {
             date: formatAnnouncementDate(rawDate),
             imageUrl: getImageUrl(foundItem),
             imageAlt: `${title} image`,
-            author: toStringValue(foundItem.author) || "MUST Advising Team"
+            author: toStringValue(foundItem.author) || "MUST Advising Team",
           });
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load announcement details.");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load announcement details.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -141,13 +164,22 @@ export function AnnouncementDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-24 pt-32 dark:bg-[#070d19]">
-      <div className="mx-auto w-full max-w-[1024px] px-4 sm:px-8">
-        
+      <div className="mx-auto w-full max-w-[1200px] px-6 sm:px-12">
         {/* Breadcrumb Navigation */}
         <nav className="mb-8 flex items-center space-x-2 text-sm font-medium text-slate-500 dark:text-slate-400">
-          <Link to="/academics" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Academics</Link>
+          <Link
+            to="/academics"
+            className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            Academics
+          </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link to="/advising?tab=announcements" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Advising</Link>
+          <Link
+            to="/advising?tab=announcements"
+            className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            Advising
+          </Link>
           <ChevronRight className="h-4 w-4" />
           <span className="text-slate-900 dark:text-slate-200 truncate max-w-[200px] sm:max-w-none">
             {announcement?.title || "Announcement Details"}
@@ -178,7 +210,9 @@ export function AnnouncementDetail() {
             <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/50">
               <p className="text-4xl">⚠️</p>
             </div>
-            <h3 className="mt-4 text-xl font-bold text-red-800 dark:text-red-400">Oops! Something went wrong</h3>
+            <h3 className="mt-4 text-xl font-bold text-red-800 dark:text-red-400">
+              Oops! Something went wrong
+            </h3>
             <p className="mt-2 text-red-600 dark:text-red-300">{error}</p>
             <Link
               to="/advising?tab=announcements"
@@ -188,43 +222,42 @@ export function AnnouncementDetail() {
             </Link>
           </div>
         ) : announcement ? (
-          <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
-            {/* Header Image */}
-            <div className="relative h-64 w-full sm:h-80 md:h-[400px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className="w-full sticky top-32 lg:order-last">
               <img
                 src={announcement.imageUrl}
                 alt={announcement.imageAlt}
-                className="h-full w-full object-cover"
+                className="w-full rounded-[20px] object-cover shadow-lg"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
-              
-              <div className="absolute bottom-0 left-0 w-full p-6 sm:p-10">
-                <div className="flex flex-wrap items-center gap-4 mb-4 text-white/90">
-                  <div className="flex items-center gap-2 rounded-full bg-black/30 px-3 py-1 text-sm backdrop-blur-md">
-                    <Calendar className="h-4 w-4" />
-                    <span>{announcement.date}</span>
-                  </div>
-                  {announcement.author && (
-                    <div className="flex items-center gap-2 rounded-full bg-black/30 px-3 py-1 text-sm backdrop-blur-md">
-                      <User className="h-4 w-4" />
-                      <span>{announcement.author}</span>
-                    </div>
-                  )}
-                </div>
-                <h1 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl leading-tight">
-                  {announcement.title}
-                </h1>
-              </div>
             </div>
 
-            {/* Content Body */}
-            <div className="p-6 sm:p-10 md:p-12">
-              <div className="prose prose-slate max-w-none dark:prose-invert prose-lg prose-headings:text-emerald-700 dark:prose-headings:text-emerald-400 prose-a:text-emerald-600 hover:prose-a:text-emerald-500">
-                {/* We use dangerouslySetInnerHTML in case the content contains HTML from the CMS */}
-                <div dangerouslySetInnerHTML={{ __html: announcement.content || announcement.description }} />
+            <div className="w-full flex flex-col">
+              <h1 className="mb-6 mt-2 text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
+                {announcement.title}
+              </h1>
+
+              <div className="mb-8 flex flex-wrap items-center gap-4">
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-base font-bold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 shadow-sm">
+                  <Calendar className="h-4 w-4" />
+                  {announcement.date}
+                </span>
+                {announcement.author && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-base font-bold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 shadow-sm">
+                    <User className="h-4 w-4" />
+                    {announcement.author}
+                  </span>
+                )}
+              </div>
+
+              <div className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: announcement.content || announcement.description,
+                  }}
+                />
               </div>
             </div>
-          </article>
+          </div>
         ) : null}
       </div>
     </div>
