@@ -506,7 +506,7 @@ export function HeroSlider() {
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                +25
+                +35
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Advisors

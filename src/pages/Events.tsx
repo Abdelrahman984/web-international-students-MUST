@@ -15,6 +15,7 @@ interface EventCardItem {
   description: string;
   href?: string;
   content?: string;
+  locationName?: string;
 }
 
 const ITEMS_PER_PAGE = 9;
@@ -72,6 +73,7 @@ export default function EventsPage() {
             href: item.href || "#",
             imageUrl: imageUrls[0] || "",
             imageUrls,
+            locationName: item.location_name || item.locationName || "",
           };
         });
 
@@ -179,6 +181,12 @@ export default function EventsPage() {
                         {selectedItem.timeRange}
                       </span>
                     )}
+                    {selectedItem.locationName && (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-base font-bold text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 shadow-sm">
+                        <i className="fa-solid fa-location-dot" />{" "}
+                        {selectedItem.locationName}
+                      </span>
+                    )}
                   </div>
 
                   {selectedItem.content || selectedItem.description ? (
@@ -266,14 +274,20 @@ export default function EventsPage() {
                     )}
                   </div>
 
+                  {/* Location Top-Right Badge */}
+                  {item.locationName && (
+                    <div className="absolute top-4 right-4 z-10 flex items-center justify-center rounded-xl bg-white/95 px-3 py-1.5 text-center shadow-md backdrop-blur-sm dark:bg-slate-900/90 border border-white/20 dark:border-slate-700/50">
+                      <span className="text-xs font-bold tracking-wide text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <i className="fa-solid fa-location-dot text-purple-500" />
+                        {item.locationName}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Content Container */}
                   <div className="absolute inset-x-0 bottom-0 flex h-full flex-col items-center justify-end p-6">
                     {/* translate-y-[44px] perfectly hides the "Read more" button below the card bound. */}
                     <div className="flex w-full flex-col items-center transform translate-y-[44px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:translate-y-0">
-                      <span className="mb-3 w-fit rounded-full bg-emerald-600/90 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur-sm">
-                        Event
-                      </span>
-
                       <h3 className="mb-3 text-center text-xl font-bold text-white drop-shadow-md line-clamp-2">
                         {item.title}
                       </h3>

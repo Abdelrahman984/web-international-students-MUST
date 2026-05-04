@@ -240,10 +240,6 @@ export default function NewsPage() {
                         On hover, translate-y-0 slides everything up so the button appears!
                     */}
                     <div className="flex w-full flex-col items-center transform translate-y-[44px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:translate-y-0">
-                      <span className="mb-3 w-fit rounded-full bg-blue-600/90 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur-sm">
-                        News
-                      </span>
-
                       <h3 className="mb-3 text-center text-xl font-bold text-white drop-shadow-md line-clamp-2">
                         {item.title}
                       </h3>
