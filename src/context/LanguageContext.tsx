@@ -95,7 +95,7 @@ const translations: Record<Language, Record<string, string>> = {
     footer_must_buzz: "MUST BUZZ",
     footer_contact_info: "Contact Info",
     footer_address: "Al-Motamayez District, 6th of October City, Giza, Egypt",
-    footer_copyright: "© 2025 Misr University for Science and Technology. All Rights Reserved.",
+    footer_copyright: "Copyright © 2026 Misr University for Science and Technology.",
     footer_policy: "Policy",
     apply_online: "Apply Online",
     faculties: "Faculties",
