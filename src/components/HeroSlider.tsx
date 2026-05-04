@@ -507,7 +507,7 @@ export function HeroSlider() {
           {/* Quick Stats / Info Row */}
           <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5 flex-wrap">
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00AC5C] to-[#0b9a55]">
                 +<AnimatedNumber value={10} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
@@ -516,7 +516,7 @@ export function HeroSlider() {
             </div>
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00AC5C] to-[#0b9a55]">
                 +<AnimatedNumber value={100} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
@@ -525,7 +525,7 @@ export function HeroSlider() {
             </div>
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00AC5C] to-[#0b9a55]">
                 +<AnimatedNumber value={35} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
@@ -534,7 +534,7 @@ export function HeroSlider() {
             </div>
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00AC5C] to-[#0b9a55]">
                 +<AnimatedNumber value={200} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
