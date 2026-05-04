@@ -453,12 +453,19 @@ export function HeroSlider() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="max-w-2xl"
         >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-200 text-xs md:text-lg font-bold mb-2 tracking-wide">
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AC5C] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AC5C]"></span>
+            </div>
+            College Of Information Technology
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-200 text-xs md:text-lg font-bold mb-6 tracking-wide">
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AC5C] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AC5C]"></span>
             </div>
-            MUST International Students Portal
+            International Students Portal
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight mb-5">
