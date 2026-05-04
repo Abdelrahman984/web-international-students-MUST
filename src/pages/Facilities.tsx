@@ -1,7 +1,7 @@
 // Facilities Page
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { PdfResourceCard } from "../components/PdfResourceCard";
 import { Pagination } from "../components/Pagination";
 import {
@@ -152,6 +152,18 @@ export function Facilities() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const galleryScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollGallery = (direction: "left" | "right") => {
+    if (galleryScrollRef.current) {
+      const scrollAmount = direction === "left" ? -400 : 400;
+      galleryScrollRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const activeTab = getActiveTab(searchParams.get("tab"));
   const isMustFacilitiesTab = activeTab === "mustFacilities";
@@ -300,22 +312,46 @@ export function Facilities() {
                   </h4>
 
                   {/* Horizontal Swipe Gallery (Matches Main Cards exactly: 3 per row on Desktop, 2 on Tablet, 1 on Mobile) */}
-                  <div className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    {selectedSection.gallery_paths.map((url, i) => (
-                      <div
-                        key={i}
-                        className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
-                      >
-                        <div className="aspect-[16/10] w-full overflow-hidden">
-                          <img
-                            src={url}
-                            alt={`${selectedSection.title} gallery ${i + 1}`}
-                            className="h-full w-full object-cover pointer-events-none"
-                            loading="lazy"
-                          />
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      aria-label="Scroll left"
+                      onClick={() => scrollGallery("left")}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/80 text-slate-900 shadow-md backdrop-blur transition hover:bg-white md:group-hover:inline-flex dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-900"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+
+                    <div
+                      ref={galleryScrollRef}
+                      className="flex w-full snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                    >
+                      {selectedSection.gallery_paths.map((url, i) => (
+                        <div
+                          key={i}
+                          className="relative flex-none w-[85vw] md:w-[calc(50%-16px)] lg:w-[calc(33.333333%-21.33px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer group/item"
+                          onClick={() => setSelectedImage(url)}
+                        >
+                          <div className="aspect-[16/10] w-full overflow-hidden">
+                            <img
+                              src={url}
+                              alt={`${selectedSection.title} gallery ${i + 1}`}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover/item:scale-110"
+                              loading="lazy"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      aria-label="Scroll right"
+                      onClick={() => scrollGallery("right")}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/80 text-slate-900 shadow-md backdrop-blur transition hover:bg-white md:group-hover:inline-flex dark:bg-slate-900/80 dark:text-white dark:hover:bg-slate-900"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
                   </div>
                 </div>
               )}
@@ -412,6 +448,29 @@ export function Facilities() {
           </section>
         )}
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-6 right-6 text-white hover:text-slate-300 transition-colors"
+            onClick={() => setSelectedImage(null)}
+            aria-label="Close image"
+          >
+            <X className="h-10 w-10" />
+          </button>
+          <img
+            src={selectedImage}
+            alt="Expanded gallery view"
+            className="max-h-[90vh] max-w-[90vw] object-contain animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
