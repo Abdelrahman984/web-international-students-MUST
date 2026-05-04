@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, animate } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, Plane } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getHeroSlides, type HeroNavTreeItem } from "../services/cmsApi";
@@ -177,6 +177,26 @@ function HeroNavMenuNode({
       )}
     </li>
   );
+}
+
+function AnimatedNumber({ value }: { value: number }) {
+  const nodeRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const node = nodeRef.current;
+    if (node) {
+      const controls = animate(0, value, {
+        duration: 2,
+        ease: "easeOut",
+        onUpdate(v) {
+          node.textContent = Math.round(v).toString();
+        },
+      });
+      return () => controls.stop();
+    }
+  }, [value]);
+
+  return <span ref={nodeRef}>{value}</span>;
 }
 
 export function HeroSlider() {
@@ -488,7 +508,7 @@ export function HeroSlider() {
           <div className="flex items-center gap-6 pt-5 border-t border-slate-200 dark:border-slate-800/60 mt-5 flex-wrap">
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                +10
+                +<AnimatedNumber value={10} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Nationalities
@@ -497,7 +517,7 @@ export function HeroSlider() {
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                +100
+                +<AnimatedNumber value={100} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Students
@@ -506,7 +526,7 @@ export function HeroSlider() {
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                +35
+                +<AnimatedNumber value={35} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                 Advisors
@@ -515,10 +535,10 @@ export function HeroSlider() {
             <div className="hidden sm:block w-px h-8 bg-slate-200 dark:bg-slate-800/60"></div>
             <div className="text-center">
               <p className="text-2xl font-black text-slate-900 dark:text-white">
-                100%
+                +<AnimatedNumber value={200} />
               </p>
               <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
-                Support
+                Alumni
               </p>
             </div>
           </div>
