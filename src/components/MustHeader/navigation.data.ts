@@ -123,6 +123,7 @@ export const MENU_ITEMS: MenuItem[] = [
       },
       {
         label: "Send Suggestion or Complaint",
+        translationKey: "send_suggestion",
         routerLink: "/contact-us?tab=admissions",
       },
     ],
