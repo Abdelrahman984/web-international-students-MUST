@@ -79,14 +79,14 @@ export default function AcademicStaffProfileCard({
             <h2 className="text-2xl font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
               {displayName}
             </h2>
-            {title && (
-              <p className="mt-1 text-base font-semibold text-slate-700 dark:text-slate-200">
-                {title}
-              </p>
-            )}
             {displayPosition && (
               <p className="mt-1 text-sm font-semibold tracking-wide text-emerald-600 dark:text-emerald-500">
                 {displayPosition}
+              </p>
+            )}
+            {title && (
+              <p className="mt-1 text-base font-semibold text-slate-700 dark:text-slate-200">
+                {title}
               </p>
             )}
           </div>
