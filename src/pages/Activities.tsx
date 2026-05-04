@@ -166,73 +166,87 @@ export default function ActivitiesPage() {
                   </button>
                 </div>
 
-                <div className="mx-auto max-w-4xl">
-                  <h3 className="text-center text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-10 mt-4">
-                    {selectedItem.title}
-                  </h3>
-
-                  {selectedItem.imageUrl && (
-                    <img
-                      src={selectedItem.imageUrl}
-                      alt={selectedItem.title}
-                      className="mb-12 max-h-[550px] w-full object-cover rounded-[20px] shadow-lg"
-                    />
-                  )}
-
-                  {selectedItem.content || selectedItem.description ? (
-                    <div
-                      className="prose prose-xl mt-8 max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
-                      dangerouslySetInnerHTML={{
-                        __html: selectedItem.content || selectedItem.description,
-                      }}
-                    />
-                  ) : (
-                    <p className="mt-6 text-center text-xl text-slate-600 dark:text-slate-300">
-                      No additional details available for this activity.
-                    </p>
-                  )}
-
-                  {selectedItem.href && selectedItem.href !== "#" && (
-                    <div className="mt-12 flex justify-center">
-                      <a
-                        href={selectedItem.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-8 py-4 font-bold text-white shadow-md transition-all hover:-translate-y-1 hover:bg-emerald-700 hover:shadow-lg"
-                      >
-                        Visit Official Activity Page
-                        <i className="fa-solid fa-external-link ml-3" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {selectedItem.imageUrls && selectedItem.imageUrls.length > 1 && (
-                  <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
-                    <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
-                      Gallery
-                    </h4>
-
-                    {/* Horizontal Swipe Gallery */}
-                    <div className="flex w-full snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                      {selectedItem.imageUrls.map((url: string, i: number) => (
-                        <div
-                          key={i}
-                          className="relative flex-none w-[90vw] md:w-[calc(50%-12px)] lg:w-[calc(33.333333%-16px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
-                        >
-                          <div className="aspect-[3/2] w-full overflow-hidden">
-                            <img
-                              src={url}
-                              alt={`${selectedItem.title} gallery ${i + 1}`}
-                              className="h-full w-full object-cover pointer-events-none"
-                              loading="lazy"
-                            />
-                          </div>
+                <div className="mx-auto max-w-6xl">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <div className="w-full sticky top-32 lg:order-last">
+                      {selectedItem.imageUrl ? (
+                        <img
+                          src={selectedItem.imageUrl}
+                          alt={selectedItem.title}
+                          className="w-full object-cover rounded-[20px] shadow-lg"
+                        />
+                      ) : (
+                        <div className="w-full aspect-video bg-slate-100 dark:bg-slate-800 rounded-[20px] shadow-lg flex items-center justify-center">
+                          <i className="fa-regular fa-image text-5xl text-slate-400" />
                         </div>
-                      ))}
+                      )}
+                    </div>
+
+                    <div className="w-full flex flex-col">
+                      <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-8 mt-2">
+                        {selectedItem.title}
+                      </h3>
+
+                      {selectedItem.content || selectedItem.description ? (
+                        <div
+                          className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              selectedItem.content || selectedItem.description,
+                          }}
+                        />
+                      ) : (
+                        <p className="text-xl text-slate-600 dark:text-slate-300">
+                          No additional details available for this activity.
+                        </p>
+                      )}
+
+                      {selectedItem.href && selectedItem.href !== "#" && (
+                        <div className="mt-12 flex justify-start">
+                          <a
+                            href={selectedItem.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-8 py-4 font-bold text-white shadow-md transition-all hover:-translate-y-1 hover:bg-emerald-700 hover:shadow-lg"
+                          >
+                            Visit Official Activity Page
+                            <i className="fa-solid fa-external-link ml-3" />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
+
+                {selectedItem.imageUrls &&
+                  selectedItem.imageUrls.length > 1 && (
+                    <div className="mt-20 border-t border-slate-200 pt-16 dark:border-slate-800">
+                      <h4 className="mb-10 text-center text-[2rem] font-bold text-[#009b4d]">
+                        Gallery
+                      </h4>
+
+                      {/* Horizontal Swipe Gallery */}
+                      <div className="flex w-full snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        {selectedItem.imageUrls.map(
+                          (url: string, i: number) => (
+                            <div
+                              key={i}
+                              className="relative flex-none w-[90vw] md:w-[calc(50%-12px)] lg:w-[calc(33.333333%-16px)] snap-start overflow-hidden bg-slate-100 dark:bg-slate-800"
+                            >
+                              <div className="aspect-[3/2] w-full overflow-hidden">
+                                <img
+                                  src={url}
+                                  alt={`${selectedItem.title} gallery ${i + 1}`}
+                                  className="h-full w-full object-cover pointer-events-none"
+                                  loading="lazy"
+                                />
+                              </div>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
               </section>
             ) : (
               <div>

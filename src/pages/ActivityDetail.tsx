@@ -66,7 +66,7 @@ export default function ActivityDetail() {
 
   return (
     <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
-      <div className="mx-auto w-full max-w-[1000px] px-6 sm:px-12">
+      <div className="mx-auto w-full max-w-[1200px] px-6 sm:px-12">
         <div className="sticky top-28 z-[1000] mb-10 flex justify-start">
           <Link
             to="/activities"
@@ -77,30 +77,39 @@ export default function ActivityDetail() {
           </Link>
         </div>
 
-        <h1 className="mb-4 text-4xl font-extrabold text-slate-900 dark:text-white">
-          {activity.title}
-        </h1>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="w-full sticky top-32 lg:order-last">
+            {imageUrl ? (
+              <img
+                src={resolveMediaUrl(imageUrl)}
+                alt={activity.title}
+                className="w-full rounded-[20px] object-cover shadow-lg"
+              />
+            ) : (
+              <div className="w-full aspect-video bg-slate-100 dark:bg-slate-800 rounded-[20px] shadow-lg flex items-center justify-center">
+                <i className="fa-regular fa-image text-5xl text-slate-400" />
+              </div>
+            )}
+          </div>
 
-        {imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={resolveMediaUrl(imageUrl)}
-            alt={activity.title}
-            className="mb-6 w-full rounded-lg object-cover"
-          />
-        )}
+          <div className="w-full flex flex-col">
+            <h1 className="mb-6 mt-2 text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
+              {activity.title}
+            </h1>
 
-        <div className="prose max-w-none dark:prose-invert text-slate-700 dark:text-slate-200">
-          {/* The API may provide HTML or plain text in description/content */}
-          {activity.content ? (
-            <div dangerouslySetInnerHTML={{ __html: activity.content }} />
-          ) : (
-            <p>
-              {activity.description ||
-                activity.summary ||
-                "No additional content."}
-            </p>
-          )}
+            <div className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600">
+              {/* The API may provide HTML or plain text in description/content */}
+              {activity.content ? (
+                <div dangerouslySetInnerHTML={{ __html: activity.content }} />
+              ) : (
+                <p className="text-xl text-slate-600 dark:text-slate-300">
+                  {activity.description ||
+                    activity.summary ||
+                    "No additional content."}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

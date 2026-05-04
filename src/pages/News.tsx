@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { apiClient } from '../services/api';
-import { resolveMediaUrl } from '../utils/media';
-import { Pagination } from '../components/Pagination';
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { apiClient } from "../services/api";
+import { resolveMediaUrl } from "../utils/media";
+import { Pagination } from "../components/Pagination";
 
 interface NewsCardItem {
   id: string;
@@ -21,15 +21,17 @@ export default function NewsPage() {
   const [newsList, setNewsList] = useState<NewsCardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const selectedId = searchParams.get('id');
-  const selectedItem = selectedId ? newsList.find(n => String(n.id) === selectedId) || null : null;
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const selectedId = searchParams.get("id");
+  const selectedItem = selectedId
+    ? newsList.find((n) => String(n.id) === selectedId) || null
+    : null;
 
   useEffect(() => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const response = await apiClient.get('/api/news');
+        const response = await apiClient.get("/api/news");
         const raw = Array.isArray(response.data)
           ? response.data
           : response.data?.data || response.data?.items || [];
@@ -37,7 +39,7 @@ export default function NewsPage() {
         const mapped: NewsCardItem[] = raw.map((item: any) => {
           let extraUrls: string[] = [];
           try {
-            if (item.image_urls && typeof item.image_urls === 'string') {
+            if (item.image_urls && typeof item.image_urls === "string") {
               const parsed = JSON.parse(item.image_urls);
               if (Array.isArray(parsed)) extraUrls = parsed;
             } else if (Array.isArray(item.image_urls)) {
@@ -49,7 +51,7 @@ export default function NewsPage() {
 
           const primaryImageUrl = item.image_url
             ? resolveMediaUrl(item.image_url)
-            : '';
+            : "";
 
           const imageUrls = [
             ...(primaryImageUrl ? [primaryImageUrl] : []),
@@ -57,19 +59,19 @@ export default function NewsPage() {
           ].filter(Boolean);
 
           return {
-            id: item.id || '',
-            title: item.title || 'Untitled News',
-            description: item.description || '',
-            content: item.content || item.description || '',
-            href: item.href || '#',
-            imageUrl: imageUrls[0] || '',
+            id: item.id || "",
+            title: item.title || "Untitled News",
+            description: item.description || "",
+            content: item.content || item.description || "",
+            href: item.href || "#",
+            imageUrl: imageUrls[0] || "",
             imageUrls,
           };
         });
 
         setNewsList(mapped);
       } catch (error) {
-        console.error('Error fetching news:', error);
+        console.error("Error fetching news:", error);
         setNewsList([]);
       } finally {
         setIsLoading(false);
@@ -82,7 +84,7 @@ export default function NewsPage() {
   const totalPages = Math.ceil(newsList.length / ITEMS_PER_PAGE);
   const paginatedNews = newsList.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const openDetail = (id: string) => {
@@ -101,9 +103,9 @@ export default function NewsPage() {
 
   const handlePageChange = (page: number) => {
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('page', page.toString());
+    nextParams.set("page", page.toString());
     setSearchParams(nextParams);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -139,31 +141,42 @@ export default function NewsPage() {
               </button>
             </div>
 
-            <div className="mx-auto max-w-4xl">
-              <h3 className="text-center text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-10 mt-4">
-                {selectedItem.title}
-              </h3>
+            <div className="mx-auto max-w-6xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <div className="w-full sticky top-32 lg:order-last">
+                  {selectedItem.imageUrl ? (
+                    <img
+                      src={selectedItem.imageUrl}
+                      alt={selectedItem.title}
+                      className="w-full object-cover rounded-[20px] shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-full aspect-video bg-slate-100 dark:bg-slate-800 rounded-[20px] shadow-lg flex items-center justify-center">
+                      <i className="fa-regular fa-image text-5xl text-slate-400" />
+                    </div>
+                  )}
+                </div>
 
-              {selectedItem.imageUrl && (
-                <img
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.title}
-                  className="mb-12 max-h-[550px] w-full object-cover rounded-[20px] shadow-lg"
-                />
-              )}
+                <div className="w-full flex flex-col">
+                  <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-8 mt-2">
+                    {selectedItem.title}
+                  </h3>
 
-              {selectedItem.content || selectedItem.description ? (
-                <div
-                  className="prose prose-xl mt-8 max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
-                  dangerouslySetInnerHTML={{
-                    __html: selectedItem.content || selectedItem.description,
-                  }}
-                />
-              ) : (
-                <p className="mt-6 text-center text-xl text-slate-600 dark:text-slate-300">
-                  No additional details available for this news item.
-                </p>
-              )}
+                  {selectedItem.content || selectedItem.description ? (
+                    <div
+                      className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          selectedItem.content || selectedItem.description,
+                      }}
+                    />
+                  ) : (
+                    <p className="text-xl text-slate-600 dark:text-slate-300">
+                      No additional details available for this news item.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {selectedItem.imageUrls && selectedItem.imageUrls.length > 1 && (
@@ -227,7 +240,6 @@ export default function NewsPage() {
                         On hover, translate-y-0 slides everything up so the button appears!
                     */}
                     <div className="flex w-full flex-col items-center transform translate-y-[44px] transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:translate-y-0">
-
                       <span className="mb-3 w-fit rounded-full bg-blue-600/90 px-3 py-1 text-xs font-bold uppercase text-white backdrop-blur-sm">
                         News
                       </span>
@@ -244,7 +256,8 @@ export default function NewsPage() {
                         type="button"
                         className="mt-4 inline-flex items-center gap-2 text-base font-bold text-emerald-400 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:text-emerald-300 drop-shadow-md"
                       >
-                        Read more <i className="fa-solid fa-arrow-right text-sm" />
+                        Read more{" "}
+                        <i className="fa-solid fa-arrow-right text-sm" />
                       </button>
                     </div>
                   </div>
