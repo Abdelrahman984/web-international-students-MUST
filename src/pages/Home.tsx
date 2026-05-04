@@ -403,7 +403,9 @@ export default function HomePage() {
         });
       } catch (error) {
         console.error("Error fetching home sections:", error);
-        setSectionsError(t("loading_error") || "Could not load home sections right now.");
+        setSectionsError(
+          t("loading_error") || "Could not load home sections right now.",
+        );
       } finally {
         setIsLoadingSections(false);
       }
@@ -500,7 +502,7 @@ export default function HomePage() {
                       </p>
                       <div
                         ref={aboutContentRef}
-                        className={`prose mt-4 max-w-none ${language === "ar" ? "border-r-4 pr-5 border-l-0" : "border-l-4 pl-5"} border-emerald-500 text-lg leading-8 text-slate-700 dark:prose-invert dark:text-slate-200`}
+                        className={`text-justify prose mt-4 max-w-none ${language === "ar" ? "border-r-4 pr-5 border-l-0" : "border-l-4 pl-5"} border-emerald-500 text-lg leading-8 text-slate-700 dark:prose-invert dark:text-slate-200`}
                         dangerouslySetInnerHTML={{
                           __html:
                             aboutSectorHtml ||
@@ -537,7 +539,9 @@ export default function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {homeSections.mission && (
                   <article className="rounded-3xl border border-slate-200/60 bg-white/60 backdrop-blur-xl p-8 shadow-xl shadow-slate-200/40 dark:border-slate-700/60 dark:bg-slate-800/40 dark:shadow-none transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 relative overflow-hidden group">
-                    <div className={`absolute top-0 ${language === "ar" ? "left-0" : "right-0"} p-8 opacity-5 text-blue-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none`}>
+                    <div
+                      className={`absolute top-0 ${language === "ar" ? "left-0" : "right-0"} p-8 opacity-5 text-blue-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none`}
+                    >
                       <Target className="w-32 h-32" />
                     </div>
                     <div className="relative z-10 flex flex-col h-full">
@@ -557,7 +561,7 @@ export default function HomePage() {
 
                       <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60">
                         <div
-                          className="prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
+                          className="text-justify prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
                           dangerouslySetInnerHTML={{
                             __html:
                               missionHtml ||
@@ -573,7 +577,9 @@ export default function HomePage() {
 
                 {homeSections.vision && (
                   <article className="rounded-3xl border border-slate-200/60 bg-white/60 backdrop-blur-xl p-8 shadow-xl shadow-slate-200/40 dark:border-slate-700/60 dark:bg-slate-800/40 dark:shadow-none transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 relative overflow-hidden group">
-                    <div className={`absolute top-0 ${language === "ar" ? "left-0" : "right-0"} p-8 opacity-5 text-cyan-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none`}>
+                    <div
+                      className={`absolute top-0 ${language === "ar" ? "left-0" : "right-0"} p-8 opacity-5 text-cyan-500 group-hover:scale-110 transition-transform duration-500 pointer-events-none`}
+                    >
                       <Globe2 className="w-32 h-32" />
                     </div>
                     <div className="relative z-10 flex flex-col h-full">
@@ -593,7 +599,7 @@ export default function HomePage() {
 
                       <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/60">
                         <div
-                          className="prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
+                          className="text-justify prose prose-base sm:prose-lg max-w-none text-slate-600 dark:prose-invert dark:text-slate-300 font-medium leading-relaxed prose-p:text-[1.1rem] sm:prose-p:text-[1.25rem] prose-p:leading-[1.8]"
                           dangerouslySetInnerHTML={{
                             __html:
                               visionHtml ||
