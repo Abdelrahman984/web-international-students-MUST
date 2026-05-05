@@ -89,6 +89,8 @@ function AppContent() {
     }
   }, []);
 
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+
   return (
     <div
       dir={language === "ar" ? "rtl" : "ltr"}
