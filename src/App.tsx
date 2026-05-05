@@ -89,6 +89,8 @@ function AppContent() {
     }
   }, []);
 
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+
   return (
     <div
       dir={language === "ar" ? "rtl" : "ltr"}
@@ -101,14 +103,14 @@ function AppContent() {
         <HeroSlider />
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 pt-[105px] lg:pt-[120px]">
         <AnimatePresence mode="wait" key={location.pathname}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="min-h-[calc(100vh-140px)]"
+            className="min-h-fit flex flex-col"
           >
             <Routes>
               <Route path="/" element={<HomePage />} />

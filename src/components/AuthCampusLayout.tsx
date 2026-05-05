@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 
-/** Shared hero for login & register (`public/login-campus-bg.png`). */
-const campusBackgroundUrl = `${import.meta.env.BASE_URL}login-campus-bg.png`;
 
 export const authGlassInputClassName =
   'w-full rounded-l border border-stone-200/90 bg-white/85 px-3 py-2.5 text-stone-900 shadow-sm outline-none ring-sky-200/40 transition-shadow placeholder:text-stone-400 focus:border-sky-300/80 focus:ring-2 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-sky-500/50 dark:focus:ring-sky-900/50';
@@ -19,8 +17,13 @@ type AuthCampusLayoutProps = {
 };
 
 export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthCampusLayoutProps) {
+  const campusBackgroundUrl = `${import.meta.env.BASE_URL}login-campus-bg.png`;
+  const headerUrl = `${import.meta.env.BASE_URL}auth-header.png`;
+  const footerUrl = `${import.meta.env.BASE_URL}auth-footer.png`;
+
   return (
-    <div className="relative isolate flex min-h-[calc(100vh-140px)] w-full items-center justify-center px-6 py-12">
+    <div className="relative isolate flex min-h-[110vh] w-full flex-col items-center justify-start px-6 pt-44 pb-32 overflow-hidden">
+      {/* Global Background */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <img
           src={campusBackgroundUrl}
@@ -33,19 +36,37 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
           aria-hidden
         />
         <div
-          className="absolute inset-0 bg-gradient-to-b from-indigo-950/15 via-slate-100/72 to-violet-100/86 dark:from-slate-950/75 dark:via-indigo-950/55 dark:to-slate-950/72"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-slate-300/35 via-transparent to-indigo-100/22 dark:from-slate-950/50 dark:via-transparent dark:to-indigo-950/25"
+          className="absolute inset-0 bg-gradient-to-b from-indigo-950/5 via-transparent to-indigo-900/20 dark:from-slate-950/90 dark:via-slate-950/60 dark:to-slate-950/95"
           aria-hidden
         />
       </div>
 
-      <div className={`relative z-0 w-full ${maxWidthClass}`}>
-        <div className="rounded-[1.75rem] border border-white/60 bg-white/55 p-[1px] shadow-[0_25px_80px_-20px_rgba(30,58,90,0.28)] backdrop-blur-md dark:border-white/10 dark:bg-slate-950/40 dark:shadow-[0_28px_90px_-24px_rgba(0,0,0,0.55)] mt-[15%]">
-          <div className="rounded-[1.6875rem] border border-stone-200/70 bg-white/75 p-8 shadow-inner shadow-white/40 backdrop-blur-xl backdrop-saturate-150 dark:border-slate-600/50 dark:bg-slate-900/70 dark:shadow-inner dark:shadow-slate-950/40">
+      <div className={`relative z-10 w-full ${maxWidthClass}`}>
+        {/* The "Word Doc" Card */}
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:border-slate-800 dark:bg-slate-900">
+          
+          {/* Internal Doc Header (The Line) */}
+          <div className="absolute top-0 left-0 right-0 z-30 h-4 w-full">
+            <img
+              src={headerUrl}
+              alt=""
+              className="h-full w-full object-fill"
+              aria-hidden
+            />
+          </div>
+
+          <div className="relative z-10 p-8 sm:p-12 pb-56">
             {children}
+          </div>
+
+          {/* Internal Doc Footer (The Building & Line) */}
+          <div className="absolute bottom-0 left-0 right-0 z-0 h-56 w-full pointer-events-none overflow-hidden opacity-40">
+            <img
+              src={footerUrl}
+              alt=""
+              className="h-full w-full object-contain object-bottom scale-110 -translate-y-6"
+              aria-hidden
+            />
           </div>
         </div>
       </div>
