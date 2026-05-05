@@ -340,15 +340,16 @@ $header-height: 105px;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.3);
       color: $text-white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 13px;
+      padding: 6px 12px; // Zoomed out
+      border-radius: 16px; // Zoomed out
+      font-size: 12px; // Zoomed out
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px; // Zoomed out
       transition: all 0.2s ease;
+      white-space: nowrap; // Ensure button content stays on one line
 
       span {
         @media (max-width: 768px) {

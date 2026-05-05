@@ -566,7 +566,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                   style={{ textDecoration: "none" }}
                 >
                   <i className="fas fa-user"></i>
-                  <span>{userDisplayName}</span>
+                  <span className="truncate max-w-[120px] inline-block align-bottom">
+                    {userDisplayName}
+                  </span>
                 </Link>
                 <button
                   className="btn-auth logout-btn ms-2"
