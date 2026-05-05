@@ -66,9 +66,14 @@ function getAvatarLetter(
 interface ChatPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  prefillSearchQuery?: string;
 }
 
-export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
+export function ChatPopup({
+  isOpen,
+  onClose,
+  prefillSearchQuery,
+}: ChatPopupProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const currentUserId = user?.id || "";
@@ -167,6 +172,15 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
       setIsSearching(false);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const nextQuery = prefillSearchQuery?.trim() ?? "";
+    if (nextQuery.length >= 2) {
+      setActiveConvId(null);
+      setSearchQuery(nextQuery);
+    }
+  }, [isOpen, prefillSearchQuery]);
 
   // ── Start or resume a conversation with a searched user ────────────────
   const handleStartChat = async (targetUser: ChatUserResult) => {

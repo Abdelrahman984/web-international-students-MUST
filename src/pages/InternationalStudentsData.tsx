@@ -29,7 +29,7 @@ type SortBy = "name" | "id" | "gpa";
 type SortDirection = "asc" | "desc";
 
 interface InternationalStudentsDataProps {
-  onNavigateToMessages?: () => void;
+  onNavigateToMessages?: (email?: string) => void;
 }
 
 const DEFAULT_FORM_VALUES: StudentInput = {
@@ -82,6 +82,7 @@ export function InternationalStudentsData({
   const [filterNationality, setFilterNationality] = useState<string>("all");
   const [filterAdvisor, setFilterAdvisor] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterSemester, setFilterSemester] = useState<string>("all");
   const [filterAgeMin, setFilterAgeMin] = useState<string>("");
   const [filterAgeMax, setFilterAgeMax] = useState<string>("");
   const [filterGpaMin, setFilterGpaMin] = useState<string>("");
@@ -94,6 +95,8 @@ export function InternationalStudentsData({
     useState<string>(filterAdvisor);
   const [tempFilterStatus, setTempFilterStatus] =
     useState<string>(filterStatus);
+  const [tempFilterSemester, setTempFilterSemester] =
+    useState<string>(filterSemester);
   const [tempFilterAgeMin, setTempFilterAgeMin] =
     useState<string>(filterAgeMin);
   const [tempFilterAgeMax, setTempFilterAgeMax] =
@@ -123,6 +126,15 @@ export function InternationalStudentsData({
     return Array.from(set).sort((a, b) =>
       String(a || "").localeCompare(String(b || "")),
     );
+  }, [students]);
+
+  const semesterOptions = useMemo(() => {
+    const set = new Set<string>();
+    students.forEach((s) => {
+      const semester = (s.className ?? "").trim();
+      if (semester !== "") set.add(semester);
+    });
+    return Array.from(set).sort((a, b) => Number(a) - Number(b));
   }, [students]);
 
   const hasAge = useMemo(() => {
@@ -159,6 +171,10 @@ export function InternationalStudentsData({
       const matchesStatus =
         filterStatus === "all" || student.status === filterStatus;
 
+      const matchesSemester =
+        filterSemester === "all" ||
+        (student.className ?? "").trim() === filterSemester;
+
       const gpaMin = filterGpaMin.trim() === "" ? null : Number(filterGpaMin);
       const gpaMax = filterGpaMax.trim() === "" ? null : Number(filterGpaMax);
       const studentGpa = student.gpa != null ? Number(student.gpa) : null;
@@ -189,6 +205,7 @@ export function InternationalStudentsData({
         matchesNationality &&
         matchesAdvisor &&
         matchesStatus &&
+        matchesSemester &&
         matchesGpa &&
         matchesAge
       );
@@ -226,6 +243,7 @@ export function InternationalStudentsData({
     filterNationality,
     filterAdvisor,
     filterStatus,
+    filterSemester,
     filterAgeMin,
     filterAgeMax,
     filterGpaMin,
@@ -378,8 +396,18 @@ export function InternationalStudentsData({
     return num.toFixed(2);
   };
 
-  const navigateToMessages = () => {
-    onNavigateToMessages?.();
+  const navigateToMessages = (email?: string) => {
+    const normalizedEmail = email?.trim() ?? "";
+    if (normalizedEmail !== "") {
+      window.dispatchEvent(
+        new CustomEvent("open-chat-with-email", {
+          detail: { email: normalizedEmail },
+        }),
+      );
+    } else {
+      window.dispatchEvent(new CustomEvent("open-chat-with-email"));
+    }
+    onNavigateToMessages?.(normalizedEmail || undefined);
   };
 
   return (
@@ -580,6 +608,7 @@ export function InternationalStudentsData({
                 setTempFilterNationality(filterNationality);
                 setTempFilterAdvisor(filterAdvisor);
                 setTempFilterStatus(filterStatus);
+                setTempFilterSemester(filterSemester);
                 setTempFilterAgeMin(filterAgeMin);
                 setTempFilterAgeMax(filterAgeMax);
                 setTempFilterGpaMin(filterGpaMin);
@@ -699,32 +728,20 @@ export function InternationalStudentsData({
 
               <div>
                 <label className="block text-sm font-medium text-must-text-primary mb-1">
-                  Age (min)
+                  Semester
                 </label>
-                <input
-                  type="number"
-                  min={0}
-                  max={120}
-                  value={tempFilterAgeMin}
-                  onChange={(e) => setTempFilterAgeMin(e.target.value)}
-                  disabled={!hasAge}
+                <select
+                  value={tempFilterSemester}
+                  onChange={(e) => setTempFilterSemester(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-must-text-primary mb-1">
-                  Age (max)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  max={120}
-                  value={tempFilterAgeMax}
-                  onChange={(e) => setTempFilterAgeMax(e.target.value)}
-                  disabled={!hasAge}
-                  className="w-full px-4 py-2 rounded-lg border border-must-border bg-white text-sm outline-none"
-                />
+                >
+                  <option value="all">All</option>
+                  {semesterOptions.map((semester) => (
+                    <option key={semester} value={semester}>
+                      {semester}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -784,6 +801,7 @@ export function InternationalStudentsData({
                   setTempFilterNationality("all");
                   setTempFilterAdvisor("all");
                   setTempFilterStatus("all");
+                  setTempFilterSemester("all");
                   setTempFilterAgeMin("");
                   setTempFilterAgeMax("");
                   setTempFilterGpaMin("");
@@ -792,6 +810,7 @@ export function InternationalStudentsData({
                   setFilterNationality("all");
                   setFilterAdvisor("all");
                   setFilterStatus("all");
+                  setFilterSemester("all");
                   setFilterAgeMin("");
                   setFilterAgeMax("");
                   setFilterGpaMin("");
@@ -810,6 +829,7 @@ export function InternationalStudentsData({
                   setFilterNationality(tempFilterNationality);
                   setFilterAdvisor(tempFilterAdvisor);
                   setFilterStatus(tempFilterStatus);
+                  setFilterSemester(tempFilterSemester);
                   setFilterAgeMin(tempFilterAgeMin);
                   setFilterAgeMax(tempFilterAgeMax);
                   setFilterGpaMin(tempFilterGpaMin);
@@ -934,7 +954,7 @@ export function InternationalStudentsData({
                     </td>
                     <td className="px-6 py-4 text-sm">{student.status}</td>
                     <td className="px-6 py-4 text-sm text-right space-x-2">
-                      <button
+                      {/* <button
                         className="p-1.5 text-slate-400 hover:text-must-green transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
                         title="Edit Student"
                         onClick={() => handleEditClick(student)}
@@ -947,11 +967,11 @@ export function InternationalStudentsData({
                         onClick={() => setStudentToDelete(student)}
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </button> */}
                       <button
                         className="p-1.5 text-slate-400 hover:text-must-green transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
                         title="Open Messages"
-                        onClick={navigateToMessages}
+                        onClick={() => navigateToMessages(student.email)}
                       >
                         <MessageSquareIcon className="w-4 h-4" />
                       </button>
