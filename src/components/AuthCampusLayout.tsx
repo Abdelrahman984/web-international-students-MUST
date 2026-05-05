@@ -22,7 +22,7 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
   const footerUrl = `${import.meta.env.BASE_URL}auth-footer.png`;
 
   return (
-    <div className="relative isolate flex min-h-[110vh] w-full flex-col items-center justify-start px-6 pt-36 pb-24 overflow-hidden">
+    <div className="relative isolate flex min-h-[115vh] w-full flex-col items-center justify-start px-6 pt-44 pb-24 overflow-hidden">
       {/* Global Background */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <img
@@ -44,7 +44,7 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
       <div className={`relative z-10 w-full ${maxWidthClass}`}>
         {/* The "Word Doc" Card */}
         <div className="relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:border-slate-800 dark:bg-slate-900">
-          
+
           {/* Internal Doc Header (The Line) */}
           <div className="absolute top-0 left-0 right-0 z-30 h-4 w-full">
             <img
@@ -55,12 +55,12 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
             />
           </div>
 
-          <div className="relative z-10 p-8 sm:p-10 pb-48">
+          <div className="relative z-10 p-6 sm:p-8 pb-32">
             {children}
           </div>
 
           {/* Internal Doc Footer (The Building & Line) */}
-          <div className="absolute bottom-0 left-0 right-0 z-0 h-44 w-full pointer-events-none overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 z-0 h-40 w-full pointer-events-none overflow-hidden">
             <img
               src={footerUrl}
               alt=""
