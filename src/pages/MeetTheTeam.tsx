@@ -136,7 +136,7 @@ function ProfileCard({
           <p className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
             {title}
           </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300 !text-left">
             {subtitle}
           </p>
           {children ? <div className="mt-4">{children}</div> : null}
