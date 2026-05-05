@@ -170,13 +170,19 @@ export default function NewsPage() {
                 </div>
 
                 <div className="w-full flex flex-col">
-                  <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-8 mt-2">
+                  <div className="mb-8 flex flex-wrap items-center gap-4">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-base font-bold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 shadow-sm">
+                      <i className="fa-regular fa-calendar" />
+                      {selectedItem.createdAt ? new Date(selectedItem.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : "Recently"}
+                    </span>
+                  </div>
+                  <h3 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-8">
                     {selectedItem.title}
                   </h3>
 
                   {selectedItem.content || selectedItem.description ? (
                     <div
-                      className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                      className="prose prose-lg max-w-none text-justify leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
                       dangerouslySetInnerHTML={{
                         __html:
                           selectedItem.content || selectedItem.description,
@@ -227,19 +233,28 @@ export default function NewsPage() {
                   className="group relative h-[400px] w-full overflow-hidden rounded-[16px] shadow-lg cursor-pointer"
                   onClick={() => openDetail(item.id)}
                 >
-                  {/* Background Image */}
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:scale-110"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-500">
-                      <i className="fa-regular fa-newspaper text-4xl" />
+                  {/* Background Image & Date Badge */}
+                  <div className="relative h-full w-full overflow-hidden">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-500">
+                        <i className="fa-regular fa-newspaper text-4xl" />
+                      </div>
+                    )}
+                    
+                    {/* Floating Date Badge (Top Left) */}
+                    <div className="absolute top-4 left-4 z-20">
+                      <span className="inline-flex items-center rounded-lg bg-[#1fa56b] px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : "Recently"}
+                      </span>
                     </div>
-                  )}
+                  </div>
 
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-colors duration-500 group-hover:from-[#11203d]/95 group-hover:via-[#162a52]/80 group-hover:to-[#162a52]/40" />
@@ -256,17 +271,16 @@ export default function NewsPage() {
                         {item.title}
                       </h3>
 
-                      <p className="text-center text-sm font-medium leading-relaxed text-slate-200 drop-shadow-sm line-clamp-2 w-full">
+                      <p className="text-justify text-sm font-medium leading-relaxed text-slate-200 drop-shadow-sm line-clamp-3 w-full px-1">
                         {item.description}
                       </p>
 
-                      <button
-                        type="button"
-                        className="mt-4 inline-flex items-center gap-2 text-base font-bold text-emerald-400 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:text-emerald-300 drop-shadow-md"
+                      <div
+                        className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#eefaf4] px-5 py-2 text-sm font-bold text-[#1fa56b] opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:bg-[#e0f5eb] shadow-sm"
                       >
-                        Read more{" "}
-                        <i className="fa-solid fa-arrow-right text-sm" />
-                      </button>
+                        Read More{" "}
+                        <i className="fa-solid fa-arrow-right text-xs" />
+                      </div>
                     </div>
                   </div>
                 </article>
