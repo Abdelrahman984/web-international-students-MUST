@@ -44,8 +44,8 @@ export default function AcademicStaffProfileCard({
 }: AcademicStaffProfileCardProps) {
   const fullName =
     [firstName, lastName].filter(Boolean).join(" ").trim() || name;
-  const displayName = title ? `${title} / ${fullName}` : fullName;
-  const displayPosition = position || role || "N/A";
+  const displayName = fullName;
+  const displayPosition = position || role;
 
   return (
     <article className="group flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-emerald-200 hover:shadow-md sm:flex-row sm:p-8 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-emerald-900/50">
@@ -79,9 +79,16 @@ export default function AcademicStaffProfileCard({
             <h2 className="text-2xl font-bold text-slate-900 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
               {displayName}
             </h2>
-            <p className="mt-1 text-sm font-semibold tracking-wide text-emerald-600 dark:text-emerald-500">
-              {displayPosition}
-            </p>
+            {displayPosition && (
+              <p className="mt-1 text-sm font-semibold tracking-wide text-emerald-600 dark:text-emerald-500">
+                {displayPosition}
+              </p>
+            )}
+            {title && (
+              <p className="mt-1 text-base font-semibold text-slate-700 dark:text-slate-200">
+                {title}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
