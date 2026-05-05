@@ -284,7 +284,7 @@ export default function AdvisingPage() {
                       <img
                         src={item.imageUrl}
                         alt={item.imageAlt}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110"
                       />
                       <div className="absolute left-4 top-4 rounded-full bg-emerald-600/90 px-4 py-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-md">
                         {item.date}

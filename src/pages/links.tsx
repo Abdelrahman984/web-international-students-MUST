@@ -101,7 +101,7 @@ export default function LinksPage() {
                     <img
                       src={thumbnailSrc}
                       alt={title}
-                      className="h-48 w-full object-fit"
+                      className="h-48 w-full object-contain"
                       loading="lazy"
                     />
                   ) : (
