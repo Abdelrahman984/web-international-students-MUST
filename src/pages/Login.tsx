@@ -224,7 +224,7 @@ export function Login() {
         </button>
       </form>
 
-      <div className="mt-6 space-y-2 border-t border-stone-200/60 pt-5 text-sm text-stone-600 dark:border-slate-600/50 dark:text-stone-400">
+      <div className="relative z-20 mt-6 space-y-2 border-t border-stone-200/60 pt-5 text-sm text-stone-600 dark:border-slate-600/50 dark:text-stone-400 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-lg -mx-2 px-2">
         <p>
           New here?{" "}
           <Link
