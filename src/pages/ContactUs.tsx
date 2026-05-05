@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiClient } from "../services/api";
+import { MessagesSquare, MessageCircle, ArrowLeft } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 
 interface ContactCardProps {
   title: string;
@@ -33,6 +35,7 @@ function ContactForm({
   submitLabel,
   showCategorySelect = false,
 }: ContactFormProps) {
+  const { t } = useLanguage();
   const [category, setCategory] = useState("suggestions");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -40,7 +43,10 @@ function ContactForm({
   const [subject, setSubject] = useState("");
   const [messageText, setMessageText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [feedback, setFeedback] = useState<{type: "success" | "error", text: string} | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -51,14 +57,19 @@ function ContactForm({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      setFeedback({
+        type: "error",
+        text: "Please enter a valid email address.",
+      });
       return;
     }
 
     setIsLoading(true);
     setFeedback(null);
     try {
-      const submissionType = showCategorySelect ? category : "super_admin_message";
+      const submissionType = showCategorySelect
+        ? category
+        : "super_admin_message";
       const payload = {
         submission_type: submissionType,
         sender_name: `${firstName} ${lastName}`,
@@ -68,7 +79,10 @@ function ContactForm({
       };
 
       await apiClient.post("/api/contact_submissions", payload);
-      setFeedback({ type: "success", text: "Your message has been sent successfully!" });
+      setFeedback({
+        type: "success",
+        text: "Your message has been sent successfully!",
+      });
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -77,14 +91,17 @@ function ContactForm({
       if (showCategorySelect) setCategory("suggestions");
     } catch (error) {
       console.error(error);
-      setFeedback({ type: "error", text: "Failed to send message. Please try again." });
+      setFeedback({
+        type: "error",
+        text: "Failed to send message. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
       <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
         {title}
       </h2>
@@ -93,12 +110,14 @@ function ContactForm({
         onSubmit={handleSubmit}
       >
         {feedback && (
-          <div className={`md:col-span-2 p-4 rounded-xl text-sm font-semibold ${feedback.type === 'success' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+          <div
+            className={`md:col-span-2 p-4 rounded-xl text-sm font-semibold ${feedback.type === "success" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"}`}
+          >
             {feedback.text}
           </div>
         )}
         {showCategorySelect && (
-          <select 
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 md:col-span-2"
@@ -156,98 +175,94 @@ function ContactForm({
 
 export function ContactUs() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") ?? "support") as
-    | "support"
-    | "admissions";
+  const { t } = useLanguage();
+  const activeTab = searchParams.get("tab") as "support" | "admissions" | null;
 
   const tabs: Array<{
     key: "support" | "admissions";
     label: string;
+    description: string;
     submitLabel: string;
+    icon: any;
     showCategorySelect?: boolean;
   }> = [
     {
       key: "support",
       label: "Contact Sector Head",
+      description: "Direct communication with the university leadership.",
       submitLabel: "Send to Sector Head",
+      icon: MessagesSquare,
     },
     {
       key: "admissions",
-      label: "Send Suggestion or Complaint",
+      label: t("send_suggestion") || "Send Suggestion or Complaint",
+      description: "Help us improve or share your concerns with our team.",
       submitLabel: "Submit Suggestion or Complaint",
+      icon: MessageCircle,
       showCategorySelect: true,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white py-24 pt-32 dark:bg-[#070d19]">
+    <div className="min-h-screen bg-slate-50/50 py-24 pt-32 dark:bg-[#070d19]">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8">
-        <header className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+        <header className="mb-10 text-center md:text-left">
+          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
             Contact Us
           </h1>
-          <p className="mt-3 text-lg text-slate-600 dark:text-slate-300">
+          <p className="mt-3 text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
             Get in touch with the university support and admissions teams.
           </p>
         </header>
 
-        {/* <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <ContactCard
-            title="Main Campus"
-            lines={[
-              "6th of October City, Giza, Egypt",
-              "Landline: +20 2 3824 7455",
-              "Fax: +20 2 3824 7456",
-            ]}
-          />
-          <ContactCard
-            title="Admissions"
-            lines={[
-              "Email: admissions@must.edu.eg",
-              "Phone: +20 100 000 0000",
-              "Sun - Thu: 9:00 AM - 4:00 PM",
-            ]}
-          />
-          <ContactCard
-            title="Student Support"
-            lines={[
-              "Email: support@must.edu.eg",
-              "Phone: +20 101 111 1111",
-              "Sun - Thu: 9:00 AM - 5:00 PM",
-            ]}
-          />
-        </section> */}
-
-        <section className="mx-auto mt-8 w-full max-w-4xl">
-          {/* <div className="mb-4 flex items-center gap-2 rounded-xl bg-transparent p-1">
-            {tabs.map((t) => (
+        <section className="mx-auto w-full max-w-4xl">
+          {!activeTab ? (
+            <div className="grid gap-6 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSearchParams({ tab: tab.key })}
+                  className="group flex w-full flex-col items-center justify-center gap-5 rounded-2xl border border-slate-200 bg-white p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-emerald-900/50 dark:hover:shadow-emerald-900/20"
+                >
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition-colors duration-300 group-hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:group-hover:bg-emerald-900/50">
+                    <tab.icon
+                      className="h-10 w-10 transition-transform duration-300 group-hover:scale-110"
+                      strokeWidth={1.5}
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-800 transition-colors group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                      {tab.label}
+                    </h2>
+                    <p className="mt-3 max-w-md text-base text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {tab.description}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
               <button
-                key={t.key}
-                onClick={() => setSearchParams({ tab: t.key })}
-                className={`px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none ${
-                  activeTab === t.key
-                    ? "bg-emerald-600 text-white"
-                    : "text-slate-600 dark:text-slate-300 hover:bg-white/5"
-                }`}
+                onClick={() => setSearchParams({})}
+                className="inline-flex items-center gap-2 self-start rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 transition-all hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
-                {t.label}
+                <ArrowLeft className="h-4 w-4" />
+                Back to Options
               </button>
-            ))}
-          </div> */}
-
-          <div>
-            {tabs.map(
-              (t) =>
-                activeTab === t.key && (
-                  <ContactForm
-                    key={t.key}
-                    title={t.label}
-                    submitLabel={t.submitLabel}
-                    showCategorySelect={t.showCategorySelect}
-                  />
-                ),
-            )}
-          </div>
+              {tabs.map(
+                (t) =>
+                  activeTab === t.key && (
+                    <ContactForm
+                      key={t.key}
+                      title={t.label}
+                      submitLabel={t.submitLabel}
+                      showCategorySelect={t.showCategorySelect}
+                    />
+                  ),
+              )}
+            </div>
+          )}
         </section>
       </div>
     </div>
