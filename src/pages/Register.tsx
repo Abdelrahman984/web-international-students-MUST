@@ -67,7 +67,7 @@ export function Register() {
         body: { email: getFullEmail() },
         auth: false,
       });
-      setOtpStatus("Verification code sent. Check your inbox.");
+      setOtpStatus("Verification code sent. Check your email inbox.");
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : "Failed to send code.");
     } finally {
@@ -140,11 +140,10 @@ export function Register() {
             setRoleTab("student");
             setError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            roleTab === "student"
-              ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${roleTab === "student"
+            ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
+            : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+            }`}
         >
           Student
         </button>
@@ -156,11 +155,10 @@ export function Register() {
             setRoleTab("visitor");
             setError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            roleTab === "visitor"
-              ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${roleTab === "visitor"
+            ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
+            : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+            }`}
         >
           Visitor
         </button>
@@ -172,11 +170,10 @@ export function Register() {
             setRoleTab("advisor");
             setError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            roleTab === "advisor"
-              ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${roleTab === "advisor"
+            ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
+            : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+            }`}
         >
           Advisor
         </button>

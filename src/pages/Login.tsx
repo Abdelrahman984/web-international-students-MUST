@@ -51,13 +51,13 @@ export function Login() {
           ? rawRole.trim().toLowerCase()
           : rawRole && typeof rawRole === "object"
             ? ("type" in rawRole && typeof rawRole.type === "string"
-                ? rawRole.type
-                : "name" in rawRole && typeof rawRole.name === "string"
-                  ? rawRole.name
-                  : ""
-              )
-                .trim()
-                .toLowerCase()
+              ? rawRole.type
+              : "name" in rawRole && typeof rawRole.name === "string"
+                ? rawRole.name
+                : ""
+            )
+              .trim()
+              .toLowerCase()
             : "";
 
       const isAdvisorAccount =
@@ -116,11 +116,10 @@ export function Login() {
             setFieldError(null);
             setServerError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            portalTab === "student"
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${portalTab === "student"
               ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
               : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+            }`}
         >
           Student
         </button>
@@ -133,11 +132,10 @@ export function Login() {
             setFieldError(null);
             setServerError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            portalTab === "visitor"
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${portalTab === "visitor"
               ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
               : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+            }`}
         >
           Visitor
         </button>
@@ -150,11 +148,10 @@ export function Login() {
             setFieldError(null);
             setServerError(null);
           }}
-          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
-            portalTab === "advisor"
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${portalTab === "advisor"
               ? "bg-white/95 text-stone-900 shadow-md shadow-stone-900/10 ring-1 ring-stone-200/80 dark:bg-slate-800/95 dark:text-white dark:ring-slate-600/60"
               : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
-          }`}
+            }`}
         >
           Advisor
         </button>
@@ -180,7 +177,7 @@ export function Login() {
       >
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-            Email or Username
+            Email
           </label>
           {portalTab === "student" || portalTab === "advisor" ? (
             <div className="flex items-center">
