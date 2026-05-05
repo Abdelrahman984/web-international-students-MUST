@@ -128,4 +128,8 @@ export const MENU_ITEMS: MenuItem[] = [
       },
     ],
   },
+  {
+    label: "Meet the Team",
+    routerLink: "/meet-the-team",
+  },
 ];

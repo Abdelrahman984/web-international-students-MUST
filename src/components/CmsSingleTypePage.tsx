@@ -5,7 +5,10 @@ import { CmsPage } from '../types/strapi';
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
-interface CmsSingleTypePageData extends Pick<CmsPage, 'id' | 'title' | 'slug' | 'subtitle' | 'accessRole' | 'seo' | 'blocks'> {}
+type CmsSingleTypePageData = Pick<
+  CmsPage,
+  "id" | "title" | "slug" | "subtitle" | "accessRole" | "seo" | "blocks"
+>;
 
 interface CmsSingleTypePageProps<T extends CmsSingleTypePageData> {
   fetcher: () => Promise<T>;

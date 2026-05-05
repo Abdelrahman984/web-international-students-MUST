@@ -205,7 +205,7 @@ function buildUser(authUser: AuthUser, profile: ProfileRow | null): StrapiUser {
 async function isAdvisorUser(authUser: AuthUser): Promise<boolean> {
   const candidateEmail = (authUser.email || "").trim().toLowerCase();
 
-  let byIdQuery = supabase
+  const byIdQuery = supabase
     .from("advisor_profiles")
     .select("id", { count: "exact", head: true })
     .eq("id", authUser.id)
@@ -415,7 +415,7 @@ export async function register(
       );
     }
 
-    let accessToken = data.session?.access_token || null;
+    const accessToken = data.session?.access_token || null;
     if (!accessToken) {
       const loginResponse = await login(payload.email, payload.password);
       return loginResponse;
