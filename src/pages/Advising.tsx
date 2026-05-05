@@ -168,6 +168,8 @@ export default function AdvisingPage() {
             toStringValue(item.date) ||
             toStringValue(item.publishedAt) ||
             toStringValue(item.createdAt);
+            
+          const createdAt = toStringValue(item.created_at) || toStringValue(item.createdAt) || rawDate;
 
           return {
             id,
@@ -176,7 +178,17 @@ export default function AdvisingPage() {
             date: formatAnnouncementDate(rawDate),
             imageUrl: getImageUrl(item),
             imageAlt: `${title} image`,
+            createdAt,
           };
+        });
+
+        mapped.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          if (!isNaN(dateA) && !isNaN(dateB)) {
+            return dateB - dateA;
+          }
+          return b.id.localeCompare(a.id);
         });
 
         if (!cancelled) {
