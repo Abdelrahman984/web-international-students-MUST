@@ -55,16 +55,16 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
             />
           </div>
 
-          <div className="relative z-10 p-8 sm:p-10 pb-44">
+          <div className="relative z-10 p-8 sm:p-10 pb-48">
             {children}
           </div>
 
           {/* Internal Doc Footer (The Building & Line) */}
-          <div className="absolute bottom-0 left-0 right-0 z-0 h-48 w-full pointer-events-none overflow-hidden opacity-90">
+          <div className="absolute bottom-0 left-0 right-0 z-0 h-44 w-full pointer-events-none overflow-hidden">
             <img
               src={footerUrl}
               alt=""
-              className="h-full w-full object-contain object-bottom scale-110 -translate-y-4"
+              className="h-full w-full object-cover object-bottom opacity-100"
               aria-hidden
             />
           </div>

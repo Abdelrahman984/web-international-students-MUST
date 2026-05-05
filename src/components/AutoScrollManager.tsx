@@ -15,6 +15,9 @@ export function AutoScrollManager() {
         }
       }, 150);
       return () => window.clearTimeout(timeoutId);
+    } else {
+      // Scroll to top if no hash is present
+      window.scrollTo({ top: 0, behavior: "instant" });
     }
   }, [pathname, hash, search]);
 
