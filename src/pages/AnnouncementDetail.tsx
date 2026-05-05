@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, User, ChevronRight } from "lucide-react";
-import { apiClient } from "../services/api";
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  ChevronRight,
+  FileText,
+  Download,
+  X,
+} from "lucide-react";
+import { apiClient, getCurrentApiBaseUrl } from "../services/api";
 
 interface AnnouncementDetail {
   id: string;
@@ -12,6 +20,8 @@ interface AnnouncementDetail {
   imageUrl: string;
   imageAlt: string;
   author?: string;
+  photoPaths?: string[];
+  filePath?: string;
 }
 
 const DEFAULT_ANNOUNCEMENT_IMAGE = "/must-announcement-default.png";
@@ -27,25 +37,40 @@ const getNestedObject = (
     : undefined;
 };
 
+const getFullUrl = (path: string): string => {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  const baseUrl = getCurrentApiBaseUrl();
+  const separator = path.startsWith("/") ? "" : "/";
+  return `${baseUrl}${separator}${path}`;
+};
+
 const getImageUrl = (item: Record<string, unknown>): string => {
   const directImage =
     toStringValue(item.imageUrl) ||
     toStringValue(item.image_url) ||
     toStringValue(item.thumbnailUrl) ||
-    toStringValue(item.thumbnail_url);
+    toStringValue(item.thumbnail_url) ||
+    toStringValue(item.thumbnail_path);
 
-  if (directImage) return directImage;
+  let finalImage = directImage;
 
-  const image = getNestedObject(item.image);
-  const imageUrl = image
-    ? toStringValue(image.url) ||
-      toStringValue(getNestedObject(image.data)?.url) ||
-      toStringValue(
-        getNestedObject(getNestedObject(image.data)?.attributes)?.url,
-      )
-    : "";
+  if (!finalImage) {
+    const image = getNestedObject(item.image);
+    finalImage = image
+      ? toStringValue(image.url) ||
+        toStringValue(getNestedObject(image.data)?.url) ||
+        toStringValue(
+          getNestedObject(getNestedObject(image.data)?.attributes)?.url,
+        )
+      : "";
+  }
 
-  return imageUrl || DEFAULT_ANNOUNCEMENT_IMAGE;
+  if (finalImage && !finalImage.startsWith("http")) {
+    finalImage = getFullUrl(finalImage);
+  }
+
+  return finalImage || DEFAULT_ANNOUNCEMENT_IMAGE;
 };
 
 const formatAnnouncementDate = (dateValue: string): string => {
@@ -67,6 +92,7 @@ export function AnnouncementDetail() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +149,20 @@ export function AnnouncementDetail() {
           toStringValue(foundItem.body) ||
           toStringValue(foundItem.description);
 
+        const photoPathsRaw = toStringValue(foundItem.photo_paths);
+        let photoPaths: string[] = [];
+        if (photoPathsRaw) {
+          try {
+            photoPaths = JSON.parse(photoPathsRaw);
+          } catch (e) {
+            // ignore
+          }
+        } else if (Array.isArray(foundItem.photo_paths)) {
+          photoPaths = foundItem.photo_paths.map(toStringValue);
+        }
+
+        const filePath = toStringValue(foundItem.file_path);
+
         if (!cancelled) {
           setAnnouncement({
             id: id!,
@@ -133,6 +173,8 @@ export function AnnouncementDetail() {
             imageUrl: getImageUrl(foundItem),
             imageAlt: `${title} image`,
             author: toStringValue(foundItem.author) || "MUST Advising Team",
+            photoPaths,
+            filePath,
           });
         }
       } catch (err) {
@@ -222,16 +264,35 @@ export function AnnouncementDetail() {
             </Link>
           </div>
         ) : announcement ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <div className="w-full sticky top-32 lg:order-last">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div className="w-full sticky top-32 lg:col-span-5 lg:order-last flex flex-col gap-6">
               <img
                 src={announcement.imageUrl}
                 alt={announcement.imageAlt}
-                className="w-full rounded-[20px] object-cover shadow-lg"
+                className="w-full rounded-[20px] object-cover shadow-lg cursor-pointer transition-transform hover:scale-[1.02]"
+                onClick={() => setExpandedImage(announcement.imageUrl)}
               />
+
+              {announcement.photoPaths &&
+                announcement.photoPaths.length > 0 && (
+                  <div className="grid grid-cols-2 gap-4">
+                    {announcement.photoPaths.map((photoPath, index) => {
+                      const fullPath = getFullUrl(photoPath);
+                      return (
+                        <img
+                          key={index}
+                          src={fullPath}
+                          alt={`${announcement.title} photo ${index + 1}`}
+                          className="w-full h-48 rounded-2xl object-cover shadow-md transition-all hover:opacity-90 hover:scale-[1.02] cursor-pointer"
+                          onClick={() => setExpandedImage(fullPath)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
             </div>
 
-            <div className="w-full flex flex-col">
+            <div className="w-full flex flex-col lg:col-span-7">
               <h1 className="mb-6 mt-2 text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white">
                 {announcement.title}
               </h1>
@@ -256,10 +317,56 @@ export function AnnouncementDetail() {
                   }}
                 />
               </div>
+
+              {announcement.filePath && (
+                <div className="mt-8">
+                  <a
+                    href={getFullUrl(announcement.filePath)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-4 rounded-2xl bg-emerald-50 px-6 py-4 text-emerald-800 transition-all hover:bg-emerald-100 hover:shadow-md dark:bg-emerald-900/20 dark:text-emerald-300 dark:hover:bg-emerald-900/40 no-underline shadow-sm border border-emerald-100 dark:border-emerald-800/30 w-full sm:w-auto"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-200/50 dark:bg-emerald-800/50">
+                      <FileText className="h-6 w-6" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-lg">Attached File</span>
+                      <span className="text-sm font-medium opacity-80">
+                        Click to view or download
+                      </span>
+                    </div>
+                    <Download className="ml-auto h-6 w-6 sm:ml-4 opacity-70" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         ) : null}
       </div>
+
+      {/* Expanded Image Modal */}
+      {expandedImage && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-8"
+          onClick={() => setExpandedImage(null)}
+        >
+          <button
+            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpandedImage(null);
+            }}
+          >
+            <X className="h-8 w-8" />
+          </button>
+          <img
+            src={expandedImage}
+            alt="Expanded view"
+            className="max-h-[65vh] max-w-[65vw] rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
