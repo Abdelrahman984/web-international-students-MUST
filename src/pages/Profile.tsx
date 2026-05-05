@@ -301,9 +301,13 @@ function ChangePasswordForm() {
     } catch (err: any) {
       const msg = err.message || String(err);
       let friendlyMsg = msg;
-      if (msg.includes("401")) friendlyMsg = "Incorrect current password. Please try again.";
-      if (msg.includes("400")) friendlyMsg = "Failed to update password. Ensure your new password meets the requirements.";
-      if (msg.includes("404")) friendlyMsg = "The password service is currently unavailable.";
+      const lower = msg.toLowerCase();
+      if (lower.includes("unauthorized") || lower.includes("credentials") || lower.includes("401")) 
+        friendlyMsg = "Incorrect current password. Please try again.";
+      else if (lower.includes("bad request") || lower.includes("requirements") || lower.includes("400")) 
+        friendlyMsg = "Failed to update password. Ensure your new password meets the requirements.";
+      else if (lower.includes("not found") || lower.includes("unavailable") || lower.includes("404")) 
+        friendlyMsg = "The password service is currently unavailable.";
       
       setMessage({ type: "error", text: friendlyMsg });
     } finally {

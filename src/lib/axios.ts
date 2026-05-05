@@ -1,4 +1,5 @@
 import axios from "axios";
+import { extractErrorMessage } from "../services/api";
 import { getApiUrl } from "./api";
 import { getStoredAuthToken } from "../utils/storageUtils";
 
@@ -20,3 +21,10 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    return Promise.reject(new Error(extractErrorMessage(error)));
+  }
+);

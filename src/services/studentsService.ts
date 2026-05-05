@@ -123,10 +123,8 @@ function hasItemValidationError(error: any): boolean {
 }
 
 function getApiErrorMessage(error: any, fallback: string): string {
-  const responseData = error?.response?.data;
-  const responseMessage =
-    responseData?.message || responseData?.title || error?.message;
-  return responseMessage ? `${fallback}: ${responseMessage}` : fallback;
+  const msg = error instanceof Error ? error.message : String(error);
+  return msg && !msg.includes("object Object") ? msg : fallback;
 }
 
 function normalizeMajor(value: unknown): StudentMajor {

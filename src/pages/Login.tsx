@@ -321,13 +321,14 @@ function ForgotPasswordModal({
 
   const toFriendlyError = (err: any) => {
     const msg = err.message || String(err);
-    if (msg.includes("404"))
+    const lower = msg.toLowerCase();
+    if (lower.includes("not found") || lower.includes("unavailable") || lower.includes("404"))
       return "The reset service is currently unavailable. Please contact support.";
-    if (msg.includes("400"))
+    if (lower.includes("bad request") || lower.includes("400") || lower.includes("problem"))
       return "There was a problem with the reset request. Please check your details.";
-    if (msg.toLowerCase().includes("user not found"))
+    if (lower.includes("user not found"))
       return "No account found with this email address.";
-    if (msg.toLowerCase().includes("invalid otp"))
+    if (lower.includes("invalid otp") || lower.includes("verification code"))
       return "The verification code is incorrect or has expired.";
     return msg;
   };
@@ -349,7 +350,8 @@ function ForgotPasswordModal({
       setSuccess("Verification code sent! Check your inbox.");
       setStep(2);
     } catch (err: any) {
-      if (err.message?.includes("404")) {
+      const msg = err.message || "";
+      if (msg.includes("404") || msg.toLowerCase().includes("not found")) {
         setStep(2);
         setSuccess("Please enter the verification code sent to your email.");
       } else {
