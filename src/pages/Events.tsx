@@ -28,6 +28,7 @@ const normalizeHref = (value: unknown): string => {
   return cleaned;
 };
 
+
 export default function EventsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [eventsList, setEventsList] = useState<EventCardItem[]>([]);
