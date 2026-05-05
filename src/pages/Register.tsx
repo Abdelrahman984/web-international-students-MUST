@@ -118,7 +118,7 @@ export function Register() {
   };
 
   return (
-    <AuthCampusLayout maxWidthClass="max-w-2xl">
+    <AuthCampusLayout maxWidthClass="max-w-xl">
       <div id="auth-top" className="scroll-mt-44" />
       <h1 className="mb-1 text-3xl font-bold tracking-tight text-stone-900 dark:text-white">
         Register
