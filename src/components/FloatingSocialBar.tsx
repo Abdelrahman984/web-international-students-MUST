@@ -6,6 +6,7 @@ import { ChatPopup } from "./ChatPopup";
 export function FloatingSocialBar() {
   const { unreadCount } = useChat();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [prefillSearchQuery, setPrefillSearchQuery] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
@@ -17,6 +18,23 @@ export function FloatingSocialBar() {
     return () => {
       clearTimeout(showTimer);
       clearTimeout(hideTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleOpenChatWithEmail = (event: Event) => {
+      const customEvent = event as CustomEvent<{ email?: string }>;
+      const email = customEvent.detail?.email?.trim() ?? "";
+      setPrefillSearchQuery(email);
+      setIsChatOpen(true);
+    };
+
+    window.addEventListener("open-chat-with-email", handleOpenChatWithEmail);
+    return () => {
+      window.removeEventListener(
+        "open-chat-with-email",
+        handleOpenChatWithEmail,
+      );
     };
   }, []);
 
@@ -65,7 +83,11 @@ export function FloatingSocialBar() {
       </div>
 
       {/* Chat Popup Modal */}
-      <ChatPopup isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <ChatPopup
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        prefillSearchQuery={prefillSearchQuery}
+      />
     </>
   );
 }
