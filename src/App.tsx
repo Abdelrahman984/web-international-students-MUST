@@ -160,7 +160,7 @@ function AppContent() {
         <HeroSlider />
       )}
 
-      <main className="flex-1 pt-[105px] lg:pt-[120px]">
+      <main className="flex-1">
         <AnimatePresence mode="wait" key={location.pathname}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
