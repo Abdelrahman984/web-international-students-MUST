@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./MustHeader.scss";
 import { MENU_ITEMS, MenuItem } from "./navigation.data";
@@ -37,7 +37,119 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState<MyProfile | null>(null);
-  const isAdvisor = user?.role?.type === ROLES.ADMIN;
+  const normalizeRoleToken = (value: string) =>
+    value.toLowerCase().trim().replace(/[_-]/g, " ");
+
+  const storedAuthUserRole = (() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    try {
+      const raw = localStorage.getItem("must_auth_user");
+      const rawData = localStorage.getItem("auth_user_data");
+
+      let role: unknown;
+
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        role = parsed?.role || parsed?.user_metadata?.role;
+      }
+
+      if (!role && rawData) {
+        const parsedData = JSON.parse(rawData);
+        role = parsedData?.role || parsedData?.user_metadata?.role;
+      }
+
+      if (!role && raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.user?.role) {
+          role = parsed.user.role;
+        } else if (parsed?.user?.user_metadata?.role) {
+          role = parsed.user.user_metadata.role;
+        }
+      }
+
+      if (!role && rawData) {
+        const parsedData = JSON.parse(rawData);
+        if (parsedData?.user?.role) {
+          role = parsedData.user.role;
+        } else if (parsedData?.user?.user_metadata?.role) {
+          role = parsedData.user.user_metadata.role;
+        } else if (parsedData?.role?.type) {
+          role = parsedData.role.type;
+        } else if (parsedData?.role?.name) {
+          role = parsedData.role.name;
+        }
+      }
+
+      if (!role) {
+        const token =
+          localStorage.getItem("must_auth_token") ||
+          localStorage.getItem("auth_token");
+        if (token) {
+          try {
+            const payloadBase64 = token.split(".")[1];
+            const decodedJson = atob(payloadBase64);
+            const payload = JSON.parse(decodedJson);
+            role =
+              payload?.role ||
+              payload?.[
+                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              ];
+          } catch {
+            // Ignore
+          }
+        }
+      }
+
+      return typeof role === "string" ? normalizeRoleToken(role) : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+
+  const isAdvisor =
+    user?.role?.type === ROLES.ADMIN || storedAuthUserRole === "advisor";
+
+  const restrictedAdvisingLabels = useMemo(() => {
+    return new Set(["Announcement", "Students Data", "Statistical Reports"]);
+  }, []);
+
+  const roleTokens = [
+    user?.role?.type,
+    user?.role?.name,
+    user?.role?.id != null ? String(user.role.id) : undefined,
+    storedAuthUserRole,
+    ...(profile?.roles ?? []),
+    profile?.advisorProfile ? "advisor" : undefined,
+    profile?.advisorProfile?.isSuperAdmin ? "super admin" : undefined,
+  ]
+    .filter(Boolean)
+    .map((value) => normalizeRoleToken(String(value)));
+
+  const canSeeRestrictedAdvisingItems =
+    roleTokens.includes("admin") || roleTokens.includes("advisor");
+
+  const visibleMenuItems = useMemo(() => {
+    return MENU_ITEMS.map((item) => {
+      if (item.label !== "Advising" || !item.children) {
+        return item;
+      }
+
+      const filteredChildren = item.children.filter(
+        (child) =>
+          !restrictedAdvisingLabels.has(child.label) ||
+          canSeeRestrictedAdvisingItems,
+      );
+
+      // If only one item remains, hide the dropdown and make it a direct link
+      return {
+        ...item,
+        children: filteredChildren.length > 1 ? filteredChildren : undefined,
+      };
+    });
+  }, [canSeeRestrictedAdvisingItems, restrictedAdvisingLabels]);
   const strapiAdminUrl = import.meta.env.VITE_STRAPI_URL
     ? `${import.meta.env.VITE_STRAPI_URL.replace(/\/$/, "")}/admin`
     : "#";
@@ -186,7 +298,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
             <ul className="nav-list">
-              {MENU_ITEMS.map((item, idx) => (
+              {visibleMenuItems.map((item, idx) => (
                 <li
                   key={idx}
                   className="nav-item"
@@ -326,7 +438,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
                                                               }
                                                               className="deep-panel-link"
                                                             >
-                                                              {getLabel(deepChild)}
+                                                              {getLabel(
+                                                                deepChild,
+                                                              )}
                                                             </a>
                                                           </li>
                                                         ),
@@ -396,7 +510,9 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
             <button
               className="icon-toggle lang-toggle"
               onClick={toggleLanguage}
-              title={language === "en" ? t("translate_to_ar") : t("translate_to_en")}
+              title={
+                language === "en" ? t("translate_to_ar") : t("translate_to_en")
+              }
               style={{ fontSize: "16px", minWidth: "40px" }}
             >
               {language === "en" ? "AR" : "EN"}
@@ -482,7 +598,7 @@ export const MustHeader: React.FC<MustHeaderProps> = ({
       <div className={`mobile-nav-overlay ${isMobileMenuOpen ? "show" : ""}`}>
         <div className="mobile-nav-container">
           <ul className="mobile-nav-list">
-            {MENU_ITEMS.map((item, mIdx) => (
+            {visibleMenuItems.map((item, mIdx) => (
               <li key={mIdx} className="mobile-nav-item">
                 {/* No children */}
                 {!item.children &&
