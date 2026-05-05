@@ -42,9 +42,32 @@ export default function AcademicStaffProfileCard({
   bio,
   department,
 }: AcademicStaffProfileCardProps) {
+  const getAbbreviation = (academicTitle?: string) => {
+    if (!academicTitle) return "";
+    const t = academicTitle.trim().toLowerCase();
+    
+    // If it's already an abbreviation, don't double up
+    if (t.endsWith(".") || ["dr", "prof"].includes(t)) {
+       return academicTitle.trim();
+    }
+
+    if (t === "professor") return "Prof.";
+    if (t === "associate professor") return "Assoc. Prof.";
+    if (t === "assistant professor") return "Asst. Prof.";
+    if (t === "lecturer") return "Dr.";
+    if (t === "assistant lecturer") return "Asst. Lect.";
+    if (t === "teaching assistant" || t === "demonstrator") return "T.A.";
+    return "";
+  };
+
   const fullName =
     [firstName, lastName].filter(Boolean).join(" ").trim() || name;
-  const displayName = fullName;
+  const abbreviation = getAbbreviation(title);
+  
+  // Check if the name already starts with the abbreviation to avoid duplicates
+  const displayName = abbreviation && !fullName.startsWith(abbreviation) 
+    ? `${abbreviation} ${fullName}` 
+    : fullName;
   const displayPosition = position || role;
 
   return (
