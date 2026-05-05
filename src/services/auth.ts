@@ -309,7 +309,6 @@ function ensureSupabaseAuthReady(): void {
 }
 
 export interface RegisterPayload {
-  username: string;
   email: string;
   password: string;
   displayName: string;
@@ -385,7 +384,6 @@ export async function register(
       password: payload.password,
       options: {
         data: {
-          username: payload.username,
           displayName: payload.displayName,
           otp: payload.otp,
           role: payload.role,

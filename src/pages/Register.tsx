@@ -19,12 +19,10 @@ export function Register() {
   const [roleTab, setRoleTab] = useState<RegistrationRole>("visitor");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [universityId, setUniversityId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [otpStatus, setOtpStatus] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string | null>(null);
@@ -35,7 +33,6 @@ export function Register() {
     if (
       !firstName.trim() ||
       !lastName.trim() ||
-      !username.trim() ||
       !email.trim() ||
       !password.trim() ||
       !confirmPassword.trim() ||
@@ -43,21 +40,8 @@ export function Register() {
     ) {
       return false;
     }
-    if (roleTab !== "visitor" && !universityId.trim()) {
-      return false;
-    }
     return true;
-  }, [
-    roleTab,
-    firstName,
-    lastName,
-    username,
-    email,
-    password,
-    confirmPassword,
-    otp,
-    universityId,
-  ]);
+  }, [roleTab, firstName, lastName, email, password, confirmPassword, otp]);
 
   const getFullEmail = () => {
     const trimmed = email.trim();
@@ -112,13 +96,11 @@ export function Register() {
       const displayNameValue = `${firstName.trim()} ${lastName.trim()}`.trim();
 
       await register({
-        username: username.trim(),
         email: finalEmail,
         password,
         displayName: displayNameValue,
         otp: otp.trim(),
         role: roleTab === "visitor" ? ROLES.VISITOR : ROLES.COLLEGE_MEMBER,
-        universityId: roleTab !== "visitor" ? universityId.trim() : undefined,
       });
       navigate("/profile");
     } catch (err) {
@@ -173,7 +155,6 @@ export function Register() {
           onClick={() => {
             setRoleTab("visitor");
             setError(null);
-            setUniversityId("");
           }}
           className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all duration-200 ${
             roleTab === "visitor"
@@ -215,7 +196,6 @@ export function Register() {
         className="space-y-4 scroll-mt-36"
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
-
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
@@ -243,23 +223,7 @@ export function Register() {
               minLength={2}
             />
           </div>
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-            Username
-          </label>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={authGlassInputClassName}
-            placeholder="Username"
-            required
-            minLength={3}
-            maxLength={20}
-            pattern="[A-Za-z0-9_]+"
-            title="Use 3-20 letters, numbers, or underscores."
-          />
-        </div>
+        </div>{" "}
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
             Email
@@ -291,7 +255,6 @@ export function Register() {
             />
           )}
         </div>
-
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
             Verification code
@@ -326,23 +289,6 @@ export function Register() {
           )}
           {otpError && <p className="mt-2 text-xs text-red-600">{otpError}</p>}
         </div>
-
-        {roleTab !== "visitor" && (
-          <div>
-            <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-              University ID
-            </label>
-            <input
-              value={universityId}
-              onChange={(e) => setUniversityId(e.target.value)}
-              className={authGlassInputClassName}
-              placeholder="University ID"
-              required
-              minLength={4}
-            />
-          </div>
-        )}
-
         <div>
           <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
             Password
@@ -371,7 +317,6 @@ export function Register() {
             minLength={6}
           />
         </div>
-
         <button
           type="submit"
           disabled={!canSubmit || isSubmitting}

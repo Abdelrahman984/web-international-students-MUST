@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSession();
 
     try {
-      await supabase.auth.signOut({ scope: "local" });
+      await supabase.auth.signOut();
     } catch (error) {
       console.warn("Failed to clear local auth session cache.", error);
     }
