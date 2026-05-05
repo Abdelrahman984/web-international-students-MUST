@@ -22,7 +22,7 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
   const footerUrl = `${import.meta.env.BASE_URL}auth-footer.png`;
 
   return (
-    <div className="relative isolate flex min-h-[calc(100vh-140px)] w-full items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="relative isolate flex min-h-[110vh] w-full flex-col items-center justify-start px-6 pt-44 pb-32 overflow-hidden">
       {/* Global Background */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <img
@@ -36,7 +36,7 @@ export function AuthCampusLayout({ children, maxWidthClass = 'max-w-md' }: AuthC
           aria-hidden
         />
         <div
-          className="absolute inset-0 bg-gradient-to-b from-indigo-950/20 via-slate-100/40 to-violet-100/50 dark:from-slate-950/80 dark:via-indigo-950/60 dark:to-slate-950/80"
+          className="absolute inset-0 bg-gradient-to-b from-indigo-950/5 via-transparent to-indigo-900/20 dark:from-slate-950/90 dark:via-slate-950/60 dark:to-slate-950/95"
           aria-hidden
         />
       </div>
