@@ -1,5 +1,12 @@
 import { Link } from "react-router";
-import { GraduationCap, BookOpen } from "lucide-react";
+import { 
+  GraduationCap, 
+  BookOpen, 
+  UserCheck, 
+  ClipboardList, 
+  CalendarDays,
+  FileEdit
+} from "lucide-react";
 
 interface GoogleDriveLinkCardProps {
   title: string;
@@ -12,8 +19,19 @@ export function GoogleDriveLinkCard({
   description,
   to,
 }: GoogleDriveLinkCardProps) {
-  const isUndergrad = title.toLowerCase().includes("undergraduate");
-  const Icon = isUndergrad ? BookOpen : GraduationCap;
+  const lowerTitle = title.toLowerCase();
+  
+  let Icon = GraduationCap;
+  
+  if (lowerTitle.includes("undergraduate")) {
+    Icon = BookOpen;
+  } else if (lowerTitle.includes("advising")) {
+    Icon = UserCheck;
+  } else if (lowerTitle.includes("registration")) {
+    Icon = FileEdit;
+  } else if (lowerTitle.includes("schedule")) {
+    Icon = CalendarDays;
+  }
 
   return (
     <Link
