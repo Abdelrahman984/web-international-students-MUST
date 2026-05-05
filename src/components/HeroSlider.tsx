@@ -104,16 +104,14 @@ function HeroNavMenuNode({
   const labelClassName = `transition-colors duration-300 ${isOpen ? "text-[#00AC5C]" : ""}`;
 
   const itemClassName = isTopLevel
-    ? `px-6 h-12 rounded-full bg-white/20 backdrop-blur-md text-white text-sm md:text-base font-bold inline-flex items-center justify-center gap-2 transition-all duration-300 ${
-        isOpen
-          ? "text-[#00AC5C] border-[#00AC5C]/60 bg-white/18 shadow-[0_12px_24px_rgba(0,0,0,0.25)]"
-          : "hover:text-[#00AC5C] hover:border-[#00AC5C]/55 hover:bg-white/20"
-      }`
-    : `w-full text-left px-4 py-2.5 rounded-xl border border-transparent bg-white/0 text-white font-bold transition-all duration-300 inline-flex items-center justify-between gap-2 whitespace-nowrap ${
-        isOpen
-          ? "text-[#00AC5C] bg-white/15 border-white/20"
-          : "hover:text-[#00AC5C]"
-      }`;
+    ? `px-6 h-12 rounded-full bg-white/20 backdrop-blur-md text-white text-sm md:text-base font-bold inline-flex items-center justify-center gap-2 transition-all duration-300 ${isOpen
+      ? "text-[#00AC5C] border-[#00AC5C]/60 bg-white/18 shadow-[0_12px_24px_rgba(0,0,0,0.25)]"
+      : "hover:text-[#00AC5C] hover:border-[#00AC5C]/55 hover:bg-white/20"
+    }`
+    : `w-full text-left px-4 py-2.5 rounded-xl border border-transparent bg-white/0 text-white font-bold transition-all duration-300 inline-flex items-center justify-between gap-2 whitespace-nowrap ${isOpen
+      ? "text-[#00AC5C] bg-white/15 border-white/20"
+      : "hover:text-[#00AC5C]"
+    }`;
 
   const iconClassName = `h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#00AC5C]" : "rotate-0 text-current"}`;
 
@@ -153,15 +151,13 @@ function HeroNavMenuNode({
 
       {hasChildren && (
         <ul
-          className={`px-4 py-2 flex flex-col w-max min-w-[280px] bg-[#1f3769] border border-[#284884] rounded-xl shadow-xl z-30 transition-all duration-500 ease-out ${
-            isTopLevel
+          className={`px-4 py-2 flex flex-col w-max min-w-[280px] bg-[#1f3769] border border-[#284884] rounded-xl shadow-xl z-30 transition-all duration-500 ease-out ${isTopLevel
               ? "absolute left-1/2 top-full mt-3 -translate-x-1/2"
               : "absolute left-full top-0 ml-3"
-          } ${
-            isOpen
+            } ${isOpen
               ? "opacity-100 visible translate-y-0 scale-100 pointer-events-auto"
               : "opacity-0 invisible translate-y-2 scale-95 pointer-events-none"
-          }`}
+            }`}
         >
           {item.children.map((child) => (
             <HeroNavMenuNode
@@ -458,7 +454,7 @@ export function HeroSlider() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AC5C] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AC5C]"></span>
             </div>
-            College Of Information Technology
+            College of Information Technology
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-200 text-xs md:text-lg font-bold mb-6 tracking-wide">
             <div className="relative flex h-2 w-2">
@@ -565,7 +561,7 @@ export function HeroSlider() {
               animate={{
                 opacity:
                   index === currentIndex &&
-                  (loadedImages[index] || index === currentIndex)
+                    (loadedImages[index] || index === currentIndex)
                     ? 1
                     : 0,
                 scale: index === currentIndex ? 1.05 : 1,
@@ -610,11 +606,10 @@ export function HeroSlider() {
                         type="button"
                         onClick={() => goToSlide(index)}
                         aria-label={`Go to slide ${index + 1}`}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          isActive
+                        className={`h-2 rounded-full transition-all duration-300 ${isActive
                             ? "w-6 md:w-8 bg-[#00AC5C]"
                             : "w-2 bg-white/40 hover:bg-white/70"
-                        }`}
+                          }`}
                       />
                     );
                   })}
