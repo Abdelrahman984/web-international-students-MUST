@@ -21,6 +21,13 @@ interface EventCardItem {
 
 const ITEMS_PER_PAGE = 9;
 
+const normalizeHref = (value: unknown): string => {
+  if (typeof value !== "string") return "";
+
+  const cleaned = value.trim().replaceAll("`", "");
+  return cleaned;
+};
+
 export default function EventsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [eventsList, setEventsList] = useState<EventCardItem[]>([]);
@@ -71,7 +78,7 @@ export default function EventsPage() {
             day: item.day || "",
             month: item.month || "",
             timeRange: item.time_range || item.timeRange || "",
-            href: item.href || "#",
+            href: normalizeHref(item.href) || "#",
             imageUrl: imageUrls[0] || "",
             imageUrls,
             locationName: item.location_name || item.locationName || "",
@@ -194,10 +201,15 @@ export default function EventsPage() {
                       </span>
                     )}
                     {selectedItem.locationName && (
-                      <span className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-base font-bold text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 shadow-sm">
+                      <a
+                        href={selectedItem.href || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-base font-bold text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 shadow-sm hover:bg-purple-200 dark:hover:bg-purple-900/70 transition-colors"
+                      >
                         <i className="fa-solid fa-location-dot" />{" "}
                         {selectedItem.locationName}
-                      </span>
+                      </a>
                     )}
                   </div>
 
