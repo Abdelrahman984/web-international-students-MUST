@@ -1,5 +1,6 @@
 import { ROLES, type RoleType } from "../constants/roles";
 import { getSupabaseConfigError, supabase } from "./supabase";
+import { extractErrorMessage } from "./api";
 
 type AuthUser = {
   id: string;
@@ -281,7 +282,7 @@ async function buildCurrentUser(authUser: AuthUser): Promise<StrapiUser> {
 }
 
 function normalizeAuthError(err: unknown, mode: "login" | "register"): Error {
-  const message = err instanceof Error ? err.message : String(err);
+  const message = extractErrorMessage(err);
 
   if (message.toLowerCase() === "forbidden") {
     if (mode === "register") {

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { extractErrorMessage } from "./api";
 
 type GenericRecord = Record<string, unknown>;
 
@@ -47,25 +48,10 @@ if (!apiBaseUrl) {
 }
 
 const toError = (error: unknown): { message: string; code?: string } => {
-  if (axios.isAxiosError(error)) {
-    const payload = error.response?.data as Record<string, unknown> | undefined;
-    const message =
-      (typeof payload?.message === "string" && payload.message) ||
-      (typeof payload?.error === "string" && payload.error) ||
-      error.message ||
-      "Request failed.";
-
-    return {
-      message,
-      code: error.code,
-    };
-  }
-
-  if (error instanceof Error) {
-    return { message: error.message };
-  }
-
-  return { message: "Request failed." };
+  return {
+    message: extractErrorMessage(error),
+    code: axios.isAxiosError(error) ? error.code : undefined,
+  };
 };
 
 const normalizeUserFromToken = (token: string): UserLike | null => {
