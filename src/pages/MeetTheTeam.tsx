@@ -23,7 +23,7 @@ const supervisors: Supervisor[] = [
     name: "Khaled Abdel Salam",
     title: "Assistant Professor at MUST University",
     subtitle: "Vice Dean for Community Service and Environmental",
-    imageUrl: "/team/khaled.jpeg",
+    imageUrl: "/team/khaled.jpg",
   },
   {
     name: "Ayman S. Abdelaziz",
@@ -113,7 +113,7 @@ function ProfileCard({
 }: {
   name: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   imageUrl?: string;
   children?: ReactNode;
 }) {
@@ -239,7 +239,6 @@ export default function MeetTheTeam() {
                 key={dev.email}
                 name={dev.name}
                 title={dev.role}
-                subtitle={dev.email}
                 imageUrl={dev.imageUrl}
               >
                 <div className="flex flex-wrap items-center gap-3">
