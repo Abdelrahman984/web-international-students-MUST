@@ -292,7 +292,7 @@ export function Facilities() {
 
               {selectedSection.contentHtml ? (
                 <div
-                  className="prose prose-xl mt-8 max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                  className="prose prose-xl mt-8 max-w-none text-justify leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
                   dangerouslySetInnerHTML={{
                     __html: renderRichText(selectedSection.contentHtml),
                   }}
@@ -403,7 +403,7 @@ export function Facilities() {
                         {/* Excerpt container (height expands on hover) */}
                         <div className="mt-4 grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:grid-rows-[1fr] w-full">
                           <div className="overflow-hidden">
-                            <p className="text-center text-base font-medium leading-relaxed text-slate-100 opacity-0 transition-opacity duration-300 delay-100 group-hover:opacity-100 px-2">
+                            <p className="text-justify text-base font-medium leading-relaxed text-slate-100 opacity-0 transition-opacity duration-300 delay-100 group-hover:opacity-100 px-2">
                               {excerpt}
                             </p>
                           </div>

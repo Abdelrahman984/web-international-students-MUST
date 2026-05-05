@@ -36,6 +36,20 @@
   body {
     @apply bg-white dark:bg-navy-900 text-navy-900 dark:text-white font-sans antialiased;
   }
+
+  /* Global Content Justification */
+  .prose, 
+  .prose p,
+  article p,
+  section p {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  
+  /* Prevent small UI labels from justifying if needed */
+  .no-justify, .no-justify p {
+    text-align: inherit !important;
+  }
 }
 
 @layer components {
@@ -44,6 +58,10 @@
   }
   .card {
     @apply bg-white dark:bg-navy-800 rounded-xl border border-gray-100 dark:border-navy-700 overflow-hidden transition-all duration-200;
+  }
+  .card p {
+    text-align: justify;
+    text-justify: inter-word;
   }
   .card-hover {
   }

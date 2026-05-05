@@ -215,7 +215,7 @@ export default function EventsPage() {
 
                   {selectedItem.content || selectedItem.description ? (
                     <div
-                      className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                      className="prose prose-lg max-w-none text-justify leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
                       dangerouslySetInnerHTML={{
                         __html:
                           selectedItem.content || selectedItem.description,
@@ -316,7 +316,7 @@ export default function EventsPage() {
                         {item.title}
                       </h3>
 
-                      <p className="text-center text-sm font-medium leading-relaxed text-slate-200 drop-shadow-sm line-clamp-2 w-full">
+                      <p className="text-justify text-sm font-medium leading-relaxed text-slate-200 drop-shadow-sm line-clamp-2 w-full px-2">
                         {item.description}
                       </p>
 

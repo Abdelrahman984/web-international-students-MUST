@@ -189,7 +189,7 @@ export default function ActivitiesPage() {
 
                       {selectedItem.content || selectedItem.description ? (
                         <div
-                          className="prose prose-lg max-w-none text-left leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
+                          className="prose prose-lg mt-8 max-w-none text-justify leading-[1.8] text-slate-700 dark:prose-invert dark:text-slate-300 prose-headings:font-bold prose-a:text-emerald-600"
                           dangerouslySetInnerHTML={{
                             __html:
                               selectedItem.content || selectedItem.description,
@@ -294,7 +294,7 @@ export default function ActivitiesPage() {
                             {/* Excerpt revealed on hover */}
                             <div className="mt-4 grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:grid-rows-[1fr] w-full">
                               <div className="overflow-hidden">
-                                <p className="text-center text-base font-medium leading-relaxed text-slate-100 opacity-0 transition-opacity duration-300 delay-100 group-hover:opacity-100 px-4">
+                                <p className="text-justify text-base font-medium leading-relaxed text-slate-100 opacity-0 transition-opacity duration-300 delay-100 group-hover:opacity-100 px-4">
                                   {excerpt}
                                 </p>
                               </div>
